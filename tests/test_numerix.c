@@ -57,6 +57,7 @@ static void test_callback_and_memory(void)
     CHECK(value == 6.0);
     CHECK(numerix_scalar_problem_init(&problem, NULL, NULL, &error) ==
           NUMERIX_STATUS_INVALID_ARGUMENT);
+    problem.function = NULL;
     CHECK(numerix_scalar_problem_evaluate(&problem, 2.0, &value, &error) ==
           NUMERIX_STATUS_INVALID_ARGUMENT);
     CHECK(numerix_scalar_problem_init(&problem, nonfinite_callback, NULL, &error) ==
@@ -98,12 +99,16 @@ static void test_context_and_integration(void)
     CHECK(numerix_context_create(NULL, NULL, &error) == NUMERIX_STATUS_INVALID_ARGUMENT);
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
     numerix_error error;
-    test_core();
-    test_callback_and_memory();
-    test_context_and_integration();
+    int integration_only = argc > 1 && strcmp(argv[1], "integration") == 0;
+    if (!integration_only) {
+        test_core();
+        test_callback_and_memory();
+    }
+    if (integration_only || argc == 1 || strcmp(argv[1], "unit") == 0)
+        test_context_and_integration();
     CHECK(numerix_initialize(&error) == NUMERIX_STATUS_SUCCESS);
     if (failures != 0) {
         fprintf(stderr, "%d test assertion(s) failed.\n", failures);

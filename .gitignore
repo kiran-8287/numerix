@@ -1,0 +1,11 @@
+/build/
+/cmake-build-*/
+/libnumerix.a
+/numerix_cli
+/numerix_tests
+/CMakeFiles/
+/CMakeCache.txt
+/Testing/
+*.obj
+*.lib
+*.exe
