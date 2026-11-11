@@ -31,12 +31,12 @@ static numerix_status done(numerix_result *r, numerix_status s, double x, double
 }
 static int sign_change(double fa, double fb) { return (fa <= 0.0 && fb >= 0.0) || (fa >= 0.0 && fb <= 0.0); }
 
-typedef enum bracket_method { BIS, FALSE_POS, BRENT } bracket_method;
+typedef enum bracket_method { BIS, FALSE_POS } bracket_method;
 static numerix_status bracketed(numerix_function f, void *d, double a, double b,
     const numerix_options *in, numerix_result *r, numerix_error *e, bracket_method method)
 {
-    numerix_options o; numerix_status s; double fa,fb,c=0,fc=0,prev=0;
-    size_t i; const char *name=method==BIS?"bisection":method==FALSE_POS?"regula_falsi":"brent_style";
+    numerix_options o; numerix_status s; double fa=NAN,fb=NAN,prev=0;
+    size_t i; const char *name=method==BIS?"bisection":"regula_falsi";
     s=setup(in,&o,r,e,name); if(s) return s;
     if(!f || !isfinite(a)||!isfinite(b)||!(a<b)) return done(r,NUMERIX_STATUS_INVALID_ARGUMENT,0,0,0,e);
     s=eval(f,d,a,&fa,r,&o,e); if(s) return done(r,s,a,fa,0,e);
@@ -44,40 +44,133 @@ static numerix_status bracketed(numerix_function f, void *d, double a, double b,
     if(fa==0) return done(r,NUMERIX_STATUS_SUCCESS,a,fa,0,e);
     if(fb==0) return done(r,NUMERIX_STATUS_SUCCESS,b,fb,0,e);
     if(!sign_change(fa,fb)) return done(r,NUMERIX_STATUS_INVALID_INPUT,a,fa,b-a,e);
-    c=a; fc=fa; prev=b;
+    prev=b;
     for(i=0;i<o.maximum_iterations;i++) {
-        double x,fx,scale=fmax(fabs(fa),fabs(fb));
+        double x,fx=NAN;
         if(method==BIS) x=a+(b-a)*0.5;
-        else if(method==FALSE_POS) {
+        else {
             x=(a*fb-b*fa)/(fb-fa);
             if(!isfinite(x)||x<=a+0.05*(b-a)||x>=b-0.05*(b-a)||x==prev) x=a+(b-a)*0.5;
-        } else {
-            double mid=a+(b-a)*0.5;
-            x=mid;
-            if(fa!=fc && fb!=fc) {
-                double q=a*fb*fc/((fa-fb)*(fa-fc))+b*fa*fc/((fb-fa)*(fb-fc))+c*fa*fb/((fc-fa)*(fc-fb));
-                if(isfinite(q) && q>a+0.1*(b-a) && q<b-0.1*(b-a) && fabs(q-mid)<0.75*fabs(prev-mid)) x=q;
-            } else if(fb!=fa) {
-                double q=b-fb*(b-a)/(fb-fa);
-                if(isfinite(q) && q>a+0.1*(b-a) && q<b-0.1*(b-a) && fabs(q-mid)<0.75*fabs(prev-mid)) x=q;
-            }
         }
-        prev=method==FALSE_POS?x:(method==BRENT?b:x);
-        s=eval(f,d,x,&fx,r,&o,e); if(s) return done(r,s,x,0,fabs(b-a),e);
+        prev=x;
+        s=eval(f,d,x,&fx,r,&o,e); if(s) return done(r,s,x,NAN,fabs(b-a),e);
         r->iterations=i+1;
-        c=fa; fc=fa;
         if(fx==0.0 || fabs(b-a)*0.5 <= tol(&o,x)) return done(r,NUMERIX_STATUS_SUCCESS,x,fx,fabs(b-a)*0.5,e);
         if(sign_change(fa,fx)) { b=x; fb=fx; } else { a=x; fa=fx; }
-        if(scale==0.0) return done(r,NUMERIX_STATUS_SUCCESS,x,fx,0,e);
     }
-    return done(r,NUMERIX_STATUS_CONVERGENCE_FAILURE,a+(b-a)*0.5,0,fabs(b-a)*0.5,e);
+    return done(r,NUMERIX_STATUS_CONVERGENCE_FAILURE,a+(b-a)*0.5,NAN,fabs(b-a)*0.5,e);
 }
 numerix_status numerix_root_bisection(numerix_function f,void*d,double a,double b,const numerix_options*o,numerix_result*r,numerix_error*e)
 { return bracketed(f,d,a,b,o,r,e,BIS); }
 numerix_status numerix_root_regula_falsi(numerix_function f,void*d,double a,double b,const numerix_options*o,numerix_result*r,numerix_error*e)
 { return bracketed(f,d,a,b,o,r,e,FALSE_POS); }
-numerix_status numerix_root_brent(numerix_function f,void*d,double a,double b,const numerix_options*o,numerix_result*r,numerix_error*e)
-{ return bracketed(f,d,a,b,o,r,e,BRENT); }
+numerix_status numerix_root_brent(
+    numerix_function function, void *data, double a, double b,
+    const numerix_options *input, numerix_result *result, numerix_error *error)
+{
+    numerix_options options;
+    numerix_status status;
+    double fa = NAN;
+    double fb = NAN;
+    double c;
+    double fc;
+    size_t iteration;
+
+    status = setup(input, &options, result, error, "brent_dekker");
+    if (status != NUMERIX_STATUS_SUCCESS) return status;
+    if (function == NULL || !isfinite(a) || !isfinite(b) || !(a < b)) {
+        return done(result, NUMERIX_STATUS_INVALID_ARGUMENT, 0.0, NAN, 0.0, error);
+    }
+
+    status = eval(function, data, a, &fa, result, &options, error);
+    if (status != NUMERIX_STATUS_SUCCESS) {
+        return done(result, status, a, NAN, 0.0, error);
+    }
+    status = eval(function, data, b, &fb, result, &options, error);
+    if (status != NUMERIX_STATUS_SUCCESS) {
+        return done(result, status, b, NAN, 0.0, error);
+    }
+    if (fa == 0.0) return done(result, NUMERIX_STATUS_SUCCESS, a, fa, 0.0, error);
+    if (fb == 0.0) return done(result, NUMERIX_STATUS_SUCCESS, b, fb, 0.0, error);
+    if (!sign_change(fa, fb)) {
+        return done(result, NUMERIX_STATUS_INVALID_INPUT, a, fa, b - a, error);
+    }
+
+    c = a;
+    fc = fa;
+    for (iteration = 0; iteration < options.maximum_iterations; ++iteration) {
+        double width = b - a;
+        double midpoint = a + width * 0.5;
+        double candidate = midpoint;
+        double scale = fmax(fabs(fa), fmax(fabs(fb), fabs(fc)));
+        double normalized_a = fa / scale;
+        double normalized_b = fb / scale;
+        double normalized_c = fc / scale;
+        double lower_guard = a + width * 0.1;
+        double upper_guard = b - width * 0.1;
+        double fx = NAN;
+
+        if (width * 0.5 <= tol(&options, midpoint)) {
+            double best_x = fabs(fa) <= fabs(fb) ? a : b;
+            double best_f = fabs(fa) <= fabs(fb) ? fa : fb;
+            return done(result, NUMERIX_STATUS_SUCCESS, best_x, best_f,
+                        width * 0.5, error);
+        }
+
+        if (fa != fb && fa != fc && fb != fc) {
+            double weight_a = normalized_b * normalized_c /
+                              ((normalized_a - normalized_b) *
+                               (normalized_a - normalized_c));
+            double weight_b = normalized_a * normalized_c /
+                              ((normalized_b - normalized_a) *
+                               (normalized_b - normalized_c));
+            double weight_c = normalized_a * normalized_b /
+                              ((normalized_c - normalized_a) *
+                               (normalized_c - normalized_b));
+            double inverse_quadratic = a * weight_a + b * weight_b + c * weight_c;
+
+            if (isfinite(inverse_quadratic) &&
+                inverse_quadratic > lower_guard && inverse_quadratic < upper_guard) {
+                candidate = inverse_quadratic;
+            }
+        } else if (fa != fb) {
+            double secant = a + width * normalized_a /
+                                  (normalized_a - normalized_b);
+            if (isfinite(secant) && secant > lower_guard && secant < upper_guard) {
+                candidate = secant;
+            }
+        }
+
+        status = eval(function, data, candidate, &fx, result, &options, error);
+        if (status != NUMERIX_STATUS_SUCCESS) {
+            return done(result, status, candidate, NAN, width * 0.5, error);
+        }
+        result->iterations = iteration + 1;
+        if (fx == 0.0 || fabs(fx) <= options.absolute_tolerance) {
+            return done(result, NUMERIX_STATUS_SUCCESS, candidate, fx,
+                        width * 0.5, error);
+        }
+
+        if (sign_change(fa, fx)) {
+            c = b;
+            fc = fb;
+            b = candidate;
+            fb = fx;
+        } else {
+            c = a;
+            fc = fa;
+            a = candidate;
+            fa = fx;
+        }
+    }
+
+    {
+        double best_x = fabs(fa) <= fabs(fb) ? a : b;
+        double best_f = fabs(fa) <= fabs(fb) ? fa : fb;
+        return done(result, NUMERIX_STATUS_CONVERGENCE_FAILURE, best_x, best_f,
+                    fabs(b - a) * 0.5, error);
+    }
+}
 
 numerix_status numerix_root_secant(numerix_function f,void*d,double x0,double x1,const numerix_options*in,numerix_result*r,numerix_error*e)
 {
@@ -104,8 +197,8 @@ static numerix_status newton_impl(numerix_function f,numerix_function df,void*d,
     numerix_options o; numerix_status s; double fx,fl=0,fh=0; size_t i;
     s=setup(in,&o,r,e,safeguarded?"safeguarded_newton":"newton_raphson");if(s)return s;
     if(!f||!df||!isfinite(x)||(safeguarded&&(!isfinite(lo)||!isfinite(hi)||!(lo<hi)||x<lo||x>hi)))return done(r,NUMERIX_STATUS_INVALID_ARGUMENT,x,0,0,e);
-    s=eval(f,d,x,&fx,r,&o,e);if(s)return done(r,s,x,0,0,e);
-    if(safeguarded){s=eval(f,d,lo,&fl,r,&o,e);if(s)return done(r,s,x,0,0,e);s=eval(f,d,hi,&fh,r,&o,e);if(s)return done(r,s,x,0,0,e);
+    s=eval(f,d,x,&fx,r,&o,e);if(s)return done(r,s,x,NAN,0,e);
+    if(safeguarded){s=eval(f,d,lo,&fl,r,&o,e);if(s)return done(r,s,x,NAN,0,e);s=eval(f,d,hi,&fh,r,&o,e);if(s)return done(r,s,x,NAN,0,e);
       if(fl==0)return done(r,NUMERIX_STATUS_SUCCESS,lo,fl,0,e);
       if(fh==0)return done(r,NUMERIX_STATUS_SUCCESS,hi,fh,0,e);
       if(fx==0)return done(r,NUMERIX_STATUS_SUCCESS,x,fx,0,e);
@@ -128,7 +221,15 @@ static numerix_status newton_impl(numerix_function f,numerix_function df,void*d,
         s=eval(f,d,next,&fn,r,&o,e);if(s)return done(r,s,x,fx,fabs(next-x),e);
         r->iterations=i+1;
         if(safeguarded){if(sign_change(fl,fn)){hi=next;fh=fn;}else{lo=next;fl=fn;}}
-        if(fabs(fn)<=o.absolute_tolerance || fabs(next-x)<=tol(&o,next))return done(r,NUMERIX_STATUS_SUCCESS,next,fn,fabs(next-x),e);
+        if (fabs(fn) <= o.absolute_tolerance) {
+            return done(r, NUMERIX_STATUS_SUCCESS, next, fn, fabs(next - x), e);
+        }
+        if (safeguarded && fabs(hi - lo) * 0.5 <= tol(&o, next)) {
+            return done(r, NUMERIX_STATUS_SUCCESS, next, fn, fabs(hi - lo) * 0.5, e);
+        }
+        if (!safeguarded && fabs(next - x) <= tol(&o, next)) {
+            return done(r, NUMERIX_STATUS_SUCCESS, next, fn, fabs(next - x), e);
+        }
         x=next;fx=fn;
     }
     return done(r,NUMERIX_STATUS_CONVERGENCE_FAILURE,x,fx,0,e);

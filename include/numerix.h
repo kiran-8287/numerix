@@ -29,6 +29,7 @@ typedef enum numerix_status {
     NUMERIX_STATUS_INTERNAL_ERROR
 } numerix_status;
 
+/* Error output pointers may be NULL; status return values remain authoritative. */
 typedef struct numerix_error {
     numerix_status code;
     char message[NUMERIX_ERROR_MESSAGE_CAPACITY];

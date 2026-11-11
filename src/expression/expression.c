@@ -75,7 +75,7 @@ numerix_status numerix_expression_evaluate(
     double *value_out,
     numerix_error *error)
 {
-    double value;
+    double value = NAN;
     numerix_status status;
 
     if (expression == NULL || expression->root == NULL || value_out == NULL)
@@ -136,7 +136,7 @@ numerix_status numerix_expression_callback_context_init(
 double numerix_expression_callback(double x, void *user_data)
 {
     numerix_expression_callback_context *context = user_data;
-    double value;
+    double value = NAN;
     numerix_status status;
 
     if (context == NULL || context->expression == NULL)

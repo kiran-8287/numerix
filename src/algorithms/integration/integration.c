@@ -34,6 +34,8 @@ static numerix_status evaluate(numerix_function function, void *data, double x,
 {
     if (result->function_evaluations >= options->maximum_function_evaluations)
         return fail(error, NUMERIX_STATUS_LIMIT_REACHED, "function evaluation limit reached");
+    if (!isfinite(x)) return fail(error, NUMERIX_STATUS_NUMERICAL_FAILURE,
+                                  "integration sample point is non-finite");
     *value = function(x, data);
     ++result->function_evaluations;
     if (!isfinite(*value)) return fail(error, NUMERIX_STATUS_NUMERICAL_FAILURE,
@@ -45,6 +47,11 @@ static numerix_status finish(numerix_result *result, numerix_status status,
                              double value, double error_estimate, double start,
                              numerix_error *error)
 {
+    if (status == NUMERIX_STATUS_SUCCESS &&
+        (!isfinite(value) || isinf(error_estimate))) {
+        status = NUMERIX_STATUS_NUMERICAL_FAILURE;
+    }
+    if (status != NUMERIX_STATUS_SUCCESS) value = NAN;
     result->status = status;
     result->value = value;
     result->estimated_error = error_estimate;
@@ -103,6 +110,9 @@ numerix_status numerix_integrate_simpson(
     if (panels > options.maximum_iterations) return finish(result, NUMERIX_STATUS_LIMIT_REACHED, 0, NAN, start, error);
     if (a == b) return finish(result, NUMERIX_STATUS_SUCCESS, 0, 0, start, error);
     h = (b - a) / (double)panels;
+    if (!isfinite(h) || h == 0.0) {
+        return finish(result, NUMERIX_STATUS_INVALID_INPUT, 0.0, NAN, start, error);
+    }
     status = evaluate(function, data, a, &fa, &options, result, error);
     if (status != NUMERIX_STATUS_SUCCESS) return finish(result, status, 0, NAN, start, error);
     status = evaluate(function, data, b, &fb, &options, result, error);

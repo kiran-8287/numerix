@@ -6,7 +6,7 @@
 
 static int failures;
 #define CHECK(c) do { if (!(c)) { fprintf(stderr,"%s:%d failed: %s\n",__FILE__,__LINE__,#c); failures++; } } while(0)
-#define NEAR(a,b,t) (fabs((a)-(b)) <= (t) * fmax(1.0,fabs(b)))
+#define NEAR(a,b,t) (fabs((double)(a) - (double)(b)) <= (double)(t) * fmax(1.0, fabs((double)(b))))
 static double poly(double x,void*d){(void)d;return x*x-2.0;}
 static double dpoly(double x,void*d){(void)d;return 2*x;}
 static double square(double x,void*d){(void)d;return x*x;}
