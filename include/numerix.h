@@ -147,6 +147,50 @@ numerix_status numerix_ode_heun(numerix_ode_function f, void *data, double x0, c
 numerix_status numerix_ode_rk4(numerix_ode_function f, void *data, double x0, const double *y0, size_t dimension, double step, size_t steps, numerix_ode_solution *out, numerix_error *e);
 void numerix_ode_solution_destroy(numerix_ode_solution *solution);
 
+/*
+ * Compiled expressions are immutable and may be evaluated repeatedly.
+ * The caller owns an expression returned by compile and must destroy it.
+ */
+typedef struct numerix_expression numerix_expression;
+
+numerix_status numerix_expression_compile(
+    const char *source,
+    numerix_expression **expression,
+    numerix_error *error);
+
+numerix_status numerix_expression_evaluate(
+    const numerix_expression *expression,
+    double x,
+    double *value,
+    numerix_error *error);
+
+void numerix_expression_destroy(numerix_expression *expression);
+
+/*
+ * A callback context borrows its expression. Use one context per active
+ * numerical call; it records the latest evaluation error for inspection.
+ */
+typedef struct numerix_expression_callback_context {
+    const numerix_expression *expression;
+    numerix_status last_status;
+    numerix_error last_error;
+} numerix_expression_callback_context;
+
+numerix_status numerix_expression_callback_context_init(
+    numerix_expression_callback_context *context,
+    const numerix_expression *expression,
+    numerix_error *error);
+
+double numerix_expression_callback(
+    double x,
+    void *user_data);
+
+numerix_status numerix_expression_callback_status(
+    const numerix_expression_callback_context *context);
+
+const numerix_error *numerix_expression_callback_error(
+    const numerix_expression_callback_context *context);
+
 /* Returns a static readable name for a status code. */
 const char *numerix_status_string(numerix_status status);
 /* Clears an error, or records a bounded, copied message and status. */

@@ -11,5 +11,7 @@
 - **`numerix_lu`**: packed LU factors with partial row pivoting, a row permutation, parity, and the scale-relative pivot threshold. The caller owns its allocations after successful decomposition.
 - **`numerix_interpolant`**: Newton divided-difference nodes and coefficients, including the data range for default extrapolation rejection.
 - **`numerix_ode_solution`**: owned x coordinates and row-major point-by-component solution values, plus callback count and status.
+- **`numerix_expression`**: opaque immutable compiled scalar AST. Evaluation borrows it and accepts a finite x; the caller owns its lifetime.
+- **`numerix_expression_callback_context`**: caller-owned mutable adapter state that borrows a compiled expression and captures the latest status/error for existing callback-based algorithms.
 
 Default options are absolute tolerance `1e-8`, relative tolerance `1e-8`, 1000 iterations, 10000 function evaluations, and no time limit.

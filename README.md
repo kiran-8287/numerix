@@ -6,6 +6,8 @@ NUMERIX is a C11 numerical computation library being built as a modular foundati
 
 Phase 0 provides version/status/error APIs, scalar callback problems, shared options, a result foundation, allocation helpers, and an execution context. Phase 1 adds bracketed and open root solvers, dense vector/matrix operations and direct solvers, finite-difference derivatives, polynomial interpolation, fixed/adaptive quadrature, one-dimensional and gradient-based minimization, and fixed-step vector ODE solvers. Expression parsing, method recommendation, fallback, and advanced diagnostics remain planned.
 
+Phase 2 adds a compiled mathematical expression engine for `x`, `pi`, `e`, arithmetic, powers, and common standard math functions. Compiled expressions can be adapted to existing scalar callback algorithms with a caller-owned callback context; see [the expression engine guide](documentation/api/expression_engine.md) and run `numerix_expression_demo` for examples.
+
 The intended long-term vision is to support multiple methods per problem, assess numerical challenges, recommend methods, report diagnostics, and let callers control and inspect execution. These are roadmap goals, not current features.
 
 ## Platforms
@@ -30,7 +32,7 @@ make test
 make clean
 ```
 
-The CMake static library target and Make archive are named `numerix` and `libnumerix.a` respectively. The CLI executable is `numerix_cli`. `make test` runs the Phase 0 checks and the Phase 1 algorithm suite.
+The CMake static library target and Make archive are named `numerix` and `libnumerix.a` respectively. The CLI executable is `numerix_cli`; `numerix_expression_demo` demonstrates expression evaluation and callback integration. `make test` runs the Phase 0 checks, Phase 1 algorithm suite, and expression engine tests.
 
 ## Initialization example
 
@@ -66,6 +68,7 @@ int main(void)
 
 1. Phase 0: project foundation (complete).
 2. Phase 1: core numerical algorithms (current).
-3. Later phases: expression and piecewise representations, execution controls and diagnostics, then method analysis and recommendation.
+3. Phase 2: expression parsing and evaluation (current).
+4. Later phases: piecewise representations, execution controls and diagnostics, then method analysis and recommendation.
 
 No later-phase feature should be inferred from the existence of a reserved directory or foundation type.

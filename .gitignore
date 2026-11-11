@@ -4,6 +4,8 @@
 /numerix_cli
 /numerix_tests
 /numerix_phase1_tests
+/numerix_expression_demo
+/numerix_expression_tests
 /CMakeFiles/
 /CMakeCache.txt
 /Testing/

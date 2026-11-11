@@ -8,4 +8,6 @@ Scalar problems borrow the callback and `user_data`; neither is copied or freed 
 
 Phase 1 vector and matrix results are allocated objects; use `numerix_vector_destroy` or `numerix_matrix_destroy`. `numerix_lu_decompose` and `numerix_interp_newton_create` initialize caller-provided structs and allocate their owned arrays; release successful values with their matching destroy function. ODE solvers allocate both arrays in `numerix_ode_solution`; use `numerix_ode_solution_destroy` after success.
 
+Compiled expressions are opaque caller-owned objects released with `numerix_expression_destroy`. Expression callback contexts borrow an expression and do not allocate; the expression must outlive each callback use. Use a separate mutable callback context per concurrent numerical call.
+
 For error paths, initialize output handles to `NULL` before work, release any locally acquired resources before returning, and do not free borrowed callback data. No custom allocator or hidden ownership transfer is used.
