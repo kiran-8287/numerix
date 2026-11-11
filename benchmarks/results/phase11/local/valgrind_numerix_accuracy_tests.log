@@ -1,0 +1,22 @@
+Command: ['valgrind', '--leak-check=full', '--show-leak-kinds=all', '--errors-for-leak-kinds=all', '--error-exitcode=99', 'cmake-build-validation-gcc_debug/numerix_accuracy_tests']
+==242652== Memcheck, a memory error detector
+==242652== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==242652== Using Valgrind-3.22.0 and LibVEX; rerun with -h for copyright info
+==242652== Command: cmake-build-validation-gcc_debug/numerix_accuracy_tests
+==242652==
+integrand=0 value=2 actual_error=0 estimate=7.10542736e-15 evaluations=5
+integrand=1 value=0.20000000000000004 actual_error=2.77555756e-17 estimate=9.7315932e-11 evaluations=473
+integrand=2 value=0.4596976941318599 actual_error=3.33066907e-16 estimate=9.98177537e-11 evaluations=153
+integrand=3 value=1.7182818284590455 actual_error=4.4408921e-16 estimate=1.65754483e-10 evaluations=209
+integrand=4 value=0.6666666666662493 actual_error=4.17332835e-13 estimate=9.99676493e-11 evaluations=829
+integrand=6 value=0.041673451541306576 actual_error=2.77555756e-17 estimate=9.98254062e-11 evaluations=6729
+All accuracy and convergence checks passed.
+==242652==
+==242652== HEAP SUMMARY:
+==242652==     in use at exit: 0 bytes in 0 blocks
+==242652==   total heap usage: 34 allocs, 34 frees, 587,968 bytes allocated
+==242652==
+==242652== All heap blocks were freed -- no leaks are possible
+==242652==
+==242652== For lists of detected and suppressed errors, rerun with: -s
+==242652== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

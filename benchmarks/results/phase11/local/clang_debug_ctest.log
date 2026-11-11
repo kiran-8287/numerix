@@ -1,0 +1,72 @@
+Command: ['/tmp/numerix-phase9-tools/python/cmake/data/bin/ctest', '--test-dir', 'cmake-build-validation-clang_debug', '--output-on-failure']
+Test project /home/142401034/numerix/cmake-build-validation-clang_debug
+      Start  1: numerix_unit
+ 1/33 Test  #1: numerix_unit ........................   Passed    0.01 sec
+      Start  2: numerix_integration
+ 2/33 Test  #2: numerix_integration .................   Passed    0.00 sec
+      Start  3: numerix_root_finding
+ 3/33 Test  #3: numerix_root_finding ................   Passed    0.02 sec
+      Start  4: numerix_linear_algebra
+ 4/33 Test  #4: numerix_linear_algebra ..............   Passed    0.00 sec
+      Start  5: numerix_differentiation
+ 5/33 Test  #5: numerix_differentiation .............   Passed    0.00 sec
+      Start  6: numerix_interpolation
+ 6/33 Test  #6: numerix_interpolation ...............   Passed    0.00 sec
+      Start  7: numerix_phase1_integration
+ 7/33 Test  #7: numerix_phase1_integration ..........   Passed    0.00 sec
+      Start  8: numerix_optimization
+ 8/33 Test  #8: numerix_optimization ................   Passed    0.00 sec
+      Start  9: numerix_ode
+ 9/33 Test  #9: numerix_ode .........................   Passed    0.00 sec
+      Start 10: numerix_expression_engine
+10/33 Test #10: numerix_expression_engine ...........   Passed    0.02 sec
+      Start 11: numerix_audit_regressions
+11/33 Test #11: numerix_audit_regressions ...........   Passed    0.01 sec
+      Start 12: numerix_piecewise
+12/33 Test #12: numerix_piecewise ...................   Passed    0.02 sec
+      Start 13: numerix_intelligence
+13/33 Test #13: numerix_intelligence ................   Passed    0.03 sec
+      Start 14: numerix_execution
+14/33 Test #14: numerix_execution ...................   Passed    0.03 sec
+      Start 15: numerix_diagnostics
+15/33 Test #15: numerix_diagnostics .................   Passed    0.03 sec
+      Start 16: numerix_root_discovery
+16/33 Test #16: numerix_root_discovery ..............   Passed    0.05 sec
+      Start 17: numerix_phase8_integration
+17/33 Test #17: numerix_phase8_integration ..........   Passed    0.03 sec
+      Start 18: numerix_release_regressions
+18/33 Test #18: numerix_release_regressions .........   Passed    0.01 sec
+      Start 19: numerix_cli_startup
+19/33 Test #19: numerix_cli_startup .................   Passed    0.03 sec
+      Start 20: numerix_cli_help
+20/33 Test #20: numerix_cli_help ....................   Passed    0.00 sec
+      Start 21: numerix_cli_expression
+21/33 Test #21: numerix_cli_expression ..............   Passed    0.00 sec
+      Start 22: numerix_cli_root
+22/33 Test #22: numerix_cli_root ....................   Passed    0.01 sec
+      Start 23: numerix_cli_discovery
+23/33 Test #23: numerix_cli_discovery ...............   Passed    0.00 sec
+      Start 24: numerix_cli_piecewise
+24/33 Test #24: numerix_cli_piecewise ...............   Passed    0.00 sec
+      Start 25: numerix_cli_invalid
+25/33 Test #25: numerix_cli_invalid .................   Passed    0.00 sec
+      Start 26: numerix_cli_domain_error
+26/33 Test #26: numerix_cli_domain_error ............   Passed    0.00 sec
+      Start 27: numerix_example_expression
+27/33 Test #27: numerix_example_expression ..........   Passed    0.02 sec
+      Start 28: numerix_example_piecewise
+28/33 Test #28: numerix_example_piecewise ...........   Passed    0.02 sec
+      Start 29: numerix_example_intelligence
+29/33 Test #29: numerix_example_intelligence ........   Passed    0.02 sec
+      Start 30: numerix_example_managed_execution
+30/33 Test #30: numerix_example_managed_execution ...   Passed    0.02 sec
+      Start 31: numerix_example_root_discovery
+31/33 Test #31: numerix_example_root_discovery ......   Passed    0.03 sec
+      Start 32: numerix_accuracy
+32/33 Test #32: numerix_accuracy ....................   Passed    0.03 sec
+      Start 33: numerix_portability_layout
+33/33 Test #33: numerix_portability_layout ..........   Passed    0.01 sec
+
+100% tests passed out of 33
+
+Total Test time (real) =   0.58 sec

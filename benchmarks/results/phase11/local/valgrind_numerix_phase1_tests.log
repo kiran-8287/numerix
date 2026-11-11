@@ -1,0 +1,16 @@
+Command: ['valgrind', '--leak-check=full', '--show-leak-kinds=all', '--errors-for-leak-kinds=all', '--error-exitcode=99', 'cmake-build-validation-gcc_debug/numerix_phase1_tests']
+==242626== Memcheck, a memory error detector
+==242626== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==242626== Using Valgrind-3.22.0 and LibVEX; rerun with -h for copyright info
+==242626== Command: cmake-build-validation-gcc_debug/numerix_phase1_tests
+==242626==
+Phase 1 category passed.
+==242626==
+==242626== HEAP SUMMARY:
+==242626==     in use at exit: 0 bytes in 0 blocks
+==242626==   total heap usage: 82 allocs, 82 frees, 21,016 bytes allocated
+==242626==
+==242626== All heap blocks were freed -- no leaks are possible
+==242626==
+==242626== For lists of detected and suppressed errors, rerun with: -s
+==242626== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

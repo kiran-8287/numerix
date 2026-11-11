@@ -1,0 +1,180 @@
+Command: ['/opt/rh/gcc-toolset-15/root/usr/bin/gcc', '--version']
+gcc (GCC) 15.2.1 20260123 (Red Hat 15.2.1-7)
+Copyright (C) 2025 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Command: ['/opt/rh/gcc-toolset-15/root/usr/bin/as', '--version']
+GNU assembler version 2.44-3.0.1.el8_10
+Copyright (C) 2025 Free Software Foundation, Inc.
+This program is free software; you may redistribute it under the terms of
+the GNU General Public License version 3 or later.
+This program has absolutely no warranty.
+This assembler was configured for a target of `x86_64-redhat-linux'.
+Command: ['/tmp/numerix-phase9-tools/python/cmake/data/bin/cmake', '-S', '.', '-B', 'cmake-build-phase11-gcc15-debug', '-DCMAKE_C_COMPILER=/opt/rh/gcc-toolset-15/root/usr/bin/gcc', '-DCMAKE_BUILD_TYPE=Debug', '-DCMAKE_C_FLAGS=-B/opt/rh/gcc-toolset-15/root/usr/bin/ -Werror']
+-- The C compiler identification is GNU 15.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /opt/rh/gcc-toolset-15/root/usr/bin/gcc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.7s)
+-- Generating done (2.4s)
+-- Build files have been written to: /home/142401034/numerix/cmake-build-phase11-gcc15-debug
+Command: ['/tmp/numerix-phase9-tools/python/cmake/data/bin/cmake', '--build', 'cmake-build-phase11-gcc15-debug', '--clean-first', '-j2']
+[  3%] Building C object CMakeFiles/numerix.dir/src/core/numerix_core.c.o
+[  3%] Building C object CMakeFiles/numerix.dir/src/core/numerix_platform.c.o
+[  4%] Building C object CMakeFiles/numerix.dir/src/algorithms/root_finding/root_finding.c.o
+[  6%] Building C object CMakeFiles/numerix.dir/src/algorithms/linear_algebra/linear_algebra.c.o
+[  7%] Building C object CMakeFiles/numerix.dir/src/algorithms/differentiation/differentiation.c.o
+[  9%] Building C object CMakeFiles/numerix.dir/src/algorithms/interpolation/interpolation.c.o
+[ 10%] Building C object CMakeFiles/numerix.dir/src/algorithms/integration/integration.c.o
+[ 12%] Building C object CMakeFiles/numerix.dir/src/algorithms/optimization/optimization.c.o
+[ 14%] Building C object CMakeFiles/numerix.dir/src/algorithms/ode/ode.c.o
+[ 15%] Building C object CMakeFiles/numerix.dir/src/expression/lexer.c.o
+[ 17%] Building C object CMakeFiles/numerix.dir/src/expression/parser.c.o
+[ 18%] Building C object CMakeFiles/numerix.dir/src/expression/evaluator.c.o
+[ 20%] Building C object CMakeFiles/numerix.dir/src/expression/expression.c.o
+[ 21%] Building C object CMakeFiles/numerix.dir/src/piecewise/piecewise.c.o
+[ 23%] Building C object CMakeFiles/numerix.dir/src/piecewise/analysis.c.o
+[ 25%] Building C object CMakeFiles/numerix.dir/src/piecewise/adapters.c.o
+[ 26%] Building C object CMakeFiles/numerix.dir/src/intelligence/problem.c.o
+[ 28%] Building C object CMakeFiles/numerix.dir/src/intelligence/recommendation.c.o
+[ 29%] Building C object CMakeFiles/numerix.dir/src/intelligence/root_execution.c.o
+[ 31%] Building C object CMakeFiles/numerix.dir/src/intelligence/portfolio.c.o
+[ 32%] Building C object CMakeFiles/numerix.dir/src/intelligence/execution.c.o
+[ 34%] Building C object CMakeFiles/numerix.dir/src/execution/managed_execution.c.o
+[ 35%] Building C object CMakeFiles/numerix.dir/src/diagnostics/diagnostics.c.o
+[ 37%] Building C object CMakeFiles/numerix.dir/src/diagnostics/diagnostic_analysis.c.o
+[ 39%] Building C object CMakeFiles/numerix.dir/src/root_discovery/root_discovery.c.o
+[ 40%] Linking C static library libnumerix.a
+[ 40%] Built target numerix
+[ 43%] Building C object CMakeFiles/numerix_cli.dir/cli/main.c.o
+[ 43%] Building C object CMakeFiles/numerix_expression_demo.dir/examples/expression_demo.c.o
+[ 45%] Linking C executable numerix_expression_demo
+[ 46%] Linking C executable numerix_cli
+[ 46%] Built target numerix_expression_demo
+[ 46%] Built target numerix_cli
+[ 48%] Building C object CMakeFiles/numerix_piecewise_demo.dir/examples/piecewise_demo.c.o
+[ 50%] Building C object CMakeFiles/numerix_intelligence_demo.dir/examples/intelligence_demo.c.o
+[ 51%] Linking C executable numerix_piecewise_demo
+[ 53%] Linking C executable numerix_intelligence_demo
+[ 53%] Built target numerix_piecewise_demo
+[ 53%] Built target numerix_intelligence_demo
+[ 54%] Building C object CMakeFiles/numerix_managed_execution_demo.dir/examples/managed_execution_demo.c.o
+[ 56%] Building C object CMakeFiles/numerix_root_discovery_demo.dir/examples/root_discovery_demo.c.o
+[ 57%] Linking C executable numerix_managed_execution_demo
+[ 59%] Linking C executable numerix_root_discovery_demo
+[ 59%] Built target numerix_managed_execution_demo
+[ 59%] Built target numerix_root_discovery_demo
+[ 60%] Building C object CMakeFiles/numerix_tests.dir/tests/test_numerix.c.o
+[ 62%] Building C object CMakeFiles/numerix_phase1_tests.dir/tests/test_phase1.c.o
+[ 64%] Linking C executable numerix_tests
+[ 65%] Linking C executable numerix_phase1_tests
+[ 65%] Built target numerix_tests
+[ 67%] Building C object CMakeFiles/numerix_expression_tests.dir/tests/test_expression.c.o
+[ 67%] Built target numerix_phase1_tests
+[ 68%] Building C object CMakeFiles/numerix_audit_regression_tests.dir/tests/test_audit_regressions.c.o
+[ 70%] Linking C executable numerix_expression_tests
+[ 71%] Linking C executable numerix_audit_regression_tests
+[ 71%] Built target numerix_expression_tests
+[ 73%] Building C object CMakeFiles/numerix_piecewise_tests.dir/tests/test_piecewise.c.o
+[ 73%] Built target numerix_audit_regression_tests
+[ 75%] Building C object CMakeFiles/numerix_intelligence_tests.dir/tests/test_intelligence.c.o
+[ 76%] Linking C executable numerix_piecewise_tests
+[ 78%] Linking C executable numerix_intelligence_tests
+[ 78%] Built target numerix_piecewise_tests
+[ 79%] Building C object CMakeFiles/numerix_execution_tests.dir/tests/test_execution.c.o
+[ 79%] Built target numerix_intelligence_tests
+[ 81%] Building C object CMakeFiles/numerix_diagnostics_tests.dir/tests/test_diagnostics.c.o
+[ 82%] Linking C executable numerix_execution_tests
+[ 84%] Linking C executable numerix_diagnostics_tests
+[ 84%] Built target numerix_execution_tests
+[ 84%] Built target numerix_diagnostics_tests
+[ 85%] Building C object CMakeFiles/numerix_root_discovery_tests.dir/tests/test_root_discovery.c.o
+[ 87%] Building C object CMakeFiles/numerix_phase8_integration_tests.dir/tests/test_phase8_integration.c.o
+[ 89%] Linking C executable numerix_phase8_integration_tests
+[ 90%] Linking C executable numerix_root_discovery_tests
+[ 90%] Built target numerix_phase8_integration_tests
+[ 90%] Built target numerix_root_discovery_tests
+[ 92%] Building C object CMakeFiles/numerix_release_regression_tests.dir/tests/test_release_regressions.c.o
+[ 93%] Building C object CMakeFiles/numerix_accuracy_tests.dir/tests/test_accuracy.c.o
+[ 95%] Linking C executable numerix_release_regression_tests
+[ 96%] Linking C executable numerix_accuracy_tests
+[ 96%] Built target numerix_release_regression_tests
+[ 98%] Building C object CMakeFiles/numerix_portability_probe.dir/tests/portability_probe.c.o
+[100%] Built target numerix_accuracy_tests
+[100%] Linking C executable numerix_portability_probe
+[100%] Built target numerix_portability_probe
+Command: ['/tmp/numerix-phase9-tools/python/cmake/data/bin/ctest', '--test-dir', 'cmake-build-phase11-gcc15-debug', '--output-on-failure']
+Test project /home/142401034/numerix/cmake-build-phase11-gcc15-debug
+      Start  1: numerix_unit
+ 1/33 Test  #1: numerix_unit ........................   Passed    0.01 sec
+      Start  2: numerix_integration
+ 2/33 Test  #2: numerix_integration .................   Passed    0.00 sec
+      Start  3: numerix_root_finding
+ 3/33 Test  #3: numerix_root_finding ................   Passed    0.02 sec
+      Start  4: numerix_linear_algebra
+ 4/33 Test  #4: numerix_linear_algebra ..............   Passed    0.00 sec
+      Start  5: numerix_differentiation
+ 5/33 Test  #5: numerix_differentiation .............   Passed    0.00 sec
+      Start  6: numerix_interpolation
+ 6/33 Test  #6: numerix_interpolation ...............   Passed    0.00 sec
+      Start  7: numerix_phase1_integration
+ 7/33 Test  #7: numerix_phase1_integration ..........   Passed    0.00 sec
+      Start  8: numerix_optimization
+ 8/33 Test  #8: numerix_optimization ................   Passed    0.00 sec
+      Start  9: numerix_ode
+ 9/33 Test  #9: numerix_ode .........................   Passed    0.00 sec
+      Start 10: numerix_expression_engine
+10/33 Test #10: numerix_expression_engine ...........   Passed    0.02 sec
+      Start 11: numerix_audit_regressions
+11/33 Test #11: numerix_audit_regressions ...........   Passed    0.01 sec
+      Start 12: numerix_piecewise
+12/33 Test #12: numerix_piecewise ...................   Passed    0.02 sec
+      Start 13: numerix_intelligence
+13/33 Test #13: numerix_intelligence ................   Passed    0.03 sec
+      Start 14: numerix_execution
+14/33 Test #14: numerix_execution ...................   Passed    0.03 sec
+      Start 15: numerix_diagnostics
+15/33 Test #15: numerix_diagnostics .................   Passed    0.03 sec
+      Start 16: numerix_root_discovery
+16/33 Test #16: numerix_root_discovery ..............   Passed    0.05 sec
+      Start 17: numerix_phase8_integration
+17/33 Test #17: numerix_phase8_integration ..........   Passed    0.03 sec
+      Start 18: numerix_release_regressions
+18/33 Test #18: numerix_release_regressions .........   Passed    0.01 sec
+      Start 19: numerix_cli_startup
+19/33 Test #19: numerix_cli_startup .................   Passed    0.03 sec
+      Start 20: numerix_cli_help
+20/33 Test #20: numerix_cli_help ....................   Passed    0.00 sec
+      Start 21: numerix_cli_expression
+21/33 Test #21: numerix_cli_expression ..............   Passed    0.00 sec
+      Start 22: numerix_cli_root
+22/33 Test #22: numerix_cli_root ....................   Passed    0.01 sec
+      Start 23: numerix_cli_discovery
+23/33 Test #23: numerix_cli_discovery ...............   Passed    0.00 sec
+      Start 24: numerix_cli_piecewise
+24/33 Test #24: numerix_cli_piecewise ...............   Passed    0.00 sec
+      Start 25: numerix_cli_invalid
+25/33 Test #25: numerix_cli_invalid .................   Passed    0.00 sec
+      Start 26: numerix_cli_domain_error
+26/33 Test #26: numerix_cli_domain_error ............   Passed    0.00 sec
+      Start 27: numerix_example_expression
+27/33 Test #27: numerix_example_expression ..........   Passed    0.02 sec
+      Start 28: numerix_example_piecewise
+28/33 Test #28: numerix_example_piecewise ...........   Passed    0.02 sec
+      Start 29: numerix_example_intelligence
+29/33 Test #29: numerix_example_intelligence ........   Passed    0.02 sec
+      Start 30: numerix_example_managed_execution
+30/33 Test #30: numerix_example_managed_execution ...   Passed    0.03 sec
+      Start 31: numerix_example_root_discovery
+31/33 Test #31: numerix_example_root_discovery ......   Passed    0.03 sec
+      Start 32: numerix_accuracy
+32/33 Test #32: numerix_accuracy ....................   Passed    0.04 sec
+      Start 33: numerix_portability_layout
+33/33 Test #33: numerix_portability_layout ..........   Passed    0.01 sec
+
+100% tests passed out of 33
+
+Total Test time (real) =   0.61 sec

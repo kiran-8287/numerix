@@ -1,0 +1,1 @@
+Command: ['/opt/rh/gcc-toolset-15/root/usr/bin/gcc', '-fanalyzer', '-std=c11', '-Wall', '-Wextra', '-Iinclude', '-Isrc/internal', '-c', 'src/piecewise/analysis.c', '-o', '/tmp/numerix-release-analyzer-4faha9uo/analysis.o']

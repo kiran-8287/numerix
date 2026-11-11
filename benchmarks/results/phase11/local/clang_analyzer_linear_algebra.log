@@ -1,0 +1,1 @@
+Command: ['clang', '--analyze', '-std=c11', '-Iinclude', '-Isrc/internal', '-Xanalyzer', '-analyzer-output=text', 'src/algorithms/linear_algebra/linear_algebra.c']

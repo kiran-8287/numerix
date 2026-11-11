@@ -1,0 +1,26 @@
+Command: ['/opt/rh/gcc-toolset-11/root/usr/bin/gcc', '--version']
+gcc (GCC) 11.5.0 20240719 (Red Hat 11.5.0-2.0.1)
+Copyright (C) 2021 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Command: ['/tmp/numerix-phase9-tools/python/cmake/data/bin/cmake', '-S', '.', '-B', 'cmake-build-phase11-gcc11-debug', '-DCMAKE_C_COMPILER=/opt/rh/gcc-toolset-11/root/usr/bin/gcc', '-DCMAKE_BUILD_TYPE=Debug', '-DCMAKE_C_FLAGS=-Werror']
+-- The C compiler identification is GNU 11.5.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /opt/rh/gcc-toolset-11/root/usr/bin/gcc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (1.8s)
+-- Generating done (6.3s)
+-- Build files have been written to: /home/142401034/numerix/cmake-build-phase11-gcc11-debug
+Command: ['/tmp/numerix-phase9-tools/python/cmake/data/bin/cmake', '--build', 'cmake-build-phase11-gcc11-debug', '-j2']
+[  3%] Building C object CMakeFiles/numerix.dir/src/core/numerix_platform.c.o
+[  3%] Building C object CMakeFiles/numerix.dir/src/core/numerix_core.c.o
+as: unrecognized option '--gdwarf-4'
+gmake[2]: *** [CMakeFiles/numerix.dir/build.make:93: CMakeFiles/numerix.dir/src/core/numerix_platform.c.o] Error 1
+gmake[2]: *** Waiting for unfinished jobs....
+as: unrecognized option '--gdwarf-4'
+gmake[2]: *** [CMakeFiles/numerix.dir/build.make:79: CMakeFiles/numerix.dir/src/core/numerix_core.c.o] Error 1
+gmake[1]: *** [CMakeFiles/Makefile2:174: CMakeFiles/numerix.dir/all] Error 2
+gmake: *** [Makefile:166: all] Error 2

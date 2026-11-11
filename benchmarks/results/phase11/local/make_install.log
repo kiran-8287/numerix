@@ -1,0 +1,6 @@
+install -d "/tmp/numerix-phase11-make-install/lib" "/tmp/numerix-phase11-make-install/include" "/tmp/numerix-phase11-make-install/share/doc/numerix/api"
+install -m 644 libnumerix.a "/tmp/numerix-phase11-make-install/lib/libnumerix.a"
+install -m 644 include/numerix.h "/tmp/numerix-phase11-make-install/include/numerix.h"
+install -m 644 LICENSE README.md "/tmp/numerix-phase11-make-install/share/doc/numerix"
+install -m 644 documentation/api/*.md "/tmp/numerix-phase11-make-install/share/doc/numerix/api"
+Installed consumer: roots, LU, expressions, errors and cleanup passed.

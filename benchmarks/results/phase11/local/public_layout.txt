@@ -1,0 +1,12 @@
+numerix=0.1.0
+compiler=GCC 8.5.0 20210514 (Red Hat 8.5.0-30.0.1)
+pointer_bytes=8
+size_t_bytes=8
+double_mantissa=53
+long_double_mantissa=64
+status_bytes=4
+result_bytes=64
+options_bytes=40
+diagnostics_bytes=3400
+discovered_root_bytes=7536
+search_report_bytes=248
