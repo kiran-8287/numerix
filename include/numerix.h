@@ -945,6 +945,122 @@ numerix_status numerix_managed_execution_get_output(
 void numerix_managed_execution_destroy(
     numerix_managed_execution *execution);
 
+/* Phase 7: bounded numerical discovery on a finite interval. */
+typedef enum numerix_root_discovery_kind
+{
+    NUMERIX_ROOT_SIGN_CHANGING = 0,
+    NUMERIX_ROOT_TANGENTIAL,
+    NUMERIX_ROOT_SAMPLED_ZERO,
+    NUMERIX_ROOT_ENDPOINT,
+    NUMERIX_ROOT_PIECEWISE_BOUNDARY,
+    NUMERIX_ROOT_REPEATED
+} numerix_root_discovery_kind;
+
+typedef enum numerix_root_verification
+{
+    NUMERIX_ROOT_ACCEPTED_WITH_LIMITATIONS = 0,
+    NUMERIX_ROOT_RESIDUAL_VERIFIED
+} numerix_root_verification;
+
+typedef struct numerix_discovered_root
+{
+    numerix_result result;
+    numerix_algorithm refinement_algorithm;
+    numerix_root_discovery_kind kind;
+    numerix_root_verification verification;
+    /* Candidate interval from the detector; it is not a formal enclosure. */
+    double candidate_lower;
+    double candidate_upper;
+    size_t merged_detections;
+    unsigned int evidence; /* Bit (1U << kind) for each merged detection. */
+    int has_multiplicity_estimate; /* Heuristic estimate, never exact proof. */
+    unsigned int estimated_multiplicity;
+    numerix_diagnostic_confidence multiplicity_confidence;
+    numerix_root_condition_report conditioning;
+    numerix_diagnostics_report diagnostics;
+    numerix_root_selection_report refinement_history;
+} numerix_discovered_root;
+
+typedef struct numerix_root_unresolved_interval
+{
+    double lower;
+    double upper;
+    numerix_status reason;
+} numerix_root_unresolved_interval;
+
+typedef struct numerix_root_search_report
+{
+    numerix_status status;
+    double lower;
+    double upper;
+    double current_lower;
+    double current_upper;
+    numerix_discovered_root *roots;
+    size_t root_count;
+    size_t candidate_count;
+    size_t rejected_candidates;
+    size_t merged_candidates;
+    size_t function_evaluations;
+    size_t refinement_iterations;
+    size_t subdivisions;
+    size_t maximum_depth_reached;
+    size_t evaluation_failures;
+    size_t known_boundaries;
+    size_t suspected_discontinuities;
+    numerix_root_unresolved_interval *unresolved;
+    size_t unresolved_count; /* Total; storage may be truncated. */
+    size_t stored_unresolved_count;
+    int unresolved_storage_truncated;
+    int completed_normally;
+    int resource_limit_reached;
+    int search_inconclusive; /* Set for performed searches; completeness is unproved. */
+    double elapsed_seconds;
+} numerix_root_search_report;
+
+/*
+ * Called synchronously at entry/exit and at configured evaluation intervals.
+ * The report is borrowed/read-only. SUCCESS continues; any other status stops.
+ */
+typedef numerix_status (*numerix_root_search_progress_callback)(
+    const numerix_root_search_report *report, void *user_data);
+
+typedef struct numerix_root_discovery_options
+{
+    size_t initial_panels;
+    size_t maximum_depth;
+    size_t maximum_subdivisions;
+    size_t maximum_candidates;
+    double residual_tolerance; /* Absolute function units, independent of x. */
+    double curvature_threshold; /* Normalized midpoint curvature in (0, 2]. */
+    double tangential_reduction; /* Required reduction relative to basin ends. */
+    double merge_absolute_tolerance;
+    double merge_relative_tolerance;
+    int detect_tangential;
+    int estimate_multiplicity;
+    int estimate_condition;
+    numerix_root_selection_options refinement;
+    size_t progress_interval; /* Evaluation attempts; start/end also notify. */
+    numerix_root_search_progress_callback progress_callback;
+    void *progress_user_data;
+} numerix_root_discovery_options;
+
+/* Initializes documented defaults for a bounded finite-interval search. */
+void numerix_root_discovery_options_init(numerix_root_discovery_options *options);
+/*
+ * request supplies the existing representation and shared position/resource
+ * options. Its category must be ROOT_FINDING. Bounds here override its bracket.
+ * Inputs are borrowed during this synchronous call. Destroy every returned
+ * report, including partial reports on failure, before reuse. A zero root count
+ * means no roots were detected under this strategy; it does not prove none
+ * exist. Callbacks should represent a stable function: samples are reused
+ * within this call only.
+ */
+numerix_status numerix_root_find_all(
+    const numerix_recommendation_request *request, double lower, double upper,
+    const numerix_root_discovery_options *options,
+    numerix_root_search_report *report, numerix_error *error);
+void numerix_root_search_report_destroy(numerix_root_search_report *report);
+
 /* Returns a static readable name for a status code. */
 const char *numerix_status_string(numerix_status status);
 /* Clears an error, or records a bounded, copied message and status. */

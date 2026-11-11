@@ -91,3 +91,11 @@ fallback, and supports genuine stepwise pause/resume for explicit Bisection.
 Portfolio management and internal steps for other algorithms are not yet
 supported; see [the execution API guide](documentation/api/execution_management.md)
 for details.
+
+## Phase 7: multiple-root discovery
+
+The bounded `numerix_root_find_all` facility searches finite intervals for
+sign-changing, tangential, repeated, endpoint, and piecewise-boundary roots.
+It reports unresolved regions and does not claim mathematical completeness.
+See the [root discovery API guide](documentation/api/root_discovery.md) and
+[architecture note](documentation/architecture/root_discovery.md).
