@@ -322,6 +322,8 @@ static void test_forward_error_and_sensitivity(void)
     numerix_forward_error forward;
     numerix_multivariable_sensitivity sensitivity;
     numerix_error_propagation_report propagation;
+    numerix_matrix *computed_matrix = NULL;
+    numerix_matrix *reference_matrix = NULL;
     numerix_vector *point = NULL;
     numerix_vector *uncertainties = NULL;
     numerix_error error;
@@ -335,6 +337,21 @@ static void test_forward_error_and_sensitivity(void)
           "scalar forward error is computed");
     check(forward.has_relative_error,
           "relative forward error is available for nonzero reference");
+
+    (void)numerix_matrix_create(2, 1, &computed_matrix, &error);
+    (void)numerix_matrix_create(2, 1, &reference_matrix, &error);
+    computed_matrix->data[0] = 4.0;
+    computed_matrix->data[1] = 6.0;
+    reference_matrix->data[0] = 1.0;
+    reference_matrix->data[1] = 2.0;
+    status = numerix_diagnostics_forward_error_matrix(
+        computed_matrix, reference_matrix, &forward, &error);
+    check(status == NUMERIX_STATUS_SUCCESS,
+          "matrix forward-error calculation succeeds");
+    check(fabs(forward.absolute_error - 5.0) < 1.0e-14,
+          "matrix forward error uses Euclidean flattened norm");
+    numerix_matrix_destroy(reference_matrix);
+    numerix_matrix_destroy(computed_matrix);
 
     (void)numerix_vector_create(2, &point, &error);
     (void)numerix_vector_create(2, &uncertainties, &error);

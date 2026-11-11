@@ -72,6 +72,29 @@ static int valid_finite_vector(const numerix_vector *vector)
     return 1;
 }
 
+static int valid_finite_matrix(const numerix_matrix *matrix)
+{
+    size_t index;
+    size_t element_count;
+
+    if (matrix == NULL || matrix->data == NULL || matrix->rows == 0 ||
+        matrix->columns == 0 || matrix->rows > SIZE_MAX / matrix->columns)
+    {
+        return 0;
+    }
+
+    element_count = matrix->rows * matrix->columns;
+    for (index = 0; index < element_count; index++)
+    {
+        if (!isfinite(matrix->data[index]))
+        {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
 numerix_status numerix_diagnostics_forward_error_scalar(
     double computed,
     double reference,
@@ -168,6 +191,38 @@ numerix_status numerix_diagnostics_forward_error_vector(
     free(difference_data);
     numerix_error_clear(error);
     return NUMERIX_STATUS_SUCCESS;
+}
+
+numerix_status numerix_diagnostics_forward_error_matrix(
+    const numerix_matrix *computed,
+    const numerix_matrix *reference,
+    numerix_forward_error *report,
+    numerix_error *error)
+{
+    numerix_vector computed_view;
+    numerix_vector reference_view;
+    numerix_status status;
+
+    if (report == NULL || !valid_finite_matrix(computed) ||
+        !valid_finite_matrix(reference) || computed->rows != reference->rows ||
+        computed->columns != reference->columns)
+    {
+        return analysis_error(error, NUMERIX_STATUS_INVALID_DIMENSIONS,
+                              "finite computed and reference matrices of equal dimensions are required");
+    }
+
+    computed_view.size = computed->rows * computed->columns;
+    computed_view.data = computed->data;
+    reference_view.size = reference->rows * reference->columns;
+    reference_view.data = reference->data;
+    status = numerix_diagnostics_forward_error_vector(
+        &computed_view, &reference_view, report, error);
+    if (status == NUMERIX_STATUS_SUCCESS)
+    {
+        report->reference_description = "caller-supplied matrix reference";
+    }
+
+    return status;
 }
 
 numerix_status numerix_diagnostics_root_condition(

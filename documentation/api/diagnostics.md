@@ -74,9 +74,9 @@ references.
 
 ## Additional Phase 6.1 APIs
 
-- `numerix_diagnostics_forward_error_scalar` and `_vector` compare computed
-  values against caller-supplied references. Vector absolute error is the
-  Euclidean norm.
+- `numerix_diagnostics_forward_error_scalar`, `_vector`, and `_matrix` compare
+  computed values against caller-supplied references. Vector and flattened
+  matrix absolute errors use the Euclidean norm.
 - `numerix_diagnostics_root_condition` estimates reciprocal derivative
   sensitivity for a simple root. Interpret it using the function's units and
   the additive function-perturbation model.

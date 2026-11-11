@@ -678,6 +678,9 @@ numerix_status numerix_diagnostics_forward_error_scalar(
 numerix_status numerix_diagnostics_forward_error_vector(
     const numerix_vector *computed, const numerix_vector *reference,
     numerix_forward_error *report, numerix_error *error);
+numerix_status numerix_diagnostics_forward_error_matrix(
+    const numerix_matrix *computed, const numerix_matrix *reference,
+    numerix_forward_error *report, numerix_error *error);
 
 typedef struct numerix_root_condition_report {
     double evaluation_point;
