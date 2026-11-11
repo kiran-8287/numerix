@@ -45,6 +45,7 @@ typedef struct numerix_scalar_problem {
 } numerix_scalar_problem;
 
 typedef struct numerix_options {
+    /* Method-specific units; scalar roots use position units, never residual units. */
     double absolute_tolerance;
     double relative_tolerance;
     size_t maximum_iterations;

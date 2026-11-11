@@ -215,3 +215,13 @@ set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "C11 numerical library and public API documentation")
 set(CPACK_GENERATOR "TGZ")
 include(CPack)
+
+if(BUILD_TESTING)
+    add_executable(numerix_accuracy_tests tests/test_accuracy.c)
+    target_link_libraries(numerix_accuracy_tests PRIVATE numerix)
+    if(NOT MSVC)
+        target_compile_options(numerix_accuracy_tests PRIVATE
+            -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+    endif()
+    add_test(NAME numerix_accuracy COMMAND numerix_accuracy_tests)
+endif()

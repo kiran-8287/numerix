@@ -114,11 +114,56 @@ static int test_expression_failures(void)
     return 1;
 }
 
+static double endpoint_integrand(double position, void *data)
+{
+    (void)data;
+    return sqrt(position);
+}
+
+static int test_integration_failures(void)
+{
+    numerix_result result;
+    numerix_error error;
+    numerix_options options;
+    numerix_status status;
+    benchmark_memory memory;
+    size_t index;
+    size_t count;
+
+    numerix_options_init(&options);
+    options.absolute_tolerance = 1e-10;
+    options.relative_tolerance = 1e-10;
+    benchmark_memory_begin();
+    status = numerix_integrate_adaptive_simpson(endpoint_integrand, NULL,
+        0.0, 1.0, &options, 32U, &result, &error);
+    memory = benchmark_memory_end();
+    if (status != NUMERIX_STATUS_SUCCESS || memory.live_bytes != 0U)
+    {
+        return 0;
+    }
+    count = memory.allocations;
+    for (index = 0; index < count; ++index)
+    {
+        benchmark_memory_begin();
+        benchmark_memory_fail_at(index);
+        status = numerix_integrate_adaptive_simpson(endpoint_integrand, NULL,
+            0.0, 1.0, &options, 32U, &result, &error);
+        memory = benchmark_memory_end();
+        if (status != NUMERIX_STATUS_ALLOCATION_FAILURE || memory.live_bytes != 0U)
+        {
+            fprintf(stderr, "integration allocation failure cleanup failed at %zu\n", index);
+            return 0;
+        }
+    }
+    printf("Adaptive Simpson: injected failure at each of %zu allocations\n", count);
+    return 1;
+}
+
 int main(void)
 {
     int variant;
 
-    if (!test_expression_failures()) {
+    if (!test_expression_failures() || !test_integration_failures()) {
         return 1;
     }
     for (variant = 0; variant < 6; ++variant) {

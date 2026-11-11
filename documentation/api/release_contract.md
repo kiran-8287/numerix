@@ -46,10 +46,9 @@ algorithm families or struct fields. Names and types remain unchanged.
 ## Accuracy and resource limits
 
 Absolute/relative tolerances are interpreted by the chosen method, not as a
-uniform forward-error guarantee. In particular root residuals and root positions
-have different units, and flat or small-scaled functions can satisfy residual
-stopping far from the root. Check independently scaled residuals, conditioning
-and position/bracket evidence. Fixed quadrature, differentiation and ODE routines
+uniform forward-error guarantee. Root position and residual units are separate;
+Phase 10 removed small-residual stopping. Open methods still use heuristic local
+position evidence. Check independently scaled residuals, conditioning and brackets. Fixed quadrature, differentiation and ODE routines
 use caller-chosen grids/steps and cannot promise tolerance-controlled accuracy.
 Estimated errors are method-dependent estimates, not certified bounds.
 
@@ -77,3 +76,7 @@ CMake package configuration, or uniform initializer for every public aggregate.
 Some metrics/status initialization conventions differ between older numerical
 entry points. These are documented limitations for the release candidate; an
 architecture rewrite or broad API rename was deliberately outside this milestone.
+
+Phase10 supersedes the older residual-stopping description above: root shared
+options now have position units only. See [tolerance semantics](tolerances.md).
+No public layout changed; numerical status/stopping behavior intentionally did.

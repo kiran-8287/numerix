@@ -1,0 +1,9 @@
+Expression: injected failure at each of 12 allocations
+Adaptive Simpson: injected failure at each of 4 allocations
+Discovery variant 0: injected failure at each of 3 allocations
+Discovery variant 1: injected failure at each of 4 allocations
+Discovery variant 2: injected failure at each of 5 allocations
+Discovery variant 3: injected failure at each of 9 allocations
+Discovery variant 4: injected failure at each of 5 allocations
+Discovery variant 5: injected failure at each of 6 allocations
+All allocation-failure checks passed.

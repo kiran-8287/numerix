@@ -1,20 +1,39 @@
-# Root finding
+# Scalar root finding
 
-All six functions use `numerix_function`, validated shared `numerix_options`, and write `numerix_result` (root in `value`, function residual in `residual`, interval/step estimate in `estimated_error`, plus iterations and callback counts). Options may be `NULL` for defaults. Errors are returned as `numerix_status` and optionally described by `numerix_error`.
+All six methods accept a scalar callback and shared options (NULL selects
+defaults), return a status and write a `numerix_result`. Position and callback
+values must be finite. Residuals are in function units; position tolerances are
+`absolute_tolerance + relative_tolerance*abs(x)`, in x units.
 
-`numerix_root_bisection`, `numerix_root_regula_falsi`, and `numerix_root_brent` accept a finite ordered bracket. They return an endpoint root immediately and otherwise require opposite endpoint signs. Bisection halves the interval. False position uses the chord intercept and bisects when a step would stagnate near an edge. The Brent-Dekker solver maintains a sign-changing bracket, attempts inverse quadratic interpolation when three distinct function values are available, uses a secant step otherwise, and falls back to bisection when interpolation is unsafe. It is an independent safeguarded implementation, not a reproduction of a specific reference implementation.
+Bisection, safeguarded chord/false-position, Brent-style IQI/secant/bisection,
+and safeguarded Newton maintain a sign-changing interval. An exactly zero sample
+is accepted. Otherwise bisection returns a midpoint with a maximum endpoint
+separation within tolerance; the other methods return a sampled endpoint whose
+entire bracket width meets tolerance. The Brent interior safeguards remain
+independent of GSL's implementation. Continuity is an input assumption; a sign
+change across a pole or jump is not proof of a root.
 
-`numerix_root_secant` takes two distinct finite initial estimates and uses the secant recurrence `x[n+1] = x[n] - f[n](x[n]-x[n-1])/(f[n]-f[n-1])`. A near-zero denominator is a numerical failure.
+Newton and secant use local step/contraction evidence, not small residuals.
+Tiny nonzero function/derivative magnitudes alone are not a failure: Newton
+rejects a zero derivative, and secant normalizes its function difference by the
+sample magnitude before checking degeneracy. Newton derivative calls count in
+`function_evaluations`. Open-method error estimates are heuristic. Incorrect
+derivatives, flat roots, machine stagnation and callback cancellation can still
+prevent meaningful convergence. Supply a valid bracket for stronger position
+evidence; see [tolerances](tolerances.md).
 
-`numerix_root_newton` takes the function callback, derivative callback, shared `user_data`, and initial point. Newton updates are `x[n+1]=x[n]-f(x[n])/f'(x[n])`; a near-zero/non-finite derivative is rejected. `numerix_root_safeguarded_newton` accepts a finite bracket and starts at its midpoint. It keeps the sign bracket, taking an in-bracket Newton step or a bisection step when Newton is unsafe.
-
-Bracketed methods reject missing sign changes with `NUMERIX_STATUS_INVALID_INPUT`. Non-finite callback values, evaluation/iteration limits, and failed convergence have distinct status codes. Derivative callback evaluations count against `function_evaluations`. A residual tolerance or the shared absolute/relative position tolerance stops iteration. A bracket is required to be continuous in practice; callback continuity cannot be verified by the library.
+Unsignalled brackets return INVALID_INPUT; invalid arguments have distinct
+statuses. Budget exhaustion returns LIMIT_REACHED, zero derivative/degenerate
+secant arithmetic NUMERICAL_FAILURE, and representational stagnation
+CONVERGENCE_FAILURE. On failure inspect status before using approximate values.
+An exactly zero callback caused by underflow/cancellation remains a limitation.
 
 ```c
 numerix_result result;
 numerix_error error;
 numerix_options options;
 numerix_options_init(&options);
-numerix_status s = numerix_root_brent(f, user_data, 0.0, 2.0,
-                                      &options, &result, &error);
+/* f and user_data are caller-provided, borrowed for the call. */
+numerix_status status = numerix_root_brent(
+    f, user_data, 0.0, 2.0, &options, &result, &error);
 ```

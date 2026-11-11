@@ -31,3 +31,10 @@ The result arrays are owned by `numerix_root_search_report` and released by
 `numerix_root_search_report_destroy`. Search completeness remains
 mathematically unprovable for an arbitrary finite-sampled black-box function;
 the report always marks the search inconclusive and stores unresolved regions.
+
+Phase10 refinement uses position tolerances independently of the discovery
+residual threshold. A sample-only root has no position error estimate (NAN),
+and merging candidates never replaces a position estimate with a function
+residual. Discovery remains heuristic and can accept a small sampled value in a
+flat/small-scaled function; its explicit residual threshold is not a position
+certificate. This distinction also applies to tangential detection and merging.

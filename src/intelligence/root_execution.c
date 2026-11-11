@@ -153,7 +153,7 @@ int numerix_root_result_is_usable(
     {
         return 0;
     }
-    if (fabs(result->residual) <= options->absolute_tolerance)
+    if (result->residual == 0.0)
     {
         return 1;
     }

@@ -501,6 +501,7 @@ static void test_phase4_diagnostic_history(void)
     previous.solver_status = NUMERIX_STATUS_SUCCESS;
     previous.reliability = NUMERIX_RELIABILITY_CAUTION;
     previous.has_residual = 1;
+    previous.has_residual_tolerance = 1;
     previous.residual_satisfies_tolerance = 0;
 
     prior_request = request;

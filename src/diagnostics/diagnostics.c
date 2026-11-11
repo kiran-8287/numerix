@@ -491,7 +491,7 @@ static void classify_report(numerix_diagnostics_report *report)
         return;
     }
 
-    if ((report->has_residual && !report->residual_satisfies_tolerance) ||
+    if ((report->has_residual_tolerance && !report->residual_satisfies_tolerance) ||
         (report->has_estimated_error &&
          !report->estimated_error_satisfies_tolerance) ||
         (report->has_condition_estimate &&
@@ -510,7 +510,7 @@ static void classify_report(numerix_diagnostics_report *report)
             numerix_diagnostic_record *record =
                 &report->diagnostics[report->warning_count - 1U];
 
-            if (report->has_residual &&
+            if (report->has_residual_tolerance &&
                 !report->residual_satisfies_tolerance)
             {
                 record->has_metric = 1;
@@ -577,6 +577,13 @@ numerix_status numerix_diagnostics_analyze(
     }
 
     memset(report, 0, sizeof(*report));
+    report->absolute_residual = NAN;
+    report->requested_residual_tolerance = NAN;
+    report->relative_residual = NAN;
+    report->estimated_absolute_error = NAN;
+    report->requested_error_tolerance = NAN;
+    report->condition_estimate = NAN;
+    report->normwise_backward_error = NAN;
     if (options != NULL && options->estimate_linear_condition != 0 &&
         options->estimate_linear_condition != 1)
     {
@@ -629,14 +636,20 @@ numerix_status numerix_diagnostics_analyze(
             {
                 report->has_residual = 1;
                 report->absolute_residual = fabs(residual_value);
-                report->has_residual_tolerance = 1;
-                report->requested_residual_tolerance =
-                    solver_options->absolute_tolerance +
-                    solver_options->relative_tolerance *
-                        fabs(output->scalar_result.value);
-                report->residual_satisfies_tolerance =
-                    report->absolute_residual <=
-                    report->requested_residual_tolerance;
+                /* Root options have position units; no residual threshold was supplied. */
+                report->has_residual_tolerance = 0;
+                report->requested_residual_tolerance = NAN;
+                report->residual_satisfies_tolerance = 0;
+                if (isfinite(output->scalar_result.estimated_error))
+                {
+                    report->has_estimated_error = 1;
+                    report->estimated_absolute_error = output->scalar_result.estimated_error;
+                    report->has_estimated_error_tolerance = 1;
+                    report->requested_error_tolerance = solver_options->absolute_tolerance +
+                        solver_options->relative_tolerance * fabs(output->scalar_result.value);
+                    report->estimated_error_satisfies_tolerance = report->estimated_absolute_error <=
+                        report->requested_error_tolerance;
+                }
                 if (options != NULL && options->estimate_root_condition != 0 &&
                     request->representation ==
                         NUMERIX_REPRESENTATION_CALLBACK)
@@ -1065,8 +1078,10 @@ numerix_status numerix_recommend_algorithm_with_diagnostics(
                               prior_report->reliability ==
                                   NUMERIX_RELIABILITY_LOW_CONFIDENCE;
     prior_quality_problem = prior_execution_problem ||
-        (prior_report->has_residual &&
+        (prior_report->has_residual_tolerance &&
          !prior_report->residual_satisfies_tolerance) ||
+        (prior_report->has_estimated_error_tolerance &&
+         !prior_report->estimated_error_satisfies_tolerance) ||
         (prior_report->has_condition_estimate &&
          prior_report->condition_estimate > 1.0 / sqrt(DBL_EPSILON));
 

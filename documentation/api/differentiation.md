@@ -11,3 +11,6 @@ numerix_result d;
 numerix_status s = numerix_diff_richardson(f, data, 1.0, 1e-3,
                                            NULL, &d, &error);
 ```
+
+Shared tolerances do not select a better step or certify derivative accuracy;
+callers choose h. See [tolerance semantics](tolerances.md).

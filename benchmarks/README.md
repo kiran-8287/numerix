@@ -199,3 +199,12 @@ The script records actual exits; analyzer exit0 only means it ran. Diagnostics
 require manual triage, as documented in the final report. Keep large build
 artifacts outside version control. No Windows/MSVC result is inferred from a
 Linux build.
+
+## Phase 10 update
+
+Historical phase9/ results retain the earlier stopping rules. Current root
+comparisons use position/contraction evidence, with no small-residual shortcut
+in either driver. Current adaptive Simpson uses a global conservative error
+sum and `max(abs,rel*abs(I))`. See [tolerance semantics](../documentation/api/tolerances.md)
+and [the accuracy report](../documentation/development/phase10_accuracy_report.md).
+Results under phase10/ are a new measured baseline, not a speed-optimization claim.

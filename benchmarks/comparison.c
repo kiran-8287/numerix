@@ -465,8 +465,8 @@ static void root_operation(workload *w, observation *o)
         size_t iteration;
         double value = p->initial;
         double previous;
+        double previous_step = INFINITY;
         int is_newton = strcmp(w->method, "newton") == 0;
-        int is_brent = strcmp(w->method, "brent") == 0;
 
         if (is_newton) {
             o->status = gsl_root_fdfsolver_set(w->newton, &derivative, value);
@@ -476,8 +476,8 @@ static void root_operation(workload *w, observation *o)
         if (o->status != GSL_SUCCESS) {
             return;
         }
-        /* Match NUMERIX's initial residual shortcut for Newton. */
-        if (is_newton && fabs(observed_function_value(w, value)) <= p->absolute_tolerance) {
+        /* Phase 10: a nonzero residual is not a position tolerance. */
+        if (is_newton && observed_function_value(w, value) == 0.0) {
             o->value = value;
             return;
         }
@@ -491,22 +491,36 @@ static void root_operation(workload *w, observation *o)
             if (o->status != GSL_SUCCESS) {
                 break;
             }
-            if (is_newton) {
-                o->estimated_error = fabs(value - previous);
-                if (fabs(observed_function_value(w, value)) <= p->absolute_tolerance ||
-                    o->estimated_error <= p->absolute_tolerance +
-                                          p->relative_tolerance * fabs(value)) {
+            if (is_newton)
+            {
+                double step = fabs(value - previous);
+                double ratio = step / previous_step;
+
+                o->estimated_error = isfinite(previous_step) && ratio < 1.0
+                    ? fmax(step, step * ratio / (1.0 - ratio)) : INFINITY;
+                if (observed_function_value(w, value) == 0.0 ||
+                    (step != 0.0 && o->estimated_error <= p->absolute_tolerance +
+                     p->relative_tolerance * fabs(value)))
+                {
                     break;
                 }
-            } else {
+                if (step == 0.0)
+                {
+                    o->status = GSL_ENOPROG;
+                    break;
+                }
+                previous_step = step;
+            }
+            else
+            {
                 double lower = gsl_root_fsolver_x_lower(w->root);
                 double upper = gsl_root_fsolver_x_upper(w->root);
 
-                o->estimated_error = (upper - lower) * 0.5;
+                o->estimated_error = fmax(value - lower, upper - value);
                 if (o->estimated_error <= p->absolute_tolerance +
-                    p->relative_tolerance * fabs(lower + (upper - lower) * 0.5) ||
-                    (is_brent &&
-                     fabs(observed_function_value(w, value)) <= p->absolute_tolerance)) {
+                    p->relative_tolerance * fabs(value) ||
+                    (w->last_x == value && w->last_value == 0.0))
+                {
                     break;
                 }
             }

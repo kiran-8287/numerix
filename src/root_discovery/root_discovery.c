@@ -665,8 +665,8 @@ static void insert_discovered_root(
         if (fabs(residual) < fabs(root->result.residual)) {
             root->result.value = value;
             root->result.residual = residual;
-            root->result.estimated_error =
-                fmin(root->result.estimated_error, fabs(residual));
+            root->result.estimated_error = refined_result != NULL
+                ? refined_result->estimated_error : NAN;
             root->kind = kind;
             root->verification = verification;
             root->refinement_algorithm = algorithm;
@@ -719,7 +719,8 @@ static void insert_discovered_root(
     root->result.status = NUMERIX_STATUS_SUCCESS;
     root->result.value = value;
     root->result.residual = residual;
-    root->result.estimated_error = fabs(residual);
+    root->result.estimated_error = refined_result != NULL
+        ? refined_result->estimated_error : NAN;
     root->result.algorithm = algorithm == NUMERIX_ALGORITHM_NONE
                                  ? "sample verification"
                                  : numerix_algorithm_name(algorithm);
@@ -841,18 +842,6 @@ static numerix_status refine_sign_change(
     bounded_options = context->base_options;
     bounded_options.maximum_iterations -= used_iterations;
     bounded_options.maximum_function_evaluations -= used_evaluations;
-    {
-        double discovery_refinement_tolerance = fmax(
-            DBL_EPSILON,
-            context->discovery_options->residual_tolerance * 1.0e-4);
-
-        if (bounded_options.absolute_tolerance == 0.0 ||
-            bounded_options.absolute_tolerance >
-                discovery_refinement_tolerance) {
-            bounded_options.absolute_tolerance =
-                discovery_refinement_tolerance;
-        }
-    }
     refinement_request = *context->request;
     refinement_request.representation = NUMERIX_REPRESENTATION_CALLBACK;
     refinement_request.function = budgeted_function;

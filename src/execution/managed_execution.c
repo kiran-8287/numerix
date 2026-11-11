@@ -446,9 +446,10 @@ static numerix_status run_bisection(numerix_managed_execution *execution,
             return NUMERIX_STATUS_SUCCESS;
         }
 
-        midpoint = execution->lower +
-                   (execution->upper - execution->lower) * 0.5;
-        if (midpoint == execution->lower || midpoint == execution->upper)
+        midpoint = execution->lower * 0.5 + execution->upper * 0.5;
+        if ((midpoint == execution->lower || midpoint == execution->upper) &&
+            fmax(midpoint - execution->lower, execution->upper - midpoint) >
+                options.absolute_tolerance + options.relative_tolerance * fabs(midpoint))
         {
             status = NUMERIX_STATUS_NUMERICAL_FAILURE;
             numerix_error_set(error, status,
@@ -467,7 +468,7 @@ static numerix_status run_bisection(numerix_managed_execution *execution,
         execution->result.value = midpoint;
         execution->result.residual = midpoint_value;
         execution->result.estimated_error =
-            (execution->upper - execution->lower) * 0.5;
+            fmax(midpoint - execution->lower, execution->upper - midpoint);
         execution->has_result = 1;
 
         if (midpoint_value == 0.0)
@@ -488,7 +489,7 @@ static numerix_status run_bisection(numerix_managed_execution *execution,
         }
         emit_bisection_step(execution, midpoint, midpoint_value);
 
-        if ((execution->upper - execution->lower) * 0.5 <=
+        if (execution->result.estimated_error <=
             options.absolute_tolerance +
                 options.relative_tolerance * fabs(midpoint))
         {
