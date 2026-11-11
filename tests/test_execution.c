@@ -546,9 +546,16 @@ static void test_managed_linear_solve_output(void)
     CHECK(!summary.iterations_available);
     CHECK(numerix_managed_execution_get_output(
               execution, &output, &error) == NUMERIX_STATUS_SUCCESS);
-    CHECK(output->vector_result != NULL);
-    CHECK(fabs(output->vector_result->data[0] - 2.0) < 1e-12);
-    CHECK(fabs(output->vector_result->data[1] - 3.0) < 1e-12);
+    CHECK(output != NULL);
+    if (output != NULL)
+    {
+        CHECK(output->vector_result != NULL);
+        if (output->vector_result != NULL)
+        {
+            CHECK(fabs(output->vector_result->data[0] - 2.0) < 1e-12);
+            CHECK(fabs(output->vector_result->data[1] - 3.0) < 1e-12);
+        }
+    }
 
     numerix_managed_execution_destroy(execution);
     numerix_vector_destroy(right);
@@ -649,8 +656,15 @@ static void test_managed_differentiation_interpolation_optimization(void)
         CHECK(summary.derivative_evaluations > 0);
         CHECK(numerix_managed_execution_get_output(
                   execution, &output, &error) == NUMERIX_STATUS_SUCCESS);
-        CHECK(output->vector_result != NULL);
-        CHECK(fabs(output->vector_result->data[0] - 3.0) < 1e-4);
+        CHECK(output != NULL);
+        if (output != NULL)
+        {
+            CHECK(output->vector_result != NULL);
+            if (output->vector_result != NULL)
+            {
+                CHECK(fabs(output->vector_result->data[0] - 3.0) < 1e-4);
+            }
+        }
         numerix_managed_execution_destroy(execution);
         numerix_vector_destroy(initial);
     }

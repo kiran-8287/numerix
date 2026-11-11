@@ -40,9 +40,15 @@ endif()
 if(MSVC)
     include(CheckCSourceCompiles)
     set(CMAKE_REQUIRED_FLAGS "/experimental:c11atomics")
-    check_c_source_compiles("#include <stdatomic.h>
-int main(void) { atomic_int value = 0; return atomic_load(&value); }"
-        NUMERIX_MSVC_C11_ATOMICS)
+    check_c_source_compiles([=[
+#include <stdatomic.h>
+int main(void)
+{
+    atomic_int value;
+    atomic_init(&value, 0);
+    return atomic_load(&value);
+}
+]=] NUMERIX_MSVC_C11_ATOMICS)
     unset(CMAKE_REQUIRED_FLAGS)
     if(NOT NUMERIX_MSVC_C11_ATOMICS)
         message(FATAL_ERROR "NUMERIX requires MSVC C11 atomics (VS 2022 17.5+ with /experimental:c11atomics)")

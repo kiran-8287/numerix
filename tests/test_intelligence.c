@@ -448,8 +448,11 @@ static void test_generic_execution(void)
     CHECK(numerix_execute_recommended(
         &request, NULL, &output, &error) == NUMERIX_STATUS_SUCCESS);
     CHECK(output.vector_result != NULL);
-    CHECK(fabs(output.vector_result->data[0] - (1.0 / 11.0)) < 1.0e-10);
-    CHECK(fabs(output.vector_result->data[1] - (7.0 / 11.0)) < 1.0e-10);
+    if (output.vector_result != NULL)
+    {
+        CHECK(fabs(output.vector_result->data[0] - (1.0 / 11.0)) < 1.0e-10);
+        CHECK(fabs(output.vector_result->data[1] - (7.0 / 11.0)) < 1.0e-10);
+    }
     numerix_execution_output_destroy(&output);
 
     memset(&request, 0, sizeof(request));

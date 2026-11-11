@@ -90,12 +90,12 @@ static void test_context_and_integration(void)
     CHECK(numerix_context_reset_counters(context) == NUMERIX_STATUS_SUCCESS);
     CHECK(numerix_context_iteration_count(context) == 0);
     CHECK(numerix_context_function_evaluation_count(context) == 0);
-    numerix_context_destroy(context);
+    numerix_context *retained_context = context;
     numerix_context_destroy(NULL);
-    context = (numerix_context *)1;
     options.relative_tolerance = -1.0;
     CHECK(numerix_context_create(&options, &context, &error) == NUMERIX_STATUS_INVALID_INPUT);
     CHECK(context == NULL);
+    numerix_context_destroy(retained_context);
     CHECK(numerix_context_create(NULL, NULL, &error) == NUMERIX_STATUS_INVALID_ARGUMENT);
 }
 

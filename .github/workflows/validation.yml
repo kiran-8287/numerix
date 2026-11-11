@@ -3,6 +3,9 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+concurrency:
+  group: native-validation-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -33,6 +36,12 @@ jobs:
         run: ctest --test-dir ci-build -C ${{ matrix.configuration }} --output-on-failure
       - name: Install
         run: cmake --install ci-build --config ${{ matrix.configuration }} --prefix "${{ runner.temp }}/numerix-installed"
+      - name: Independent installed C and C++ consumers
+        shell: bash
+        run: |
+          cmake -S tests/installed_consumer -B consumer-build -DNUMERIX_INSTALL_PREFIX="${{ runner.temp }}/numerix-installed" -DCMAKE_BUILD_TYPE=${{ matrix.configuration }}
+          cmake --build consumer-build --config ${{ matrix.configuration }} --parallel 2
+          ctest --test-dir consumer-build -C ${{ matrix.configuration }} --output-on-failure
       - name: Versions and public layouts
         shell: bash
         run: |
@@ -82,6 +91,9 @@ jobs:
           ./ci-build/numerix_portability_probe.exe > portability.txt
           gcc --version >> portability.txt
           cmake --install ci-build --prefix "$RUNNER_TEMP/numerix-mingw-installed"
+          cmake -S tests/installed_consumer -B consumer-build -G Ninja -DNUMERIX_INSTALL_PREFIX="$RUNNER_TEMP/numerix-mingw-installed" -DCMAKE_BUILD_TYPE=${{ matrix.configuration }}
+          cmake --build consumer-build --parallel 2
+          ctest --test-dir consumer-build --output-on-failure
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: portability-windows-mingw-${{ matrix.configuration }}

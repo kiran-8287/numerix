@@ -115,11 +115,20 @@ static void test_constants_and_functions(void)
 
 static void check_compile_error(const char *source)
 {
-    numerix_expression *expression = (numerix_expression *)1;
+    numerix_expression *retained_expression = NULL;
+    numerix_expression *expression;
     numerix_error error;
     numerix_status status;
 
+    status = numerix_expression_compile("x", &retained_expression, &error);
+    CHECK(status == NUMERIX_STATUS_SUCCESS);
+    if (retained_expression == NULL)
+    {
+        return;
+    }
+    expression = retained_expression;
     status = numerix_expression_compile(source, &expression, &error);
+    numerix_expression_destroy(retained_expression);
 
     CHECK(status != NUMERIX_STATUS_SUCCESS);
     CHECK(expression == NULL);
