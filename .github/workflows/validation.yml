@@ -1,0 +1,88 @@
+name: Native compiler validation
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [Debug, Release]
+        platform:
+          - {os: ubuntu-latest, compiler: gcc}
+          - {os: ubuntu-latest, compiler: clang}
+          - {os: macos-latest, compiler: clang}
+          - {os: windows-latest, compiler: msvc}
+    runs-on: ${{ matrix.platform.os }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Configure
+        shell: bash
+        run: |
+          if [ "${{ matrix.platform.compiler }}" = msvc ]; then
+            cmake -S . -B ci-build -DNUMERIX_BUILD_COMPARISON_BENCHMARK=ON -DCMAKE_DISABLE_FIND_PACKAGE_GSL=TRUE
+          else
+            cmake -S . -B ci-build -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_C_COMPILER=${{ matrix.platform.compiler }} -DCMAKE_C_FLAGS=-Werror -DNUMERIX_BUILD_COMPARISON_BENCHMARK=ON -DCMAKE_DISABLE_FIND_PACKAGE_GSL=TRUE
+          fi
+      - name: Build
+        run: cmake --build ci-build --config ${{ matrix.configuration }} --parallel 2
+      - name: Test
+        run: ctest --test-dir ci-build -C ${{ matrix.configuration }} --output-on-failure
+      - name: Install
+        run: cmake --install ci-build --config ${{ matrix.configuration }} --prefix "${{ runner.temp }}/numerix-installed"
+      - name: Versions and public layouts
+        shell: bash
+        run: |
+          cmake --version > portability.txt
+          if [ -x ci-build/numerix_portability_probe ]; then
+            ./ci-build/numerix_portability_probe >> portability.txt
+          else
+            ./ci-build/${{ matrix.configuration }}/numerix_portability_probe.exe >> portability.txt
+          fi
+          cat portability.txt
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: portability-${{ matrix.platform.os }}-${{ matrix.platform.compiler }}-${{ matrix.configuration }}
+          path: portability.txt
+  mingw:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [Debug, Release]
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            make
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+      - name: CMake, Make, tests and examples
+        shell: msys2 {0}
+        run: |
+          cmake -S . -B ci-build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_C_FLAGS=-Werror -DNUMERIX_BUILD_COMPARISON_BENCHMARK=ON -DCMAKE_DISABLE_FIND_PACKAGE_GSL=TRUE
+          cmake --build ci-build --parallel 2
+          ctest --test-dir ci-build --output-on-failure
+          if [ "${{ matrix.configuration }}" = Debug ]; then
+            make -j2 all test CFLAGS='-O0 -g -Werror'
+          else
+            make -j2 all test CFLAGS='-O3 -DNDEBUG -Werror'
+          fi
+          ./numerix_cli --demo
+          for example in expression piecewise intelligence managed_execution root_discovery; do
+            ./numerix_${example}_demo
+          done
+          ./ci-build/numerix_portability_probe.exe > portability.txt
+          gcc --version >> portability.txt
+          cmake --install ci-build --prefix "$RUNNER_TEMP/numerix-mingw-installed"
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: portability-windows-mingw-${{ matrix.configuration }}
+          path: portability.txt

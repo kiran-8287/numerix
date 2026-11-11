@@ -75,7 +75,7 @@ def main():
              "numerix_audit_regression_tests", "numerix_piecewise_tests",
              "numerix_intelligence_tests", "numerix_execution_tests", "numerix_diagnostics_tests",
              "numerix_root_discovery_tests", "numerix_phase8_integration_tests",
-             "numerix_release_regression_tests"]
+             "numerix_release_regression_tests", "numerix_accuracy_tests"]
     release = Path("cmake-build-validation-gcc_debug")
     if shutil.which("valgrind"):
         for executable in tests:
