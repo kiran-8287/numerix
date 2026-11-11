@@ -72,3 +72,8 @@ int main(void)
 4. Later phases: piecewise representations, execution controls and diagnostics, then method analysis and recommendation.
 
 No later-phase feature should be inferred from the existence of a reserved directory or foundation type.
+
+
+## Phase 3: piecewise functions
+
+NUMERIX can compile ordered piecewise expression segments with open or closed bounds, evaluate the matching segment, estimate one-sided limits, and report numerical boundary classifications. Piecewise callback, boundary-split trapezoid integration, and a central-difference guard connect the feature to the existing numerical algorithms. Discontinuity detection is numerical evidence, not symbolic proof; see [the piecewise API guide](documentation/api/piecewise.md).

@@ -19,6 +19,9 @@ add_library(numerix STATIC
     src/expression/parser.c
     src/expression/evaluator.c
     src/expression/expression.c
+    src/piecewise/piecewise.c
+    src/piecewise/analysis.c
+    src/piecewise/adapters.c
 )
 target_include_directories(numerix PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(numerix PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/internal)
@@ -37,6 +40,9 @@ target_link_libraries(numerix_cli PRIVATE numerix)
 add_executable(numerix_expression_demo examples/expression_demo.c)
 target_link_libraries(numerix_expression_demo PRIVATE numerix)
 
+add_executable(numerix_piecewise_demo examples/piecewise_demo.c)
+target_link_libraries(numerix_piecewise_demo PRIVATE numerix)
+
 include(CTest)
 if(BUILD_TESTING)
     add_executable(numerix_tests tests/test_numerix.c)
@@ -47,11 +53,14 @@ if(BUILD_TESTING)
     target_link_libraries(numerix_expression_tests PRIVATE numerix)
     add_executable(numerix_audit_regression_tests tests/test_audit_regressions.c)
     target_link_libraries(numerix_audit_regression_tests PRIVATE numerix)
+    add_executable(numerix_piecewise_tests tests/test_piecewise.c)
+    target_link_libraries(numerix_piecewise_tests PRIVATE numerix)
     if(NOT MSVC)
         target_compile_options(numerix_tests PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
         target_compile_options(numerix_phase1_tests PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
         target_compile_options(numerix_expression_tests PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
         target_compile_options(numerix_audit_regression_tests PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+        target_compile_options(numerix_piecewise_tests PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
     endif()
     add_test(NAME numerix_unit COMMAND numerix_tests unit)
     add_test(NAME numerix_integration COMMAND numerix_tests integration)
@@ -64,4 +73,5 @@ if(BUILD_TESTING)
     add_test(NAME numerix_ode COMMAND numerix_phase1_tests ode)
     add_test(NAME numerix_expression_engine COMMAND numerix_expression_tests)
     add_test(NAME numerix_audit_regressions COMMAND numerix_audit_regression_tests)
+    add_test(NAME numerix_piecewise COMMAND numerix_piecewise_tests)
 endif()

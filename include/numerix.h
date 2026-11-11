@@ -192,6 +192,105 @@ numerix_status numerix_expression_callback_status(
 const numerix_error *numerix_expression_callback_error(
     const numerix_expression_callback_context *context);
 
+/* Phase 3: ordered, non-overlapping piecewise expression functions. */
+typedef struct numerix_piecewise_function numerix_piecewise_function;
+
+typedef enum numerix_discontinuity_type {
+    NUMERIX_DISCONTINUITY_CONTINUOUS = 0,
+    NUMERIX_DISCONTINUITY_JUMP,
+    NUMERIX_DISCONTINUITY_REMOVABLE,
+    NUMERIX_DISCONTINUITY_INFINITE,
+    NUMERIX_DISCONTINUITY_UNKNOWN
+} numerix_discontinuity_type;
+
+typedef enum numerix_diagnostic_confidence {
+    NUMERIX_DIAGNOSTIC_INCONCLUSIVE = 0,
+    NUMERIX_DIAGNOSTIC_SUSPECTED,
+    NUMERIX_DIAGNOSTIC_NUMERICALLY_CONFIRMED
+} numerix_diagnostic_confidence;
+
+typedef struct numerix_piecewise_boundary_report {
+    double boundary;
+    double left_limit;
+    double right_limit;
+    double function_value;
+    numerix_status left_status;
+    numerix_status right_status;
+    numerix_status function_status;
+    numerix_discontinuity_type type;
+    numerix_diagnostic_confidence confidence;
+} numerix_piecewise_boundary_report;
+
+typedef struct numerix_piecewise_candidate {
+    double location;
+    double left_value;
+    double right_value;
+    numerix_status left_status;
+    numerix_status right_status;
+    numerix_diagnostic_confidence confidence;
+} numerix_piecewise_candidate;
+
+typedef struct numerix_piecewise_callback_context {
+    const numerix_piecewise_function *function;
+    numerix_status last_status;
+    numerix_error last_error;
+} numerix_piecewise_callback_context;
+
+/*
+ * Added expressions are compiled and owned by the piecewise object. Finish
+ * building the object before starting concurrent evaluations.
+ */
+numerix_status numerix_piecewise_create(
+    numerix_piecewise_function **function, numerix_error *error);
+numerix_status numerix_piecewise_add_expression(
+    numerix_piecewise_function *function, double lower_bound,
+    double upper_bound, int include_lower, int include_upper,
+    const char *expression, numerix_error *error);
+numerix_status numerix_piecewise_evaluate(
+    const numerix_piecewise_function *function, double x,
+    double *value, numerix_error *error);
+void numerix_piecewise_destroy(numerix_piecewise_function *function);
+
+/* direction is -1 for a left limit and +1 for a right limit. */
+numerix_status numerix_piecewise_estimate_one_sided_limit(
+    const numerix_piecewise_function *function, double boundary, int direction,
+    const numerix_options *options, double *limit,
+    numerix_diagnostic_confidence *confidence, numerix_error *error);
+numerix_status numerix_piecewise_analyze_boundary(
+    const numerix_piecewise_function *function, double boundary,
+    const numerix_options *options,
+    numerix_piecewise_boundary_report *report, numerix_error *error);
+numerix_status numerix_piecewise_analyze_boundaries(
+    const numerix_piecewise_function *function, const numerix_options *options,
+    numerix_piecewise_boundary_report *reports, size_t capacity,
+    size_t *report_count, numerix_error *error);
+
+/* Probe an interval uniformly; candidates are numerical suspicion only. */
+numerix_status numerix_piecewise_scan_interval(
+    const numerix_piecewise_function *function, double lower, double upper,
+    size_t samples, numerix_piecewise_candidate *candidates,
+    size_t capacity, size_t *candidate_count, numerix_error *error);
+
+numerix_status numerix_piecewise_callback_context_init(
+    numerix_piecewise_callback_context *context,
+    const numerix_piecewise_function *function, numerix_error *error);
+double numerix_piecewise_callback(double x, void *user_data);
+numerix_status numerix_piecewise_callback_status(
+    const numerix_piecewise_callback_context *context);
+const numerix_error *numerix_piecewise_callback_error(
+    const numerix_piecewise_callback_context *context);
+
+/* Integration splits at known segment boundaries and rejects interval gaps. */
+numerix_status numerix_piecewise_integrate_trapezoid(
+    const numerix_piecewise_function *function, double lower, double upper,
+    size_t panels_per_segment, const numerix_options *options,
+    numerix_result *result, numerix_error *error);
+/* Refuses a finite-difference stencil that crosses a suspected boundary. */
+numerix_status numerix_piecewise_diff_central(
+    const numerix_piecewise_function *function, double x, double step,
+    const numerix_options *options, numerix_result *result,
+    numerix_error *error);
+
 /* Returns a static readable name for a status code. */
 const char *numerix_status_string(numerix_status status);
 /* Clears an error, or records a bounded, copied message and status. */
