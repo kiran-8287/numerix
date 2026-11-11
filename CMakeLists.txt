@@ -22,6 +22,11 @@ add_library(numerix STATIC
     src/piecewise/piecewise.c
     src/piecewise/analysis.c
     src/piecewise/adapters.c
+    src/intelligence/problem.c
+    src/intelligence/recommendation.c
+    src/intelligence/root_execution.c
+    src/intelligence/portfolio.c
+    src/intelligence/execution.c
 )
 target_include_directories(numerix PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(numerix PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/internal)
@@ -43,6 +48,9 @@ target_link_libraries(numerix_expression_demo PRIVATE numerix)
 add_executable(numerix_piecewise_demo examples/piecewise_demo.c)
 target_link_libraries(numerix_piecewise_demo PRIVATE numerix)
 
+add_executable(numerix_intelligence_demo examples/intelligence_demo.c)
+target_link_libraries(numerix_intelligence_demo PRIVATE numerix)
+
 include(CTest)
 if(BUILD_TESTING)
     add_executable(numerix_tests tests/test_numerix.c)
@@ -55,12 +63,15 @@ if(BUILD_TESTING)
     target_link_libraries(numerix_audit_regression_tests PRIVATE numerix)
     add_executable(numerix_piecewise_tests tests/test_piecewise.c)
     target_link_libraries(numerix_piecewise_tests PRIVATE numerix)
+    add_executable(numerix_intelligence_tests tests/test_intelligence.c)
+    target_link_libraries(numerix_intelligence_tests PRIVATE numerix)
     if(NOT MSVC)
         target_compile_options(numerix_tests PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
         target_compile_options(numerix_phase1_tests PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
         target_compile_options(numerix_expression_tests PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
         target_compile_options(numerix_audit_regression_tests PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
         target_compile_options(numerix_piecewise_tests PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+        target_compile_options(numerix_intelligence_tests PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
     endif()
     add_test(NAME numerix_unit COMMAND numerix_tests unit)
     add_test(NAME numerix_integration COMMAND numerix_tests integration)
@@ -74,4 +85,5 @@ if(BUILD_TESTING)
     add_test(NAME numerix_expression_engine COMMAND numerix_expression_tests)
     add_test(NAME numerix_audit_regressions COMMAND numerix_audit_regression_tests)
     add_test(NAME numerix_piecewise COMMAND numerix_piecewise_tests)
+    add_test(NAME numerix_intelligence COMMAND numerix_intelligence_tests)
 endif()

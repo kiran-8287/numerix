@@ -196,3 +196,51 @@ void numerix_piecewise_destroy(numerix_piecewise_function *function)
     numerix_deallocate(function->segments);
     numerix_deallocate(function);
 }
+
+
+numerix_status numerix_piecewise_get_boundaries(
+    const numerix_piecewise_function *function, double *boundaries,
+    size_t capacity, size_t *boundary_count, numerix_error *error)
+{
+    size_t count = 0;
+    size_t index;
+    double previous = NAN;
+
+    if (function == NULL || boundary_count == NULL ||
+        (capacity > 0 && boundaries == NULL)) {
+        return numerix_error_set(
+            error, NUMERIX_STATUS_INVALID_ARGUMENT,
+            "piecewise function and boundary count output are required");
+    }
+    for (index = 0; index < function->count; ++index) {
+        double candidates[2] = {
+            function->segments[index].lower_bound,
+            function->segments[index].upper_bound
+        };
+        size_t candidate_index;
+
+        for (candidate_index = 0; candidate_index < 2; ++candidate_index) {
+            double candidate = candidates[candidate_index];
+            if (!isfinite(candidate) || (count > 0 && candidate == previous)) {
+                continue;
+            }
+            if (count < capacity && boundaries != NULL) {
+                boundaries[count] = candidate;
+            }
+            previous = candidate;
+            ++count;
+        }
+    }
+    *boundary_count = count;
+    if (boundaries == NULL && capacity == 0) {
+        numerix_error_clear(error);
+        return NUMERIX_STATUS_SUCCESS;
+    }
+    if (count > capacity) {
+        return numerix_error_set(
+            error, NUMERIX_STATUS_LIMIT_REACHED,
+            "boundary output capacity is too small");
+    }
+    numerix_error_clear(error);
+    return NUMERIX_STATUS_SUCCESS;
+}

@@ -77,3 +77,8 @@ No later-phase feature should be inferred from the existence of a reserved direc
 ## Phase 3: piecewise functions
 
 NUMERIX can compile ordered piecewise expression segments with open or closed bounds, evaluate the matching segment, estimate one-sided limits, and report numerical boundary classifications. Piecewise callback, boundary-split trapezoid integration, and a central-difference guard connect the feature to the existing numerical algorithms. Discontinuity detection is numerical evidence, not symbolic proof; see [the piecewise API guide](documentation/api/piecewise.md).
+
+
+## Phase 4: algorithm recommendations
+
+NUMERIX can explain deterministic recommendations across the implemented numerical categories, execute a recommended method, retain explicit algorithm overrides, and orchestrate root-solver fallback or sequential portfolios. See [the intelligence API guide](documentation/api/intelligence.md) and [architecture notes](documentation/architecture/intelligence.md).

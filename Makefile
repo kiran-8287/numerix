@@ -16,7 +16,10 @@ SOURCES = src/core/numerix_core.c src/core/numerix_platform.c \
 	src/expression/parser.c \
 	src/expression/evaluator.c \
 	src/expression/expression.c \
-	src/piecewise/piecewise.c src/piecewise/analysis.c src/piecewise/adapters.c
+	src/piecewise/piecewise.c src/piecewise/analysis.c src/piecewise/adapters.c \
+	src/intelligence/problem.c src/intelligence/recommendation.c \
+	src/intelligence/root_execution.c src/intelligence/portfolio.c \
+	src/intelligence/execution.c
 VPATH = $(sort $(dir $(SOURCES)))
 OBJECTS = $(addprefix build/,$(notdir $(SOURCES:.c=.o)))
 
@@ -24,29 +27,33 @@ ifeq ($(OS),Windows_NT)
 CLI = numerix_cli.exe
 EXPRESSION_DEMO = numerix_expression_demo.exe
 PIECEWISE_DEMO = numerix_piecewise_demo.exe
+INTELLIGENCE_DEMO = numerix_intelligence_demo.exe
 TEST_EXE = numerix_tests.exe
 EXPRESSION_TEST_EXE = numerix_expression_tests.exe
 AUDIT_TEST_EXE = numerix_audit_regression_tests.exe
 PIECEWISE_TEST_EXE = numerix_piecewise_tests.exe
+INTELLIGENCE_TEST_EXE = numerix_intelligence_tests.exe
 LDLIBS =
 else
 CLI = numerix_cli
 EXPRESSION_DEMO = numerix_expression_demo
 PIECEWISE_DEMO = numerix_piecewise_demo
+INTELLIGENCE_DEMO = numerix_intelligence_demo
 TEST_EXE = numerix_tests
 EXPRESSION_TEST_EXE = numerix_expression_tests
 AUDIT_TEST_EXE = numerix_audit_regression_tests
 PIECEWISE_TEST_EXE = numerix_piecewise_tests
+INTELLIGENCE_TEST_EXE = numerix_intelligence_tests
 LDLIBS = -lm
 endif
 
 .PHONY: all test clean
-all: $(LIB) $(CLI) $(EXPRESSION_DEMO) $(PIECEWISE_DEMO)
+all: $(LIB) $(CLI) $(EXPRESSION_DEMO) $(PIECEWISE_DEMO) $(INTELLIGENCE_DEMO)
 
 build:
 	$(MKDIR_COMMAND)
 
-build/%.o: %.c src/internal/numerix_internal.h src/internal/numerix_expression_internal.h src/piecewise/piecewise_internal.h include/numerix.h | build
+build/%.o: %.c src/internal/numerix_internal.h src/internal/numerix_expression_internal.h src/piecewise/piecewise_internal.h src/intelligence/intelligence_internal.h include/numerix.h | build
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) -c $< -o $@
 
 $(LIB): $(OBJECTS)
@@ -61,6 +68,9 @@ $(EXPRESSION_DEMO): examples/expression_demo.c $(LIB)
 $(PIECEWISE_DEMO): examples/piecewise_demo.c $(LIB)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $< $(LIB) $(LDLIBS) -o $@
 
+$(INTELLIGENCE_DEMO): examples/intelligence_demo.c $(LIB)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $< $(LIB) $(LDLIBS) -o $@
+
 $(TEST_EXE): tests/test_numerix.c $(LIB)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $< $(LIB) $(LDLIBS) -o $@
 
@@ -70,13 +80,16 @@ numerix_phase1_tests: tests/test_phase1.c $(LIB)
 $(AUDIT_TEST_EXE): tests/test_audit_regressions.c $(LIB)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $< $(LIB) $(LDLIBS) -o $@
 
+$(INTELLIGENCE_TEST_EXE): tests/test_intelligence.c $(LIB)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $< $(LIB) $(LDLIBS) -o $@
+
 $(PIECEWISE_TEST_EXE): tests/test_piecewise.c $(LIB)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $< $(LIB) $(LDLIBS) -o $@
 
 $(EXPRESSION_TEST_EXE): tests/test_expression.c $(LIB)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $< $(LIB) $(LDLIBS) -o $@
 
-test: $(TEST_EXE) numerix_phase1_tests $(EXPRESSION_TEST_EXE) $(AUDIT_TEST_EXE) $(PIECEWISE_TEST_EXE)
+test: $(TEST_EXE) numerix_phase1_tests $(EXPRESSION_TEST_EXE) $(AUDIT_TEST_EXE) $(PIECEWISE_TEST_EXE) $(INTELLIGENCE_TEST_EXE)
 	./$(TEST_EXE) unit
 	./$(TEST_EXE) integration
 	./numerix_phase1_tests root_finding
@@ -89,14 +102,15 @@ test: $(TEST_EXE) numerix_phase1_tests $(EXPRESSION_TEST_EXE) $(AUDIT_TEST_EXE) 
 	./$(EXPRESSION_TEST_EXE)
 	./$(AUDIT_TEST_EXE)
 	./$(PIECEWISE_TEST_EXE)
+	./$(INTELLIGENCE_TEST_EXE)
 
 clean:
 	$(CLEAN_COMMAND)
 
 ifeq ($(OS),Windows_NT)
-CLEAN_COMMAND = cmd /c "if exist build rmdir /s /q build & if exist libnumerix.a del /q libnumerix.a & if exist numerix_cli.exe del /q numerix_cli.exe & if exist numerix_piecewise_demo.exe del /q numerix_piecewise_demo.exe & if exist numerix_expression_demo.exe del /q numerix_expression_demo.exe & if exist numerix_tests.exe del /q numerix_tests.exe & if exist numerix_phase1_tests.exe del /q numerix_phase1_tests.exe & if exist numerix_expression_tests.exe del /q numerix_expression_tests.exe & if exist numerix_audit_regression_tests.exe del /q numerix_audit_regression_tests.exe & if exist numerix_piecewise_tests.exe del /q numerix_piecewise_tests.exe & if exist numerix_tests_direct.exe del /q numerix_tests_direct.exe & if exist build_core.o del /q build_core.o & if exist build_platform.o del /q build_platform.o"
+CLEAN_COMMAND = cmd /c "if exist build rmdir /s /q build & if exist libnumerix.a del /q libnumerix.a & if exist numerix_cli.exe del /q numerix_cli.exe & if exist numerix_piecewise_demo.exe del /q numerix_piecewise_demo.exe & if exist numerix_intelligence_demo.exe del /q numerix_intelligence_demo.exe & if exist numerix_expression_demo.exe del /q numerix_expression_demo.exe & if exist numerix_tests.exe del /q numerix_tests.exe & if exist numerix_phase1_tests.exe del /q numerix_phase1_tests.exe & if exist numerix_expression_tests.exe del /q numerix_expression_tests.exe & if exist numerix_audit_regression_tests.exe del /q numerix_audit_regression_tests.exe & if exist numerix_piecewise_tests.exe del /q numerix_piecewise_tests.exe & if exist numerix_intelligence_tests.exe del /q numerix_intelligence_tests.exe & if exist numerix_tests_direct.exe del /q numerix_tests_direct.exe & if exist build_core.o del /q build_core.o & if exist build_platform.o del /q build_platform.o"
 MKDIR_COMMAND = cmd /c "if not exist build mkdir build"
 else
-CLEAN_COMMAND = rm -rf build $(LIB) numerix_cli numerix_expression_demo numerix_tests numerix_phase1_tests numerix_expression_tests numerix_audit_regression_tests numerix_piecewise_demo numerix_piecewise_tests numerix_tests_direct.exe build_core.o build_platform.o
+CLEAN_COMMAND = rm -rf build $(LIB) numerix_cli numerix_expression_demo numerix_tests numerix_phase1_tests numerix_expression_tests numerix_audit_regression_tests numerix_piecewise_demo numerix_intelligence_demo numerix_piecewise_tests numerix_intelligence_tests numerix_tests_direct.exe build_core.o build_platform.o
 MKDIR_COMMAND = mkdir -p build
 endif

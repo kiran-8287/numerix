@@ -250,6 +250,10 @@ numerix_status numerix_piecewise_evaluate(
     const numerix_piecewise_function *function, double x,
     double *value, numerix_error *error);
 void numerix_piecewise_destroy(numerix_piecewise_function *function);
+/* Returns the unique finite segment endpoints in increasing order. */
+numerix_status numerix_piecewise_get_boundaries(
+    const numerix_piecewise_function *function, double *boundaries,
+    size_t capacity, size_t *boundary_count, numerix_error *error);
 
 /* direction is -1 for a left limit and +1 for a right limit. */
 numerix_status numerix_piecewise_estimate_one_sided_limit(
@@ -290,6 +294,239 @@ numerix_status numerix_piecewise_diff_central(
     const numerix_piecewise_function *function, double x, double step,
     const numerix_options *options, numerix_result *result,
     numerix_error *error);
+
+/* Phase 4: explainable recommendations and root-solver orchestration. */
+typedef enum numerix_problem_category {
+    NUMERIX_PROBLEM_ROOT_FINDING = 0,
+    NUMERIX_PROBLEM_LINEAR_ALGEBRA,
+    NUMERIX_PROBLEM_DIFFERENTIATION,
+    NUMERIX_PROBLEM_INTERPOLATION,
+    NUMERIX_PROBLEM_INTEGRATION,
+    NUMERIX_PROBLEM_OPTIMIZATION,
+    NUMERIX_PROBLEM_ODE
+} numerix_problem_category;
+
+typedef enum numerix_algorithm {
+    NUMERIX_ALGORITHM_NONE = 0,
+    NUMERIX_ALGORITHM_BISECTION,
+    NUMERIX_ALGORITHM_REGULA_FALSI,
+    NUMERIX_ALGORITHM_SECANT,
+    NUMERIX_ALGORITHM_NEWTON,
+    NUMERIX_ALGORITHM_SAFEGUARDED_NEWTON,
+    NUMERIX_ALGORITHM_BRENT,
+    NUMERIX_ALGORITHM_GAUSSIAN_ELIMINATION,
+    NUMERIX_ALGORITHM_GAUSS_JORDAN,
+    NUMERIX_ALGORITHM_LU,
+    NUMERIX_ALGORITHM_DIFF_FORWARD,
+    NUMERIX_ALGORITHM_DIFF_BACKWARD,
+    NUMERIX_ALGORITHM_DIFF_CENTRAL,
+    NUMERIX_ALGORITHM_DIFF_FIVE_POINT,
+    NUMERIX_ALGORITHM_DIFF_RICHARDSON,
+    NUMERIX_ALGORITHM_DIFF_SECOND,
+    NUMERIX_ALGORITHM_PIECEWISE_DIFF_CENTRAL,
+    NUMERIX_ALGORITHM_INTERP_LINEAR,
+    NUMERIX_ALGORITHM_INTERP_LAGRANGE,
+    NUMERIX_ALGORITHM_INTERP_NEWTON,
+    NUMERIX_ALGORITHM_INTEGRATE_TRAPEZOID,
+    NUMERIX_ALGORITHM_INTEGRATE_SIMPSON,
+    NUMERIX_ALGORITHM_INTEGRATE_ADAPTIVE_SIMPSON,
+    NUMERIX_ALGORITHM_PIECEWISE_INTEGRATE_TRAPEZOID,
+    NUMERIX_ALGORITHM_OPTIMIZE_GOLDEN_SECTION,
+    NUMERIX_ALGORITHM_OPTIMIZE_GRADIENT_DESCENT,
+    NUMERIX_ALGORITHM_ODE_EULER,
+    NUMERIX_ALGORITHM_ODE_HEUN,
+    NUMERIX_ALGORITHM_ODE_RK4
+} numerix_algorithm;
+
+typedef enum numerix_problem_representation {
+    NUMERIX_REPRESENTATION_CALLBACK = 0,
+    NUMERIX_REPRESENTATION_EXPRESSION,
+    NUMERIX_REPRESENTATION_PIECEWISE
+} numerix_problem_representation;
+
+typedef enum numerix_suitability {
+    NUMERIX_SUITABILITY_UNAVAILABLE = 0,
+    NUMERIX_SUITABILITY_CONDITIONAL,
+    NUMERIX_SUITABILITY_SUITABLE
+} numerix_suitability;
+
+typedef struct numerix_recommendation_request {
+    numerix_problem_category category;
+    numerix_problem_representation representation;
+    numerix_function function;
+    void *user_data;
+    numerix_function derivative;
+    const numerix_expression *expression;
+    const numerix_piecewise_function *piecewise_function;
+    const numerix_options *options;
+    union {
+        struct {
+            double lower;
+            double upper;
+            double initial;
+            double second_initial;
+            int has_bracket;
+            int has_initial;
+            int has_second_initial;
+        } root;
+        struct {
+            const numerix_matrix *matrix;
+            const numerix_vector *right_hand_side;
+        } linear;
+        struct {
+            double x;
+            double step;
+        } differentiation;
+        struct {
+            const double *x;
+            const double *y;
+            size_t count;
+            double query;
+            int allow_extrapolation;
+        } interpolation;
+        struct {
+            double lower;
+            double upper;
+            size_t panels;
+        } integration;
+        struct {
+            int bounded;
+            double lower;
+            double upper;
+            numerix_objective_function objective;
+            numerix_gradient_function gradient;
+            const numerix_vector *initial;
+            double initial_step;
+        } optimization;
+        struct {
+            numerix_ode_function function;
+            const double *initial_state;
+            size_t dimension;
+            double initial_x;
+            double step;
+            size_t steps;
+        } ode;
+    } problem;
+} numerix_recommendation_request;
+
+typedef struct numerix_recommendation {
+    numerix_problem_category category;
+    numerix_algorithm recommended_algorithm;
+    numerix_suitability suitability;
+    int sign_changing_bracket;
+    int bracket_was_checked;
+    int derivative_available;
+    int derivative_checked;
+    int derivative_appears_zero_or_non_finite;
+    int crosses_piecewise_boundaries;
+    size_t piecewise_boundary_count;
+    size_t probe_evaluations;
+    size_t derivative_probe_evaluations;
+    size_t alternative_count;
+    numerix_algorithm alternatives[4];
+    char reason[3][160];
+    char limitation[2][160];
+    char alternative_reason[4][120];
+} numerix_recommendation;
+
+#define NUMERIX_ROOT_SELECTION_MAX_ATTEMPTS 4
+
+typedef enum numerix_selection_mode {
+    NUMERIX_SELECTION_AUTOMATIC = 0,
+    NUMERIX_SELECTION_EXPLICIT
+} numerix_selection_mode;
+
+typedef struct numerix_root_selection_options {
+    numerix_selection_mode mode;
+    numerix_algorithm explicit_algorithm;
+    int enable_fallback;
+} numerix_root_selection_options;
+
+typedef struct numerix_algorithm_attempt {
+    numerix_algorithm algorithm;
+    numerix_status status;
+    int was_fallback;
+    char reason[160];
+    numerix_error error;
+    numerix_result result;
+} numerix_algorithm_attempt;
+
+typedef struct numerix_root_selection_report {
+    numerix_algorithm initially_selected;
+    numerix_algorithm final_algorithm;
+    numerix_status recommendation_status;
+    numerix_error recommendation_error;
+    numerix_status original_failure;
+    numerix_status final_status;
+    int fallback_enabled;
+    int fallback_used;
+    size_t attempt_count;
+    size_t total_function_evaluations;
+    size_t total_iterations;
+    numerix_algorithm_attempt attempts[NUMERIX_ROOT_SELECTION_MAX_ATTEMPTS];
+    numerix_recommendation recommendation;
+} numerix_root_selection_report;
+
+#define NUMERIX_ROOT_PORTFOLIO_MAX_ATTEMPTS 6
+#define NUMERIX_ROOT_ALGORITHM_MASK(algorithm) (1U << (unsigned int)(algorithm))
+
+typedef struct numerix_root_portfolio_options {
+    unsigned int algorithm_mask;
+} numerix_root_portfolio_options;
+
+typedef struct numerix_root_portfolio_report {
+    size_t attempt_count;
+    size_t selected_attempt;
+    int has_selected_attempt;
+    int successful_results_agree;
+    size_t total_function_evaluations;
+    size_t total_iterations;
+    size_t recommendation_probe_evaluations;
+    numerix_status recommendation_status;
+    numerix_error recommendation_error;
+    numerix_algorithm_attempt attempts[NUMERIX_ROOT_PORTFOLIO_MAX_ATTEMPTS];
+} numerix_root_portfolio_report;
+
+numerix_status numerix_recommend_algorithm(
+    const numerix_recommendation_request *request,
+    numerix_recommendation *recommendation, numerix_error *error);
+const char *numerix_algorithm_name(numerix_algorithm algorithm);
+numerix_status numerix_root_solve_auto(
+    const numerix_recommendation_request *request,
+    const numerix_root_selection_options *selection_options,
+    numerix_result *result, numerix_root_selection_report *report,
+    numerix_error *error);
+numerix_status numerix_root_solve_portfolio(
+    const numerix_recommendation_request *request,
+    const numerix_root_portfolio_options *portfolio_options,
+    numerix_result *best_result, numerix_root_portfolio_report *report,
+    numerix_error *error);
+
+typedef struct numerix_execution_options {
+    numerix_algorithm explicit_algorithm;
+    int enable_root_fallback;
+    size_t panels;
+    size_t adaptive_depth;
+} numerix_execution_options;
+
+typedef struct numerix_execution_output {
+    numerix_problem_category category;
+    numerix_algorithm algorithm;
+    int selected_automatically;
+    numerix_recommendation recommendation;
+    numerix_result scalar_result;
+    numerix_vector *vector_result;
+    numerix_ode_solution ode_result;
+    int has_ode_result;
+    numerix_root_selection_report root_selection;
+} numerix_execution_output;
+
+/* Vector and ODE outputs are owned by this object until it is destroyed. */
+numerix_status numerix_execute_recommended(
+    const numerix_recommendation_request *request,
+    const numerix_execution_options *execution_options,
+    numerix_execution_output *output, numerix_error *error);
+void numerix_execution_output_destroy(numerix_execution_output *output);
 
 /* Returns a static readable name for a status code. */
 const char *numerix_status_string(numerix_status status);
