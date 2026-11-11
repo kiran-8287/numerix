@@ -4,7 +4,7 @@ NUMERIX is a C11 numerical computation library being built as a modular foundati
 
 ## Status
 
-Phase 0 provides version/status/error APIs, scalar callback problems, shared options, a result foundation, allocation helpers, an execution context with counters and monotonic elapsed timing, a static library, a startup CLI, and automated tests. No numerical solving algorithms or expression engine are implemented yet.
+Phase 0 provides version/status/error APIs, scalar callback problems, shared options, a result foundation, allocation helpers, and an execution context. Phase 1 adds bracketed and open root solvers, dense vector/matrix operations and direct solvers, finite-difference derivatives, polynomial interpolation, fixed/adaptive quadrature, one-dimensional and gradient-based minimization, and fixed-step vector ODE solvers. Expression parsing, method recommendation, fallback, and advanced diagnostics remain planned.
 
 The intended long-term vision is to support multiple methods per problem, assess numerical challenges, recommend methods, report diagnostics, and let callers control and inspect execution. These are roadmap goals, not current features.
 
@@ -30,7 +30,7 @@ make test
 make clean
 ```
 
-The CMake static library target and Make archive are named `numerix` and `libnumerix.a` respectively. The CLI executable is `numerix_cli`.
+The CMake static library target and Make archive are named `numerix` and `libnumerix.a` respectively. The CLI executable is `numerix_cli`. `make test` runs the Phase 0 checks and the Phase 1 algorithm suite.
 
 ## Initialization example
 
@@ -64,7 +64,8 @@ int main(void)
 
 ## Roadmap
 
-1. Phase 0: clean project foundation (current).
-2. Later phases: expression and problem representations, numerical algorithm families, execution controls and diagnostics, then method analysis and recommendation.
+1. Phase 0: project foundation (complete).
+2. Phase 1: core numerical algorithms (current).
+3. Later phases: expression and piecewise representations, execution controls and diagnostics, then method analysis and recommendation.
 
 No later-phase feature should be inferred from the existence of a reserved directory or foundation type.

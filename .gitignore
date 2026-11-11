@@ -3,6 +3,7 @@
 /libnumerix.a
 /numerix_cli
 /numerix_tests
+/numerix_phase1_tests
 /CMakeFiles/
 /CMakeCache.txt
 /Testing/

@@ -7,5 +7,9 @@
 - **`numerix_options`**: absolute and relative tolerances, iteration and evaluation limits, and optional elapsed-time limit. Tolerances must be finite and nonnegative, at least one must be positive, count limits must be positive, and the time limit must be finite and nonnegative. A zero time limit disables timing limits.
 - **`numerix_result`**: common value/status, error estimate, residual, counters, elapsed time, and borrowed algorithm label. It is a foundation; specialized algorithms may define safer specialized result types.
 - **`numerix_context`**: opaque publicly and owned by the caller after successful creation. It copies options and tracks status/error, counters, monotonic start time, and a reserved cancellation flag. Phase 0 exposes counter operations but no cancellation workflow.
+- **`numerix_vector` / `numerix_matrix`**: caller-owned dynamic dense arrays. Matrices use row-major storage. Algorithm outputs are allocated by NUMERIX and freed with their matching destroy function.
+- **`numerix_lu`**: packed LU factors with partial row pivoting, a row permutation, parity, and the scale-relative pivot threshold. The caller owns its allocations after successful decomposition.
+- **`numerix_interpolant`**: Newton divided-difference nodes and coefficients, including the data range for default extrapolation rejection.
+- **`numerix_ode_solution`**: owned x coordinates and row-major point-by-component solution values, plus callback count and status.
 
 Default options are absolute tolerance `1e-8`, relative tolerance `1e-8`, 1000 iterations, 10000 function evaluations, and no time limit.

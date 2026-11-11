@@ -5,7 +5,7 @@ NUMERIX is a C11 static library with a single public entry header, `include/nume
 ## Module responsibilities
 
 - **Core (`src/core`)**: statuses, errors, options, scalar callback handling, allocation helpers, initialization, and the execution-context foundation.
-- **Algorithms (`src/algorithms`)**: reserved for independent numerical methods grouped by problem family.
+- **Algorithms (`src/algorithms`)**: Phase 1 implementations grouped into root finding, linear algebra, differentiation, interpolation, integration, optimization, and ODE modules.
 - **Expression (`src/expression`)**: planned tokenization, parsing, validation, and evaluation.
 - **Piecewise (`src/piecewise`)**: planned representation of piecewise functions and discontinuities.
 - **Intelligence (`src/intelligence`)**: planned problem assessment and method recommendation.
@@ -21,4 +21,4 @@ Core must not depend on algorithm modules. Algorithm families may depend on core
 
 ## Current scope
 
-Phase 0 implements only shared infrastructure. Reserved directories do not indicate implemented functionality. The public API remains intentionally small pending concrete algorithms and their result needs.
+Phase 1 implements the algorithms listed above. Expression, piecewise, intelligence, automatic fallback, and advanced diagnostics remain future work. Reserved directories do not indicate implemented functionality.
