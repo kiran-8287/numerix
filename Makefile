@@ -199,3 +199,17 @@ accuracy-tests: numerix_accuracy_tests
 	./numerix_accuracy_tests
 
 test: accuracy-tests
+
+# POSIX/MSYS2 installation; native Windows users can use cmake --install.
+PREFIX ?= /usr/local
+LIBDIR ?= $(PREFIX)/lib
+INCLUDEDIR ?= $(PREFIX)/include
+DOCDIR ?= $(PREFIX)/share/doc/numerix
+INSTALL ?= install
+.PHONY: install
+install: $(LIB)
+	$(INSTALL) -d "$(DESTDIR)$(LIBDIR)" "$(DESTDIR)$(INCLUDEDIR)" "$(DESTDIR)$(DOCDIR)/api"
+	$(INSTALL) -m 644 $(LIB) "$(DESTDIR)$(LIBDIR)/$(LIB)"
+	$(INSTALL) -m 644 include/numerix.h "$(DESTDIR)$(INCLUDEDIR)/numerix.h"
+	$(INSTALL) -m 644 LICENSE README.md "$(DESTDIR)$(DOCDIR)"
+	$(INSTALL) -m 644 documentation/api/*.md "$(DESTDIR)$(DOCDIR)/api"

@@ -74,6 +74,8 @@ jobs:
             mingw-w64-ucrt-x86_64-cmake
             mingw-w64-ucrt-x86_64-ninja
       - name: CMake, Make, tests and examples
+        env:
+          MSYS2_ARG_CONV_EXCL: /c
         shell: msys2 {0}
         run: |
           cmake -S . -B ci-build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_C_FLAGS=-Werror -DNUMERIX_BUILD_COMPARISON_BENCHMARK=ON -DCMAKE_DISABLE_FIND_PACKAGE_GSL=TRUE
