@@ -511,5 +511,3 @@ int main(void)
     puts("All intelligence checks passed.");
     return 0;
 }
-
-\n

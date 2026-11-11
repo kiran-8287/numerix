@@ -421,5 +421,3 @@ numerix_status numerix_root_solve_auto(
     }
     return report->final_status;
 }
-
-\n
