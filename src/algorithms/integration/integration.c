@@ -5,7 +5,8 @@
 static numerix_status fail(numerix_error *error, numerix_status status,
                            const char *message)
 {
-    return numerix_error_set(error, status, message);
+    numerix_error_set(error, status, message);
+    return status;
 }
 
 static numerix_status setup(numerix_function function, double a, double b,

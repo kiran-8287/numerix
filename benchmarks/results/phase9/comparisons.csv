@@ -1,0 +1,95 @@
+category,case,size,method,phase,comparison,numerix_median_ns,gsl_median_ns,speedup_gsl_over_numerix,eligible_for_direct_ratio,reason
+root,polynomial,0,bisection,execute,equivalent_family,300.267334,636.383301,2.119389054155321,1,family/API comparison; see method caveats
+root,polynomial,0,brent,execute,different_safeguards,380.056763,199.797974,,0,"different work, reported failure, or failed accuracy criterion"
+root,polynomial,0,newton,execute,equivalent_family,97.2176514,110.089996,1.1324074837709976,1,family/API comparison; see method caveats
+root,cosine,0,bisection,execute,equivalent_family,922.134277,997.559082,1.081793733170164,1,family/API comparison; see method caveats
+root,cosine,0,brent,execute,different_safeguards,899.20874,253.852661,,0,"different work, reported failure, or failed accuracy criterion"
+root,cosine,0,newton,execute,equivalent_family,185.379273,199.801208,1.0777969120636264,1,family/API comparison; see method caveats
+root,flat_cubic,0,bisection,execute,equivalent_family,299.068847,555.051757,1.8559330487538206,1,family/API comparison; see method caveats
+root,flat_cubic,0,brent,execute,different_safeguards,332.956787,744.427002,,0,"different work, reported failure, or failed accuracy criterion"
+root,flat_cubic,0,newton,execute,equivalent_family,307.982788,324.622436,,0,"different work, reported failure, or failed accuracy criterion"
+root,small_scale,0,bisection,execute,equivalent_family,297.544556,657.172364,2.2086519506006357,1,family/API comparison; see method caveats
+root,small_scale,0,brent,execute,different_safeguards,89.5877075,83.0176391,,0,"different work, reported failure, or failed accuracy criterion"
+root,small_scale,0,newton,execute,equivalent_family,49.802185,58.3043671,,0,"different work, reported failure, or failed accuracy criterion"
+root,large_scale,0,bisection,execute,equivalent_family,309.738525,648.223389,2.0928084067036865,1,family/API comparison; see method caveats
+root,large_scale,0,brent,execute,different_safeguards,690.591553,253.431396,,0,"different work, reported failure, or failed accuracy criterion"
+root,large_scale,0,newton,execute,equivalent_family,112.332916,127.52008,1.1351978079158918,1,family/API comparison; see method caveats
+root,multiple_bracket,0,bisection,execute,equivalent_family,78.5108033,76.9516296,0.9801406477266295,1,family/API comparison; see method caveats
+root,multiple_bracket,0,brent,execute,different_safeguards,425.494629,215.541077,,0,"different work, reported failure, or failed accuracy criterion"
+root,multiple_bracket,0,newton,execute,equivalent_family,111.374939,125.031555,1.1226183926349895,1,family/API comparison; see method caveats
+root,near_endpoint,0,bisection,execute,equivalent_family,326.001709,692.462891,2.1241081622673335,1,family/API comparison; see method caveats
+root,near_endpoint,0,brent,execute,different_safeguards,546.781005,88.8844299,,0,"different work, reported failure, or failed accuracy criterion"
+root,near_endpoint,0,newton,execute,equivalent_family,60.5848236,71.2183227,1.1755142371991656,1,family/API comparison; see method caveats
+root,no_bracket,0,bisection,execute,equivalent_family,134.123352,58.4982452,,0,"different work, reported failure, or failed accuracy criterion"
+root,no_bracket,0,brent,execute,different_safeguards,133.893799,66.2317504,,0,"different work, reported failure, or failed accuracy criterion"
+linear,dense_well,8,pivoted_lu,factor,api_equivalent,484.597534,810.187012,1.6718760520972853,1,family/API comparison; see method caveats
+linear,dense_well,8,pivoted_lu,solve,api_equivalent,270.399048,261.666382,0.9677045238709568,1,family/API comparison; see method caveats
+linear,dense_well,8,pivoted_lu,total,api_equivalent,666.147705,1012.64307,1.5201479527727262,1,family/API comparison; see method caveats
+linear,dense_small,8,pivoted_lu,factor,api_equivalent,446.092163,789.42334,1.7696418038171184,1,family/API comparison; see method caveats
+linear,dense_small,8,pivoted_lu,solve,api_equivalent,246.349853,253.728149,1.0299504785984184,1,family/API comparison; see method caveats
+linear,dense_small,8,pivoted_lu,total,api_equivalent,639.69873,994.41748,1.5545090733570786,1,family/API comparison; see method caveats
+linear,dense_large,8,pivoted_lu,factor,api_equivalent,439.48645,773.075928,1.7590438294513973,1,family/API comparison; see method caveats
+linear,dense_large,8,pivoted_lu,solve,api_equivalent,258.95105,256.785767,0.9916382536390566,1,family/API comparison; see method caveats
+linear,dense_large,8,pivoted_lu,total,api_equivalent,629.057862,980.032715,1.5579373126092493,1,family/API comparison; see method caveats
+linear,hilbert,8,pivoted_lu,factor,ill_conditioned_unranked,476.831299,895.169922,,0,"different work, reported failure, or failed accuracy criterion"
+linear,hilbert,8,pivoted_lu,total,ill_conditioned_unranked,674.714355,1137.31055,,0,"different work, reported failure, or failed accuracy criterion"
+linear,dense_well,32,pivoted_lu,factor,api_equivalent,8355.34375,10162.1055,1.2162402653990148,1,family/API comparison; see method caveats
+linear,dense_well,32,pivoted_lu,solve,api_equivalent,1328.06738,1310.72852,0.9869442919379587,1,family/API comparison; see method caveats
+linear,dense_well,32,pivoted_lu,total,api_equivalent,9666.63281,11483.5859,1.1879613228010883,1,family/API comparison; see method caveats
+linear,dense_small,32,pivoted_lu,factor,api_equivalent,8205.10547,10351.3047,1.2615687559224025,1,family/API comparison; see method caveats
+linear,dense_small,32,pivoted_lu,solve,api_equivalent,1329.46436,1334.24268,1.0035941693089088,1,family/API comparison; see method caveats
+linear,dense_small,32,pivoted_lu,total,api_equivalent,9527.79688,11453.2969,1.202092891384141,1,family/API comparison; see method caveats
+linear,dense_large,32,pivoted_lu,factor,api_equivalent,8052.68751,10356.8594,1.2861370054579455,1,family/API comparison; see method caveats
+linear,dense_large,32,pivoted_lu,solve,api_equivalent,1328.24365,1328.89893,1.0004933432205756,1,family/API comparison; see method caveats
+linear,dense_large,32,pivoted_lu,total,api_equivalent,9432.4414,11789.3633,1.2498740039879814,1,family/API comparison; see method caveats
+linear,hilbert,32,pivoted_lu,factor,ill_conditioned_unranked,6977.32031,11273.3086,,0,"different work, reported failure, or failed accuracy criterion"
+linear,hilbert,32,pivoted_lu,total,ill_conditioned_unranked,6961.17578,12664.4609,,0,"different work, reported failure, or failed accuracy criterion"
+linear,dense_well,64,pivoted_lu,factor,api_equivalent,47514.8281,55827.9219,1.1749578843577886,1,family/API comparison; see method caveats
+linear,dense_well,64,pivoted_lu,solve,api_equivalent,4527.97656,4628.22266,1.0221392709683108,1,family/API comparison; see method caveats
+linear,dense_well,64,pivoted_lu,total,api_equivalent,51729.1094,60360.6094,1.166859628942307,1,family/API comparison; see method caveats
+linear,dense_small,64,pivoted_lu,factor,api_equivalent,49925.0937,56412.8907,1.1299506224061429,1,family/API comparison; see method caveats
+linear,dense_small,64,pivoted_lu,solve,api_equivalent,4474.11914,4561.08594,1.0194377479183534,1,family/API comparison; see method caveats
+linear,dense_small,64,pivoted_lu,total,api_equivalent,51645.1562,60407.75,1.1696692283409147,1,family/API comparison; see method caveats
+linear,dense_large,64,pivoted_lu,factor,api_equivalent,47444.75,55782.7656,1.175741585739202,1,family/API comparison; see method caveats
+linear,dense_large,64,pivoted_lu,solve,api_equivalent,4525.70508,4532.93164,1.0015967810257755,1,family/API comparison; see method caveats
+linear,dense_large,64,pivoted_lu,total,api_equivalent,52763.0625,64456.4687,1.2216210668211307,1,family/API comparison; see method caveats
+linear,hilbert,64,pivoted_lu,factor,ill_conditioned_unranked,28939.2969,61399.0001,,0,"different work, reported failure, or failed accuracy criterion"
+linear,hilbert,64,pivoted_lu,total,ill_conditioned_unranked,29301.086,69837.3437,,0,"different work, reported failure, or failed accuracy criterion"
+linear,dense_well,128,pivoted_lu,factor,api_equivalent,317241.125,357800.125,1.1278491242268796,1,family/API comparison; see method caveats
+linear,dense_well,128,pivoted_lu,solve,api_equivalent,17198.8516,17976.5,1.0452151351779788,1,family/API comparison; see method caveats
+linear,dense_well,128,pivoted_lu,total,api_equivalent,329553.875,374394.25,1.136063868161162,1,family/API comparison; see method caveats
+linear,dense_small,128,pivoted_lu,factor,api_equivalent,307832,357224,1.1604511551755503,1,family/API comparison; see method caveats
+linear,dense_small,128,pivoted_lu,solve,api_equivalent,17302.6406,18481.961,1.0681584058331537,1,family/API comparison; see method caveats
+linear,dense_small,128,pivoted_lu,total,api_equivalent,339771.375,380592.25,1.1201421838434742,1,family/API comparison; see method caveats
+linear,dense_large,128,pivoted_lu,factor,api_equivalent,310653.25,358525.125,1.1541006733391652,1,family/API comparison; see method caveats
+linear,dense_large,128,pivoted_lu,solve,api_equivalent,17932.2578,17694.6406,0.9867491755555733,1,family/API comparison; see method caveats
+linear,dense_large,128,pivoted_lu,total,api_equivalent,328843,378162.375,1.149978485173776,1,family/API comparison; see method caveats
+linear,hilbert,128,pivoted_lu,factor,ill_conditioned_unranked,108211.344,372422.5,,0,"different work, reported failure, or failed accuracy criterion"
+linear,hilbert,128,pivoted_lu,total,ill_conditioned_unranked,108973.469,382641.125,,0,"different work, reported failure, or failed accuracy criterion"
+differentiation,quartic_derivative,0,richardson_vs_adaptive,execute,different_algorithm,48.2749329,114.138184,,0,"different work, reported failure, or failed accuracy criterion"
+differentiation,sine_derivative,0,richardson_vs_adaptive,execute,different_algorithm,90.2940674,184.041016,,0,"different work, reported failure, or failed accuracy criterion"
+differentiation,exp_derivative,0,richardson_vs_adaptive,execute,different_algorithm,90.5620422,188.223511,,0,"different work, reported failure, or failed accuracy criterion"
+differentiation,rational_derivative,0,richardson_vs_adaptive,execute,different_algorithm,53.8989716,125.273132,,0,"different work, reported failure, or failed accuracy criterion"
+integration,quartic_integral,1024,adaptive_simpson_vs_qag21,execute,different_algorithm,2711.29394,188.714294,,0,"different work, reported failure, or failed accuracy criterion"
+integration,sine_integral,1024,adaptive_simpson_vs_qag21,execute,different_algorithm,7922.95312,309.257446,,0,"different work, reported failure, or failed accuracy criterion"
+integration,exp_integral,1024,adaptive_simpson_vs_qag21,execute,different_algorithm,2720.73437,360.731201,,0,"different work, reported failure, or failed accuracy criterion"
+integration,curved_integral,1024,adaptive_simpson_vs_qag21,execute,different_algorithm,6710.3789,1365.24024,,0,"different work, reported failure, or failed accuracy criterion"
+integration,endpoint_sqrt,1024,adaptive_simpson_vs_qag21,execute,different_algorithm,832.531494,6123.41992,,0,"different work, reported failure, or failed accuracy criterion"
+integration,oscillatory,1024,adaptive_simpson_vs_qag21,execute,different_algorithm,93188.6875,2796.83887,,0,"different work, reported failure, or failed accuracy criterion"
+interpolation,uniform_cubic,8,newton,construct,equivalent_representation,171.261963,173.999512,1.0159845709581174,1,family/API comparison; see method caveats
+interpolation,uniform_cubic,8,newton,evaluate,equivalent_representation,86.4162293,50.7688294,0.5874918381795212,1,family/API comparison; see method caveats
+interpolation,uniform_cubic,8,lagrange,evaluate,different_representation,179.812134,47.5226288,,0,"different work, reported failure, or failed accuracy criterion"
+interpolation,nonuniform_cubic,8,newton,construct,equivalent_representation,165.743652,167.202881,1.0088041320581014,1,family/API comparison; see method caveats
+interpolation,nonuniform_cubic,8,newton,evaluate,equivalent_representation,83.4120178,47.265625,0.5666524590416994,1,family/API comparison; see method caveats
+interpolation,nonuniform_cubic,8,lagrange,evaluate,different_representation,176.487732,47.7375641,,0,"different work, reported failure, or failed accuracy criterion"
+interpolation,scaled_cubic,8,newton,construct,equivalent_representation,161.887634,170.613892,1.0539031782995854,1,family/API comparison; see method caveats
+interpolation,scaled_cubic,8,newton,evaluate,equivalent_representation,83.34375,47.6607971,0.5718580829396326,1,family/API comparison; see method caveats
+interpolation,scaled_cubic,8,lagrange,evaluate,different_representation,176.730713,47.6850586,,0,"different work, reported failure, or failed accuracy criterion"
+interpolation,linear_segment,2,linear,evaluate,api_equivalent,57.7085266,37.1952057,0.6445357019390615,1,family/API comparison; see method caveats
+optimization,convex_minimum,0,golden_section,execute,equivalent_family,335.389893,746.451172,2.2256221418097417,1,family/API comparison; see method caveats
+optimization,nonlinear_minimum,0,golden_section,execute,equivalent_family,568.140137,1075.22461,1.8925341477854434,1,family/API comparison; see method caveats
+optimization,shifted_minimum,0,golden_section,execute,equivalent_family,334.144653,721.370849,2.1588579752015367,1,family/API comparison; see method caveats
+optimization,scaled_minimum,0,golden_section,execute,equivalent_family,332.582764,729.74585,2.1941781986032205,1,family/API comparison; see method caveats
+ode,exponential_growth,100,rk4_vs_step_doubling,execute,different_work,3590.96191,9291.35547,,0,"different work, reported failure, or failed accuracy criterion"
+ode,exponential_decay,100,rk4_vs_step_doubling,execute,different_work,3472.01563,8945.96094,,0,"different work, reported failure, or failed accuracy criterion"
+ode,harmonic,100,rk4_vs_step_doubling,execute,different_work,3829.19531,10509.4648,,0,"different work, reported failure, or failed accuracy criterion"

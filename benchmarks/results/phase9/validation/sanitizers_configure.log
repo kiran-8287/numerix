@@ -1,0 +1,5 @@
+Command: ['/tmp/numerix-phase9-tools/python/cmake/data/bin/cmake', '-S', '.', '-B', 'cmake-build-validation-sanitizers', '-DCMAKE_C_COMPILER=clang', '-DCMAKE_BUILD_TYPE=Debug', '-DNUMERIX_BUILD_COMPARISON_BENCHMARK=ON', '-DNUMERIX_BENCHMARK_ALLOCATIONS=ON', '-DCMAKE_DISABLE_FIND_PACKAGE_GSL=TRUE', '-DCMAKE_C_FLAGS=-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer']
+-- GSL unavailable: comparison benchmark will run NUMERIX cases only
+-- Configuring done (0.1s)
+-- Generating done (2.0s)
+-- Build files have been written to: /home/142401034/numerix/cmake-build-validation-sanitizers

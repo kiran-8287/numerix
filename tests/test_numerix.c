@@ -37,7 +37,7 @@ static void test_core(void)
           NUMERIX_STATUS_INTERNAL_ERROR);
     CHECK(strcmp(error.message, "custom") == 0);
     CHECK(numerix_error_set(NULL, NUMERIX_STATUS_SUCCESS, NULL) ==
-          NUMERIX_STATUS_INVALID_ARGUMENT);
+          NUMERIX_STATUS_SUCCESS);
 }
 
 static void test_callback_and_memory(void)

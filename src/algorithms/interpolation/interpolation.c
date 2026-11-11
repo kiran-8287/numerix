@@ -2,7 +2,12 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-static numerix_status fail(numerix_error*e,numerix_status s,const char*m){return numerix_error_set(e,s,m);}
+static numerix_status fail(numerix_error *error, numerix_status status,
+                           const char *message)
+{
+    numerix_error_set(error, status, message);
+    return status;
+}
 static numerix_status validate(const double*x,const double*y,size_t n,double q,int extrap,numerix_error*e,double*mn,double*mx){size_t i,j;if(!x||!y||n<2||!isfinite(q))return fail(e,NUMERIX_STATUS_INVALID_ARGUMENT,"at least two finite data points and a finite query are required");*mn=x[0];*mx=x[0];for(i=0;i<n;i++){if(!isfinite(x[i])||!isfinite(y[i]))return fail(e,NUMERIX_STATUS_INVALID_INPUT,"interpolation data must be finite");if(x[i]<*mn)*mn=x[i];if(x[i]>*mx)*mx=x[i];for(j=0;j<i;j++)if(x[i]==x[j])return fail(e,NUMERIX_STATUS_INVALID_INPUT,"duplicate interpolation abscissas");}if(!extrap&&(q<*mn||q>*mx))return fail(e,NUMERIX_STATUS_INVALID_INPUT,"query outside data range; enable extrapolation explicitly");return NUMERIX_STATUS_SUCCESS;}
 numerix_status numerix_interp_linear(double x0,double y0,double x1,double y1,double x,numerix_result*r,numerix_error*e){if(!r)return fail(e,NUMERIX_STATUS_INVALID_ARGUMENT,"result required");memset(r,0,sizeof(*r));r->estimated_error=NAN;r->algorithm="linear_interpolation";if(!isfinite(x0)||!isfinite(x1)||!isfinite(y0)||!isfinite(y1)||!isfinite(x)||x0==x1){r->status=NUMERIX_STATUS_INVALID_ARGUMENT;return fail(e,r->status,"finite data and distinct abscissas required");}r->value=y0+(y1-y0)*((x-x0)/(x1-x0));if(!isfinite(r->value)){r->status=NUMERIX_STATUS_NUMERICAL_FAILURE;return fail(e,r->status,"interpolation overflow");}r->status=NUMERIX_STATUS_SUCCESS;r->function_evaluations=0;numerix_error_clear(e);return NUMERIX_STATUS_SUCCESS;}
 numerix_status numerix_interp_lagrange(const double*x,const double*y,size_t n,double q,int extrap,numerix_result*r,numerix_error*e){size_t i,j;double mn,mx,sum=0,c=0;numerix_status s;if(!r)return fail(e,NUMERIX_STATUS_INVALID_ARGUMENT,"result required");memset(r,0,sizeof(*r));r->estimated_error=NAN;r->algorithm="lagrange_interpolation";s=validate(x,y,n,q,extrap,e,&mn,&mx);if(s){r->status=s;return s;}for(i=0;i<n;i++){double term=y[i];for(j=0;j<n;j++)if(j!=i)term*=((q-x[j])/(x[i]-x[j]));{double z=term-c,t=sum+z;c=(t-sum)-z;sum=t;}}if(!isfinite(sum)){r->status=NUMERIX_STATUS_NUMERICAL_FAILURE;return fail(e,r->status,"interpolating polynomial overflow");}r->value=sum;r->status=NUMERIX_STATUS_SUCCESS;r->iterations=n;numerix_error_clear(e);return NUMERIX_STATUS_SUCCESS;}

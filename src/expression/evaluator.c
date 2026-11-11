@@ -19,7 +19,8 @@ static numerix_status evaluation_error(
         message,
         (unsigned long)position);
 
-    return numerix_error_set(error, status, formatted);
+    numerix_error_set(error, status, formatted);
+    return status;
 }
 
 static numerix_status evaluate_function(
@@ -194,10 +195,9 @@ static numerix_status evaluate_node(
 
     if (node == NULL || value == NULL)
     {
-        return numerix_error_set(
-            error,
-            NUMERIX_STATUS_INVALID_ARGUMENT,
-            "expression node and value output are required");
+        numerix_error_set(error, NUMERIX_STATUS_INVALID_ARGUMENT,
+                          "expression node and value output are required");
+        return NUMERIX_STATUS_INVALID_ARGUMENT;
     }
 
     switch (node->type)

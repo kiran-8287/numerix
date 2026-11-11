@@ -163,10 +163,30 @@ clean:
 
 ifeq ($(OS),Windows_NT)
 CLEAN_COMMAND = cmd /c "if exist build rmdir /s /q build & if exist libnumerix.a del /q libnumerix.a & if exist numerix_cli.exe del /q numerix_cli.exe & if exist numerix_piecewise_demo.exe del /q numerix_piecewise_demo.exe & if exist numerix_intelligence_demo.exe del /q numerix_intelligence_demo.exe & if exist numerix_managed_execution_demo.exe del /q numerix_managed_execution_demo.exe & if exist numerix_root_discovery_demo.exe del /q numerix_root_discovery_demo.exe & if exist numerix_expression_demo.exe del /q numerix_expression_demo.exe & if exist numerix_tests.exe del /q numerix_tests.exe & if exist numerix_phase1_tests.exe del /q numerix_phase1_tests.exe & if exist numerix_expression_tests.exe del /q numerix_expression_tests.exe & if exist numerix_audit_regression_tests.exe del /q numerix_audit_regression_tests.exe & if exist numerix_piecewise_tests.exe del /q numerix_piecewise_tests.exe & if exist numerix_intelligence_tests.exe del /q numerix_intelligence_tests.exe & if exist numerix_execution_tests.exe del /q numerix_execution_tests.exe & if exist numerix_diagnostics_tests.exe del /q numerix_diagnostics_tests.exe & if exist numerix_root_discovery_tests.exe del /q numerix_root_discovery_tests.exe & if exist numerix_phase8_integration_tests.exe del /q numerix_phase8_integration_tests.exe & if exist numerix_root_discovery_benchmark.exe del /q numerix_root_discovery_benchmark.exe & if exist numerix_diagnostics_benchmark.exe del /q numerix_diagnostics_benchmark.exe & if exist numerix_tests_direct.exe del /q numerix_tests_direct.exe & if exist build_core.o del /q build_core.o & if exist build_platform.o del /q build_platform.o"
-PHASE8_CLEAN_COMMAND =
+PHASE8_CLEAN_COMMAND = cmd /c "if exist numerix_release_regression_tests.exe del /q numerix_release_regression_tests.exe & if exist numerix_comparison_benchmark.exe del /q numerix_comparison_benchmark.exe"
 MKDIR_COMMAND = cmd /c "if not exist build mkdir build"
 else
 CLEAN_COMMAND = rm -rf build $(LIB) numerix_cli numerix_expression_demo numerix_tests numerix_phase1_tests numerix_expression_tests numerix_audit_regression_tests numerix_piecewise_demo numerix_intelligence_demo numerix_managed_execution_demo numerix_root_discovery_demo numerix_piecewise_tests numerix_intelligence_tests numerix_execution_tests numerix_diagnostics_tests numerix_root_discovery_tests numerix_root_discovery_benchmark numerix_diagnostics_benchmark numerix_tests_direct.exe build_core.o build_platform.o
-PHASE8_CLEAN_COMMAND = rm -f numerix_phase8_integration_tests
+PHASE8_CLEAN_COMMAND = rm -f numerix_phase8_integration_tests numerix_release_regression_tests numerix_comparison_benchmark
 MKDIR_COMMAND = mkdir -p build
 endif
+
+# Optional comparison dependency. Override GSL_CFLAGS/GSL_LIBS without pkg-config.
+GSL_CFLAGS ?= $(shell pkg-config --cflags gsl 2>/dev/null)
+GSL_LIBS ?= $(shell pkg-config --libs gsl 2>/dev/null)
+BENCHMARK_GSL_DEFINE = $(if $(strip $(GSL_LIBS)),-DNUMERIX_HAVE_GSL)
+
+numerix_comparison_benchmark: benchmarks/comparison.c benchmarks/comparison.h $(LIB)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $(BENCHMARK_GSL_DEFINE) $(GSL_CFLAGS) $< $(LIB) $(GSL_LIBS) $(LDLIBS) -o $@
+
+.PHONY: benchmark-comparison
+benchmark-comparison: numerix_comparison_benchmark
+	./numerix_comparison_benchmark
+
+numerix_release_regression_tests: tests/test_release_regressions.c $(LIB)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $< $(LIB) $(LDLIBS) -o $@
+
+test: release-regressions
+.PHONY: release-regressions
+release-regressions: numerix_release_regression_tests
+	./numerix_release_regression_tests

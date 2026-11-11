@@ -7,7 +7,10 @@ static numerix_status setup(const numerix_options *in, numerix_options *out,
                             numerix_result *r, numerix_error *e, const char *name)
 {
     numerix_status s;
-    if (!r) return numerix_error_set(e, NUMERIX_STATUS_INVALID_ARGUMENT, "result is required");
+    if (r == NULL) {
+        numerix_error_set(e, NUMERIX_STATUS_INVALID_ARGUMENT, "result is required");
+        return NUMERIX_STATUS_INVALID_ARGUMENT;
+    }
     memset(r, 0, sizeof(*r)); r->status = NUMERIX_STATUS_INVALID_ARGUMENT; r->algorithm = name;
     if (in) *out = *in; else numerix_options_init(out);
     s = numerix_options_validate(out, e);
@@ -15,12 +18,27 @@ static numerix_status setup(const numerix_options *in, numerix_options *out,
     return s;
 }
 static double tol(const numerix_options *o, double x) { return o->absolute_tolerance + o->relative_tolerance * fabs(x); }
-static numerix_status eval(numerix_function f, void *d, double x, double *v, numerix_result *r, const numerix_options *o, numerix_error *e)
+static numerix_status eval(numerix_function function, void *data, double x,
+                           double *value, numerix_result *result,
+                           const numerix_options *options, numerix_error *error)
 {
-    if (r->function_evaluations >= o->maximum_function_evaluations) return numerix_error_set(e, NUMERIX_STATUS_LIMIT_REACHED, "function evaluation limit reached");
-    if (!isfinite(x)) return numerix_error_set(e, NUMERIX_STATUS_NUMERICAL_FAILURE, "non-finite iterate");
-    *v = f(x, d); ++r->function_evaluations;
-    if (!isfinite(*v)) return numerix_error_set(e, NUMERIX_STATUS_NUMERICAL_FAILURE, "callback returned a non-finite value");
+    if (result->function_evaluations >= options->maximum_function_evaluations) {
+        numerix_error_set(error, NUMERIX_STATUS_LIMIT_REACHED,
+                          "function evaluation limit reached");
+        return NUMERIX_STATUS_LIMIT_REACHED;
+    }
+    if (!isfinite(x)) {
+        numerix_error_set(error, NUMERIX_STATUS_NUMERICAL_FAILURE,
+                          "non-finite iterate");
+        return NUMERIX_STATUS_NUMERICAL_FAILURE;
+    }
+    *value = function(x, data);
+    ++result->function_evaluations;
+    if (!isfinite(*value)) {
+        numerix_error_set(error, NUMERIX_STATUS_NUMERICAL_FAILURE,
+                          "callback returned a non-finite value");
+        return NUMERIX_STATUS_NUMERICAL_FAILURE;
+    }
     return NUMERIX_STATUS_SUCCESS;
 }
 static numerix_status done(numerix_result *r, numerix_status s, double x, double fx, double err, numerix_error *e)

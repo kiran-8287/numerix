@@ -43,7 +43,6 @@ void numerix_error_clear(numerix_error *error)
 numerix_status numerix_error_set(numerix_error *error, numerix_status code,
                                  const char *message)
 {
-    if (error == NULL) return NUMERIX_STATUS_INVALID_ARGUMENT;
     numerix_error_assign(error, code, message);
     return code;
 }

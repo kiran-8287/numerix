@@ -1,0 +1,94 @@
+-- The C compiler identification is GNU 8.5.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- GSL unavailable: comparison benchmark will run NUMERIX cases only
+-- Configuring done (0.7s)
+-- Generating done (2.4s)
+-- Build files have been written to: /home/142401034/numerix/cmake-build-no-gsl
+[  3%] Building C object CMakeFiles/numerix.dir/src/core/numerix_platform.c.o
+[  3%] Building C object CMakeFiles/numerix.dir/src/core/numerix_core.c.o
+[  4%] Building C object CMakeFiles/numerix.dir/src/algorithms/root_finding/root_finding.c.o
+[  6%] Building C object CMakeFiles/numerix.dir/src/algorithms/linear_algebra/linear_algebra.c.o
+[  8%] Building C object CMakeFiles/numerix.dir/src/algorithms/differentiation/differentiation.c.o
+[  9%] Building C object CMakeFiles/numerix.dir/src/algorithms/interpolation/interpolation.c.o
+[ 11%] Building C object CMakeFiles/numerix.dir/src/algorithms/integration/integration.c.o
+[ 12%] Building C object CMakeFiles/numerix.dir/src/algorithms/optimization/optimization.c.o
+[ 14%] Building C object CMakeFiles/numerix.dir/src/algorithms/ode/ode.c.o
+[ 16%] Building C object CMakeFiles/numerix.dir/src/expression/lexer.c.o
+[ 17%] Building C object CMakeFiles/numerix.dir/src/expression/parser.c.o
+[ 19%] Building C object CMakeFiles/numerix.dir/src/expression/evaluator.c.o
+[ 20%] Building C object CMakeFiles/numerix.dir/src/expression/expression.c.o
+[ 22%] Building C object CMakeFiles/numerix.dir/src/piecewise/piecewise.c.o
+[ 24%] Building C object CMakeFiles/numerix.dir/src/piecewise/analysis.c.o
+[ 25%] Building C object CMakeFiles/numerix.dir/src/piecewise/adapters.c.o
+[ 27%] Building C object CMakeFiles/numerix.dir/src/intelligence/problem.c.o
+[ 29%] Building C object CMakeFiles/numerix.dir/src/intelligence/recommendation.c.o
+[ 30%] Building C object CMakeFiles/numerix.dir/src/intelligence/root_execution.c.o
+[ 32%] Building C object CMakeFiles/numerix.dir/src/intelligence/portfolio.c.o
+[ 33%] Building C object CMakeFiles/numerix.dir/src/intelligence/execution.c.o
+[ 37%] Building C object CMakeFiles/numerix.dir/src/execution/managed_execution.c.o
+[ 37%] Building C object CMakeFiles/numerix.dir/src/diagnostics/diagnostics.c.o
+[ 38%] Building C object CMakeFiles/numerix.dir/src/diagnostics/diagnostic_analysis.c.o
+[ 40%] Building C object CMakeFiles/numerix.dir/src/root_discovery/root_discovery.c.o
+[ 41%] Linking C static library libnumerix.a
+[ 41%] Built target numerix
+[ 45%] Building C object CMakeFiles/numerix_expression_demo.dir/examples/expression_demo.c.o
+[ 45%] Building C object CMakeFiles/numerix_cli.dir/cli/main.c.o
+[ 46%] Linking C executable numerix_expression_demo
+[ 48%] Linking C executable numerix_cli
+[ 48%] Built target numerix_expression_demo
+[ 48%] Built target numerix_cli
+[ 50%] Building C object CMakeFiles/numerix_piecewise_demo.dir/examples/piecewise_demo.c.o
+[ 51%] Building C object CMakeFiles/numerix_intelligence_demo.dir/examples/intelligence_demo.c.o
+[ 53%] Linking C executable numerix_piecewise_demo
+[ 54%] Linking C executable numerix_intelligence_demo
+[ 54%] Built target numerix_piecewise_demo
+[ 54%] Built target numerix_intelligence_demo
+[ 56%] Building C object CMakeFiles/numerix_managed_execution_demo.dir/examples/managed_execution_demo.c.o
+[ 58%] Building C object CMakeFiles/numerix_root_discovery_demo.dir/examples/root_discovery_demo.c.o
+[ 59%] Linking C executable numerix_managed_execution_demo
+[ 61%] Linking C executable numerix_root_discovery_demo
+[ 61%] Built target numerix_managed_execution_demo
+[ 62%] Building C object CMakeFiles/numerix_tests.dir/tests/test_numerix.c.o
+[ 62%] Built target numerix_root_discovery_demo
+[ 64%] Building C object CMakeFiles/numerix_phase1_tests.dir/tests/test_phase1.c.o
+[ 66%] Linking C executable numerix_tests
+[ 66%] Built target numerix_tests
+[ 67%] Building C object CMakeFiles/numerix_expression_tests.dir/tests/test_expression.c.o
+[ 69%] Linking C executable numerix_phase1_tests
+[ 69%] Built target numerix_phase1_tests
+[ 70%] Linking C executable numerix_expression_tests
+[ 72%] Building C object CMakeFiles/numerix_audit_regression_tests.dir/tests/test_audit_regressions.c.o
+[ 72%] Built target numerix_expression_tests
+[ 74%] Linking C executable numerix_audit_regression_tests
+[ 75%] Building C object CMakeFiles/numerix_piecewise_tests.dir/tests/test_piecewise.c.o
+[ 75%] Built target numerix_audit_regression_tests
+[ 77%] Building C object CMakeFiles/numerix_intelligence_tests.dir/tests/test_intelligence.c.o
+[ 79%] Linking C executable numerix_piecewise_tests
+[ 79%] Built target numerix_piecewise_tests
+[ 80%] Building C object CMakeFiles/numerix_execution_tests.dir/tests/test_execution.c.o
+[ 82%] Linking C executable numerix_intelligence_tests
+[ 82%] Built target numerix_intelligence_tests
+[ 83%] Building C object CMakeFiles/numerix_diagnostics_tests.dir/tests/test_diagnostics.c.o
+[ 85%] Linking C executable numerix_execution_tests
+[ 87%] Linking C executable numerix_diagnostics_tests
+[ 87%] Built target numerix_execution_tests
+[ 87%] Built target numerix_diagnostics_tests
+[ 88%] Building C object CMakeFiles/numerix_root_discovery_tests.dir/tests/test_root_discovery.c.o
+[ 90%] Building C object CMakeFiles/numerix_phase8_integration_tests.dir/tests/test_phase8_integration.c.o
+[ 91%] Linking C executable numerix_phase8_integration_tests
+[ 91%] Built target numerix_phase8_integration_tests
+[ 93%] Linking C executable numerix_root_discovery_tests
+[ 95%] Building C object CMakeFiles/numerix_comparison_benchmark.dir/benchmarks/comparison.c.o
+[ 95%] Built target numerix_root_discovery_tests
+[ 96%] Building C object CMakeFiles/numerix_release_regression_tests.dir/tests/test_release_regressions.c.o
+[ 98%] Linking C executable numerix_release_regression_tests
+[ 98%] Built target numerix_release_regression_tests
+[100%] Linking C executable numerix_comparison_benchmark
+[100%] Built target numerix_comparison_benchmark
+NUMERIX=0.1.0
+GSL=unavailable (NUMERIX-only build)
+double_mantissa_bits=53

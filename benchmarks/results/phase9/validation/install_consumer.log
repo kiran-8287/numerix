@@ -1,0 +1,22 @@
+-- Install configuration: "Release"
+-- Installing: /tmp/numerix-phase9-tools/install/lib64/libnumerix.a
+-- Installing: /tmp/numerix-phase9-tools/install/include/numerix.h
+-- Installing: /tmp/numerix-phase9-tools/install/share/doc/NUMERIX/LICENSE
+-- Installing: /tmp/numerix-phase9-tools/install/share/doc/NUMERIX/README.md
+-- Installing: /tmp/numerix-phase9-tools/install/share/doc/NUMERIX/api
+-- Installing: /tmp/numerix-phase9-tools/install/share/doc/NUMERIX/api/linear_algebra.md
+-- Installing: /tmp/numerix-phase9-tools/install/share/doc/NUMERIX/api/execution_management.md
+-- Installing: /tmp/numerix-phase9-tools/install/share/doc/NUMERIX/api/intelligence.md
+-- Installing: /tmp/numerix-phase9-tools/install/share/doc/NUMERIX/api/ode.md
+-- Installing: /tmp/numerix-phase9-tools/install/share/doc/NUMERIX/api/diagnostics.md
+-- Installing: /tmp/numerix-phase9-tools/install/share/doc/NUMERIX/api/root_discovery.md
+-- Installing: /tmp/numerix-phase9-tools/install/share/doc/NUMERIX/api/optimization.md
+-- Installing: /tmp/numerix-phase9-tools/install/share/doc/NUMERIX/api/differentiation.md
+-- Installing: /tmp/numerix-phase9-tools/install/share/doc/NUMERIX/api/piecewise.md
+-- Installing: /tmp/numerix-phase9-tools/install/share/doc/NUMERIX/api/interpolation.md
+-- Installing: /tmp/numerix-phase9-tools/install/share/doc/NUMERIX/api/expression_engine.md
+-- Installing: /tmp/numerix-phase9-tools/install/share/doc/NUMERIX/api/release_contract.md
+-- Installing: /tmp/numerix-phase9-tools/install/share/doc/NUMERIX/api/integration.md
+-- Installing: /tmp/numerix-phase9-tools/install/share/doc/NUMERIX/api/root_finding.md
+C consumer exit=0
+C++ consumer exit=0

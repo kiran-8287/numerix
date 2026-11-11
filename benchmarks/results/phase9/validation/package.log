@@ -1,0 +1,6 @@
+CPack: Create package using TGZ
+CPack: Install projects
+CPack: - Run preinstall target for: NUMERIX
+CPack: - Install project: NUMERIX []
+CPack: Create package
+CPack: - package: /tmp/numerix-phase9-tools/packages/numerix-0.1.0-Linux.tar.gz generated.

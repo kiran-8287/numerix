@@ -8,7 +8,7 @@ Vector operations include create/destroy/copy, add, subtract, scalar multiply, d
 
 `numerix_lu_decompose` fills a caller-declared `numerix_lu`. Its packed `data` contains unit-lower multipliers below the diagonal and upper factors on/above it. `permutation[i]` gives the original row now at row `i`; `sign` is the row permutation parity. `numerix_lu_solve` applies that permutation and supports repeated right-hand sides. Release the decomposition once with `numerix_lu_destroy`.
 
-Allocation/dimension errors, incompatible shapes, singular pivots, and non-finite arithmetic return explicit statuses. Pivot checks detect numerical singularity at the scale of the input matrix; no condition number or forward-error estimate is provided.
+Allocation/dimension errors, incompatible shapes, singular pivots, and non-finite arithmetic return explicit statuses. Pivot checks detect numerical singularity at the scale of the input matrix; these solve calls do not return a condition number or forward-error estimate. The separate diagnostics API can estimate conditioning and compare a solution with a known reference.
 
 ```c
 numerix_vector *x = NULL;

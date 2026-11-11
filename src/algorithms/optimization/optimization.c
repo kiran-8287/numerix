@@ -6,7 +6,8 @@
 static numerix_status fail(numerix_error *error, numerix_status status,
                            const char *message)
 {
-    return numerix_error_set(error, status, message);
+    numerix_error_set(error, status, message);
+    return status;
 }
 
 numerix_status numerix_optimize_golden_section(
@@ -146,7 +147,7 @@ numerix_status numerix_optimize_gradient_descent(
         gradient_norm = vector_norm(g, n);
         result->iterations = i;
         if (gradient_norm <= options.absolute_tolerance + options.relative_tolerance * fmax(1.0, vector_norm(x, n))) {
-            status = NUMERIX_STATUS_SUCCESS; goto finish;
+            goto finish;
         }
         for (backtrack = 0; backtrack < 60; ++backtrack) {
             double candidate;

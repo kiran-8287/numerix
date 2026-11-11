@@ -13,7 +13,8 @@ static numerix_status diagnostics_error(
     numerix_status status,
     const char *message)
 {
-    return numerix_error_set(error, status, message);
+    numerix_error_set(error, status, message);
+    return status;
 }
 
 static void add_warning(
@@ -179,7 +180,7 @@ static numerix_status analyze_linear_system(
         return NUMERIX_STATUS_SUCCESS;
     }
 
-    if (!valid_matrix(matrix) || !valid_vector(right_hand_side) ||
+    if (solution == NULL || !valid_matrix(matrix) || !valid_vector(right_hand_side) ||
         !valid_vector(solution) || matrix->rows != matrix->columns ||
         right_hand_side->size != matrix->rows ||
         solution->size != matrix->columns)

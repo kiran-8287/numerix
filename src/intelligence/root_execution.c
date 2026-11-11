@@ -76,6 +76,10 @@ numerix_status numerix_root_run_algorithm(
     numerix_problem_callback_context callback_context;
     numerix_status status;
 
+    memset(result, 0, sizeof(*result));
+    result->status = NUMERIX_STATUS_INVALID_ARGUMENT;
+    result->value = NAN;
+    result->residual = NAN;
     status = numerix_problem_callback_context_init(
         &callback_context, request, error);
     if (status != NUMERIX_STATUS_SUCCESS)

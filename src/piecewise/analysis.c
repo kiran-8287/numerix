@@ -6,7 +6,8 @@
 static numerix_status diagnostic_error(
     numerix_error *error, numerix_status status, const char *message)
 {
-    return numerix_error_set(error, status, message);
+    numerix_error_set(error, status, message);
+    return status;
 }
 
 static numerix_status normalized_options(
@@ -182,8 +183,8 @@ numerix_status numerix_piecewise_analyze_boundary(
     numerix_piecewise_boundary_report *report, numerix_error *error)
 {
     numerix_options options;
-    numerix_diagnostic_confidence left_confidence;
-    numerix_diagnostic_confidence right_confidence;
+    numerix_diagnostic_confidence left_confidence = NUMERIX_DIAGNOSTIC_INCONCLUSIVE;
+    numerix_diagnostic_confidence right_confidence = NUMERIX_DIAGNOSTIC_INCONCLUSIVE;
     numerix_status options_status;
 
     if (function == NULL || report == NULL || !isfinite(boundary)) {

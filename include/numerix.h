@@ -1074,7 +1074,7 @@ void numerix_root_search_report_destroy(numerix_root_search_report *report);
 
 /* Returns a static readable name for a status code. */
 const char *numerix_status_string(numerix_status status);
-/* Clears an error, or records a bounded, copied message and status. */
+/* Records a bounded, copied error message; returns code even if error is NULL. */
 void numerix_error_clear(numerix_error *error);
 numerix_status numerix_error_set(numerix_error *error, numerix_status code,
                                  const char *message);

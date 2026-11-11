@@ -1,0 +1,4 @@
+gcc -Iinclude -Isrc/internal -O3 -DNDEBUG -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -DNUMERIX_HAVE_GSL -I/tmp/numerix-phase9-tools/gsl/include benchmarks/comparison.c libnumerix.a /tmp/numerix-phase9-tools/gsl/lib/libgsl.a /tmp/numerix-phase9-tools/gsl/lib/libgslcblas.a -lm -lm -o numerix_comparison_benchmark
+NUMERIX=0.1.0
+GSL=2.8
+double_mantissa_bits=53

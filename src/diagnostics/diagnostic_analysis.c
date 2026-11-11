@@ -19,7 +19,8 @@ static numerix_status analysis_error(
     numerix_status status,
     const char *message)
 {
-    return numerix_error_set(error, status, message);
+    numerix_error_set(error, status, message);
+    return status;
 }
 
 static double stable_norm(const double *values, size_t count)

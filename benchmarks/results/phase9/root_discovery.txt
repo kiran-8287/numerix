@@ -1,0 +1,41 @@
+NUMERIX Phase 8 root discovery benchmark
+Average CPU time over 1000 repetitions; no external solver comparison is performed.
+single root      panels= 16 status=success              roots= 1 evals=   74 subdivisions=    0 candidates=   4 rejected=   0 iterations=  34 elapsed=0.000003s avg_cpu=0.000003293s result=30144B root_cap=4 unresolved_cap=0 result_allocs=1/0 workspace_peak=30688B workspace_allocs=3
+  root[0]=1.25 residual=0
+multiple roots   panels= 16 status=success              roots= 3 evals=  252 subdivisions=    1 candidates=   7 rejected=   1 iterations= 176 elapsed=0.000012s avg_cpu=0.000012732s result=30144B root_cap=4 unresolved_cap=0 result_allocs=1/0 workspace_peak=30688B workspace_allocs=3
+  root[0]=0.999999999131 residual=-2.61e-09
+  root[1]=2 residual=-0
+  root[2]=4 residual=-3.49e-13
+repeated root    panels= 16 status=success              roots= 1 evals=  122 subdivisions=   24 candidates=  28 rejected=   0 iterations=  34 elapsed=0.000006s avg_cpu=0.000005960s result=30240B root_cap=4 unresolved_cap=4 result_allocs=1/1 workspace_peak=30784B workspace_allocs=4
+  root[0]=1 residual=0
+close roots      panels= 16 status=success              roots= 2 evals=  121 subdivisions=    8 candidates=  14 rejected=   0 iterations=  51 elapsed=0.000007s avg_cpu=0.000006955s result=30144B root_cap=4 unresolved_cap=0 result_allocs=1/0 workspace_peak=30688B workspace_allocs=3
+  root[0]=1 residual=0
+  root[1]=1.00099999991 residual=-8.71e-14
+no roots         panels= 16 status=success              roots= 0 evals=   73 subdivisions=    0 candidates=   1 rejected=   1 iterations=  37 elapsed=0.000003s avg_cpu=0.000002783s result=0B root_cap=0 unresolved_cap=0 result_allocs=0/0 workspace_peak=544B workspace_allocs=2
+pole             panels= 16 status=success              roots= 0 evals=   33 subdivisions=    0 candidates=   0 rejected=   0 iterations=   0 elapsed=0.000002s avg_cpu=0.000001825s result=96B root_cap=0 unresolved_cap=4 result_allocs=0/1 workspace_peak=640B workspace_allocs=3
+single root      panels= 32 status=success              roots= 1 evals=  105 subdivisions=    0 candidates=   4 rejected=   0 iterations=  33 elapsed=0.000004s avg_cpu=0.000004654s result=30144B root_cap=4 unresolved_cap=0 result_allocs=1/0 workspace_peak=31200B workspace_allocs=3
+  root[0]=1.25 residual=0
+multiple roots   panels= 32 status=success              roots= 3 evals=  317 subdivisions=    2 candidates=   8 rejected=   1 iterations= 202 elapsed=0.000025s avg_cpu=0.000016651s result=30240B root_cap=4 unresolved_cap=4 result_allocs=1/1 workspace_peak=31296B workspace_allocs=4
+  root[0]=1 residual=0
+  root[1]=2 residual=-0
+  root[2]=4 residual=-5.33e-15
+repeated root    panels= 32 status=success              roots= 1 evals=  153 subdivisions=   24 candidates=  28 rejected=   0 iterations=  33 elapsed=0.000007s avg_cpu=0.000007334s result=30240B root_cap=4 unresolved_cap=4 result_allocs=1/1 workspace_peak=31296B workspace_allocs=4
+  root[0]=1 residual=0
+close roots      panels= 32 status=success              roots= 2 evals=  150 subdivisions=    7 candidates=  13 rejected=   0 iterations=  50 elapsed=0.000008s avg_cpu=0.000008234s result=30144B root_cap=4 unresolved_cap=0 result_allocs=1/0 workspace_peak=31200B workspace_allocs=3
+  root[0]=1 residual=0
+  root[1]=1.00099999991 residual=-8.71e-14
+no roots         panels= 32 status=success              roots= 0 evals=  104 subdivisions=    0 candidates=   1 rejected=   1 iterations=  36 elapsed=0.000004s avg_cpu=0.000004316s result=0B root_cap=0 unresolved_cap=0 result_allocs=0/0 workspace_peak=1056B workspace_allocs=2
+pole             panels= 32 status=success              roots= 0 evals=   65 subdivisions=    0 candidates=   0 rejected=   0 iterations=   0 elapsed=0.000003s avg_cpu=0.000003346s result=96B root_cap=0 unresolved_cap=4 result_allocs=0/1 workspace_peak=1152B workspace_allocs=3
+single root      panels= 64 status=success              roots= 1 evals=  167 subdivisions=    0 candidates=   4 rejected=   0 iterations=  31 elapsed=0.000007s avg_cpu=0.000007938s result=30144B root_cap=4 unresolved_cap=0 result_allocs=1/0 workspace_peak=32224B workspace_allocs=3
+  root[0]=1.25 residual=0
+multiple roots   panels= 64 status=success              roots= 3 evals=  353 subdivisions=    1 candidates=   7 rejected=   1 iterations= 181 elapsed=0.000017s avg_cpu=0.000018069s result=30240B root_cap=4 unresolved_cap=4 result_allocs=1/1 workspace_peak=32320B workspace_allocs=4
+  root[0]=1 residual=0
+  root[1]=1.99999999999 residual=2.02e-11
+  root[2]=3.99999999849 residual=-9.09e-09
+repeated root    panels= 64 status=success              roots= 1 evals=  216 subdivisions=   24 candidates=  28 rejected=   0 iterations=  32 elapsed=0.000010s avg_cpu=0.000010453s result=30240B root_cap=4 unresolved_cap=4 result_allocs=1/1 workspace_peak=32320B workspace_allocs=4
+  root[0]=1 residual=0
+close roots      panels= 64 status=success              roots= 2 evals=  211 subdivisions=    6 candidates=  12 rejected=   0 iterations=  49 elapsed=0.000011s avg_cpu=0.000011142s result=30144B root_cap=4 unresolved_cap=0 result_allocs=1/0 workspace_peak=32224B workspace_allocs=3
+  root[0]=1 residual=0
+  root[1]=1.00099999991 residual=-8.71e-14
+no roots         panels= 64 status=success              roots= 0 evals=  166 subdivisions=    0 candidates=   1 rejected=   1 iterations=  34 elapsed=0.000007s avg_cpu=0.000007163s result=0B root_cap=0 unresolved_cap=0 result_allocs=0/0 workspace_peak=2080B workspace_allocs=2
+pole             panels= 64 status=success              roots= 0 evals=  129 subdivisions=    0 candidates=   0 rejected=   0 iterations=   0 elapsed=0.000006s avg_cpu=0.000006253s result=96B root_cap=0 unresolved_cap=4 result_allocs=0/1 workspace_peak=2176B workspace_allocs=3

@@ -1,0 +1,9 @@
+root finding     disabled=  0.00114 ms basic=  0.00125 ms full=  0.00127 ms extra f/d=6/0
+linear 8x8       disabled=  0.00137 ms basic=  0.00180 ms full=  0.00424 ms extra f/d=0/0
+linear 32x32     disabled=  0.01938 ms basic=  0.02205 ms full=  0.07706 ms extra f/d=0/0
+integration      disabled=  0.00113 ms basic=  0.00129 ms full=  0.00129 ms extra f/d=0/0
+differentiation  disabled=  0.00032 ms basic=  0.00045 ms full=  0.00045 ms extra f/d=0/0
+optimization     disabled=  0.00085 ms basic=  0.00098 ms full=  0.00098 ms extra f/d=0/0
+ODE RK4          disabled=  0.00340 ms basic=  0.00368 ms full=  0.00369 ms extra f/d=0/0
+Method: 10000 repetitions per mode; process CPU time from clock().
+Basic diagnostics are post-run; full mode enables condition estimates where configured.

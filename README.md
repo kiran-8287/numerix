@@ -1,30 +1,33 @@
 # NUMERIX
 
-NUMERIX is a C11 numerical computation library being built as a modular foundation for numerical algorithms, problem analysis, and execution diagnostics.
+NUMERIX is a C11 numerical computation library with a single public header,
+`include/numerix.h`, and no external numerical-library dependency.
 
-## Status
+It provides scalar root solvers, dense linear algebra, finite-difference
+derivatives, polynomial interpolation, fixed/adaptive integration, bounded and
+gradient minimization, and fixed-step vector ODE solvers. Supporting modules
+compile mathematical expressions, handle piecewise functions and boundaries,
+recommend algorithms, orchestrate root fallback, manage execution, and report
+numerical diagnostics, sensitivity and heuristic multiple-root discovery.
 
-Phase 0 provides version/status/error APIs, scalar callback problems, shared options, a result foundation, allocation helpers, and an execution context. Phase 1 adds bracketed and open root solvers, dense vector/matrix operations and direct solvers, finite-difference derivatives, polynomial interpolation, fixed/adaptive quadrature, one-dimensional and gradient-based minimization, and fixed-step vector ODE solvers. Expression parsing, method recommendation, fallback, and advanced diagnostics remain planned.
-
-Phase 2 adds a compiled mathematical expression engine for `x`, `pi`, `e`, arithmetic, powers, and common standard math functions. Compiled expressions can be adapted to existing scalar callback algorithms with a caller-owned callback context; see [the expression engine guide](documentation/api/expression_engine.md) and run `numerix_expression_demo` for examples.
-
-The intended long-term vision is to support multiple methods per problem, assess numerical challenges, recommend methods, report diagnostics, and let callers control and inspect execution. These are roadmap goals, not current features.
-
-## Platforms
-
-The code targets Windows and POSIX-compatible Linux with C11 compilers. Linux can use `clock_gettime(CLOCK_MONOTONIC)` and Windows uses the performance counter API. Platform verification status is recorded in `documentation/development/phase0_report.md`.
+Phases 0–8 are implemented. Phase 9 adds reproducible GSL comparisons, Linux
+validation, release regression checks and release documentation. The current
+version is **0.1.0, a release candidate with documented limitations**; see the
+[final evaluation](documentation/development/final_benchmark_report.md) and
+[release checklist](documentation/development/final_release_checklist.md).
+Discovery is heuristic and does not prove that every root has been found.
 
 ## Build and test
 
-With CMake (when CMake is installed):
+CMake 3.16+ and a C11 compiler:
 
 ```sh
-cmake -S . -B build
-cmake --build build
-ctest --test-dir build --output-on-failure
+cmake -S . -B cmake-build-debug -DCMAKE_BUILD_TYPE=Debug
+cmake --build cmake-build-debug -j2
+ctest --test-dir cmake-build-debug --output-on-failure
 ```
 
-With Make:
+Or GNU Make:
 
 ```sh
 make
@@ -32,9 +35,18 @@ make test
 make clean
 ```
 
-The CMake static library target and Make archive are named `numerix` and `libnumerix.a` respectively. The CLI executable is `numerix_cli`; `numerix_expression_demo` demonstrates expression evaluation and callback integration. `make test` and CTest run the unit and integration suites for the implemented phases, including the Phase 8 cross-phase workflow.
+Make builds a static `libnumerix.a`, CLI and five examples. CMake uses the
+`numerix` library target and registers the unit, integration, CLI and example
+checks with CTest. Use separate build directories for Debug, Release and
+sanitizers. Run `make clean` before changing Make compiler/optimization flags.
 
-## Initialization example
+The code targets POSIX Linux and Windows. Phase 9 validates Linux GCC 8.5,
+Clang 21.1, CMake, ASan/UBSan and Valgrind on the recorded machine. The Phase 8
+report records earlier Windows MinGW6.3 checks; Windows/MSVC have not been
+revalidated here. These are tested configurations, not a promise that every
+C11 compiler/platform works.
+
+## Use
 
 ```c
 #include "numerix.h"
@@ -44,6 +56,7 @@ int main(void)
 {
     numerix_error error;
     numerix_status status = numerix_initialize(&error);
+
     if (status != NUMERIX_STATUS_SUCCESS) {
         fprintf(stderr, "%s\n", error.message);
         return 1;
@@ -53,60 +66,61 @@ int main(void)
 }
 ```
 
-## Project layout
+Link with the archive and the platform math library (for example
+`cc -Iinclude program.c libnumerix.a -lm`). CMake can install the archive,
+header and documentation with `cmake --install cmake-build-debug --prefix /path`.
+Read [ownership and compatibility](documentation/api/release_contract.md)
+before reusing caller-owned result structures. Clients built against earlier
+public-struct layouts must be rebuilt; ABI compatibility is not established.
 
-- `include/`: the single public API header.
-- `src/core/`: shared implementation and platform timing.
-- `src/internal/`: private implementation declarations.
-- `src/algorithms/`: reserved subdirectories for future algorithm families.
-- `src/expression/`, `piecewise/`, `intelligence/`, `execution/`, `diagnostics/`: future module boundaries.
-- `cli/`: small startup application.
-- `tests/`: automated unit and integration checks.
-- `documentation/`: architecture and development notes.
+## CLI and examples
 
-## Phase 8: reliability and integration hardening
+```sh
+./numerix_cli --help
+./numerix_cli --eval 'sin(pi/2)+x^2' 2
+./numerix_cli --root 'x^2-2' 0 2
+./numerix_cli --roots '(x-1)*(x-2)' 0 3
+./numerix_cli --piecewise-demo
+./numerix_expression_demo
+./numerix_piecewise_demo
+./numerix_intelligence_demo
+./numerix_managed_execution_demo
+./numerix_root_discovery_demo
+```
 
-Root-discovery result arrays now grow with the stored results rather than
-reserving their maximum capacity on every call. Reports expose retained result
-bytes, array capacities, direct workspace peak, and successful allocation
-counts with documented scope. The Phase 8 integration test exercises compiled
-expressions, root discovery, managed recommendation/execution, diagnostics,
-piecewise boundary analysis, and piecewise root discovery. See the
-[Phase 8 validation report](documentation/development/phase8_report.md) for
-the tested compiler, builds, benchmarks, and unavailable validation tools.
+The root CLI demonstrates recommendation, managed execution and residual
+diagnostics. The managed example demonstrates actual Bisection pause/resume;
+other methods provide cooperative cancellation and summaries, without general
+stepwise execution. CLI inputs accept finite numeric values and quoted
+expressions; piecewise input is demonstrated by a fixed two-segment example.
 
-## Roadmap
+## Benchmarks and validation
 
-1. Phase 0: project foundation (complete).
-2. Phase 1: core numerical algorithms (current).
-3. Phase 2: expression parsing and evaluation (current).
-4. Later phases: piecewise representations, execution controls and diagnostics, then method analysis and recommendation.
+GSL is optional and used only in the opt-in comparison executable:
 
-No later-phase feature should be inferred from the existence of a reserved directory or foundation type.
+```sh
+cmake -S . -B cmake-build-bench -DCMAKE_BUILD_TYPE=Release \
+  -DNUMERIX_BUILD_COMPARISON_BENCHMARK=ON
+cmake --build cmake-build-bench -j2
+python3 scripts/run_benchmarks.py --build-dir cmake-build-bench \
+  --output /tmp/numerix-results
+```
 
+See [benchmark instructions and mathematical definitions](benchmarks/README.md)
+for GSL setup, fairness caveats, allocation probes, raw CSV output and validation
+commands. Existing internal suites remain available through
+`make benchmark-diagnostics` and `make benchmark-root-discovery`.
 
-## Phase 3: piecewise functions
+## Documentation and layout
 
-NUMERIX can compile ordered piecewise expression segments with open or closed bounds, evaluate the matching segment, estimate one-sided limits, and report numerical boundary classifications. Piecewise callback, boundary-split trapezoid integration, and a central-difference guard connect the feature to the existing numerical algorithms. Discontinuity detection is numerical evidence, not symbolic proof; see [the piecewise API guide](documentation/api/piecewise.md).
+- [Numerical APIs](documentation/api/): algorithms, expressions, piecewise,
+  recommendations, execution, diagnostics and discovery.
+- [Architecture](documentation/architecture/): data structures and module design.
+- [Development reports](documentation/development/): validation evidence and limitations.
+- `src/algorithms/`: seven implemented numerical categories.
+- `src/core/`, `src/internal/`: shared context, timing and internal contracts.
+- `src/expression/`, `src/piecewise/`, `src/intelligence/`, `src/execution/`,
+  `src/diagnostics/`, `src/root_discovery/`: supporting functionality.
+- `tests/`, `examples/`, `benchmarks/`: regression checks, demonstrations and evaluation.
 
-
-## Phase 4: algorithm recommendations
-
-NUMERIX can explain deterministic recommendations across the implemented numerical categories, execute a recommended method, retain explicit algorithm overrides, and orchestrate root-solver fallback or sequential portfolios. See [the intelligence API guide](documentation/api/intelligence.md) and [architecture notes](documentation/architecture/intelligence.md).
-
-## Phase 5: managed execution
-
-The opt-in managed execution API dispatches the implemented problem
-categories, provides summaries and cooperative cancellation, monitors root
-fallback, and supports genuine stepwise pause/resume for explicit Bisection.
-Portfolio management and internal steps for other algorithms are not yet
-supported; see [the execution API guide](documentation/api/execution_management.md)
-for details.
-
-## Phase 7: multiple-root discovery
-
-The bounded `numerix_root_find_all` facility searches finite intervals for
-sign-changing, tangential, repeated, endpoint, and piecewise-boundary roots.
-It reports unresolved regions and does not claim mathematical completeness.
-See the [root discovery API guide](documentation/api/root_discovery.md) and
-[architecture note](documentation/architecture/root_discovery.md).
+NUMERIX is distributed under the [MIT license](LICENSE).

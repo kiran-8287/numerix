@@ -1,0 +1,81 @@
+Command: ['make', '-j2', 'all', 'test', 'CC=gcc', 'CFLAGS=-O0 -g3 -Werror']
+mkdir -p build
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/core/numerix_core.c -o build/numerix_core.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/core/numerix_platform.c -o build/numerix_platform.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/algorithms/root_finding/root_finding.c -o build/root_finding.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/algorithms/linear_algebra/linear_algebra.c -o build/linear_algebra.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/algorithms/differentiation/differentiation.c -o build/differentiation.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/algorithms/interpolation/interpolation.c -o build/interpolation.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/algorithms/integration/integration.c -o build/integration.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/algorithms/optimization/optimization.c -o build/optimization.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/algorithms/ode/ode.c -o build/ode.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/expression/lexer.c -o build/lexer.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/expression/parser.c -o build/parser.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/expression/evaluator.c -o build/evaluator.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/expression/expression.c -o build/expression.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/piecewise/piecewise.c -o build/piecewise.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/piecewise/analysis.c -o build/analysis.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/piecewise/adapters.c -o build/adapters.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/intelligence/problem.c -o build/problem.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/intelligence/recommendation.c -o build/recommendation.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/intelligence/root_execution.c -o build/root_execution.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/intelligence/portfolio.c -o build/portfolio.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/intelligence/execution.c -o build/execution.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/execution/managed_execution.c -o build/managed_execution.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/diagnostics/diagnostics.c -o build/diagnostics.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/diagnostics/diagnostic_analysis.c -o build/diagnostic_analysis.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -c src/root_discovery/root_discovery.c -o build/root_discovery.o
+ar rcs libnumerix.a build/numerix_core.o build/numerix_platform.o build/root_finding.o build/linear_algebra.o build/differentiation.o build/interpolation.o build/integration.o build/optimization.o build/ode.o build/lexer.o build/parser.o build/evaluator.o build/expression.o build/piecewise.o build/analysis.o build/adapters.o build/problem.o build/recommendation.o build/root_execution.o build/portfolio.o build/execution.o build/managed_execution.o build/diagnostics.o build/diagnostic_analysis.o build/root_discovery.o
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow cli/main.c libnumerix.a -lm -o numerix_cli
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow examples/expression_demo.c libnumerix.a -lm -o numerix_expression_demo
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow examples/piecewise_demo.c libnumerix.a -lm -o numerix_piecewise_demo
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow examples/intelligence_demo.c libnumerix.a -lm -o numerix_intelligence_demo
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow examples/managed_execution_demo.c libnumerix.a -lm -o numerix_managed_execution_demo
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow examples/root_discovery_demo.c libnumerix.a -lm -o numerix_root_discovery_demo
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow tests/test_numerix.c libnumerix.a -lm -o numerix_tests
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow tests/test_phase1.c libnumerix.a -lm -o numerix_phase1_tests
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow tests/test_expression.c libnumerix.a -lm -o numerix_expression_tests
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow tests/test_audit_regressions.c libnumerix.a -lm -o numerix_audit_regression_tests
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow tests/test_piecewise.c libnumerix.a -lm -o numerix_piecewise_tests
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow tests/test_intelligence.c libnumerix.a -lm -o numerix_intelligence_tests
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow tests/test_execution.c libnumerix.a -lm -o numerix_execution_tests
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow tests/test_diagnostics.c libnumerix.a -lm -o numerix_diagnostics_tests
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow tests/test_root_discovery.c libnumerix.a -lm -o numerix_root_discovery_tests
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow tests/test_phase8_integration.c libnumerix.a -lm -o numerix_phase8_integration_tests
+gcc -Iinclude -Isrc/internal -O0 -g3 -Werror -std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow tests/test_release_regressions.c libnumerix.a -lm -o numerix_release_regression_tests
+./numerix_release_regression_tests
+All release regression checks passed.
+./numerix_tests unit
+All NUMERIX Phase 0 tests passed.
+./numerix_tests integration
+All NUMERIX Phase 0 tests passed.
+./numerix_phase1_tests root_finding
+Phase 1 category passed.
+./numerix_phase1_tests linear_algebra
+Phase 1 category passed.
+./numerix_phase1_tests differentiation
+Phase 1 category passed.
+./numerix_phase1_tests interpolation
+Phase 1 category passed.
+./numerix_phase1_tests integration
+Phase 1 category passed.
+./numerix_phase1_tests optimization
+Phase 1 category passed.
+./numerix_phase1_tests ode
+Phase 1 category passed.
+./numerix_expression_tests
+All 3138 expression checks passed.
+./numerix_audit_regression_tests
+All audit regression checks passed.
+./numerix_piecewise_tests
+All piecewise checks passed.
+./numerix_intelligence_tests
+All intelligence checks passed.
+./numerix_execution_tests
+All managed execution checks passed.
+./numerix_diagnostics_tests
+All diagnostics tests passed.
+./numerix_root_discovery_tests
+All root discovery checks passed.
+./numerix_phase8_integration_tests
+All Phase 8 integration checks passed.

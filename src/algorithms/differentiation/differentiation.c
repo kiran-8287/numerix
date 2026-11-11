@@ -3,7 +3,29 @@
 #include <string.h>
 
 typedef enum { FORWARD, BACKWARD, CENTRAL, FIVE, RICHARDSON, SECOND } diff_kind;
-static numerix_status d_eval(numerix_function f,void*d,double x,double*v,numerix_result*r,const numerix_options*o,numerix_error*e){if(r->function_evaluations>=o->maximum_function_evaluations)return numerix_error_set(e,NUMERIX_STATUS_LIMIT_REACHED,"function evaluation limit reached");if(!isfinite(x))return numerix_error_set(e,NUMERIX_STATUS_NUMERICAL_FAILURE,"difference point is non-finite");*v=f(x,d);r->function_evaluations++;if(!isfinite(*v))return numerix_error_set(e,NUMERIX_STATUS_NUMERICAL_FAILURE,"callback returned a non-finite value");return NUMERIX_STATUS_SUCCESS;}
+static numerix_status d_eval(numerix_function function, void *data, double x,
+                             double *value, numerix_result *result,
+                             const numerix_options *options, numerix_error *error)
+{
+    if (result->function_evaluations >= options->maximum_function_evaluations) {
+        numerix_error_set(error, NUMERIX_STATUS_LIMIT_REACHED,
+                          "function evaluation limit reached");
+        return NUMERIX_STATUS_LIMIT_REACHED;
+    }
+    if (!isfinite(x)) {
+        numerix_error_set(error, NUMERIX_STATUS_NUMERICAL_FAILURE,
+                          "difference point is non-finite");
+        return NUMERIX_STATUS_NUMERICAL_FAILURE;
+    }
+    *value = function(x, data);
+    ++result->function_evaluations;
+    if (!isfinite(*value)) {
+        numerix_error_set(error, NUMERIX_STATUS_NUMERICAL_FAILURE,
+                          "callback returned a non-finite value");
+        return NUMERIX_STATUS_NUMERICAL_FAILURE;
+    }
+    return NUMERIX_STATUS_SUCCESS;
+}
 static numerix_status deriv(numerix_function f,void*d,double x,double h,const numerix_options*in,numerix_result*r,numerix_error*e,diff_kind kind){numerix_options o;double fm2=0,fm=0,f0=0,fp=0,fp2=0,v=0; numerix_status s;if(!r)return numerix_error_set(e,NUMERIX_STATUS_INVALID_ARGUMENT,"result is required");memset(r,0,sizeof(*r));r->estimated_error=NAN;r->status=NUMERIX_STATUS_INVALID_ARGUMENT;r->algorithm=kind==FORWARD?"forward_difference":kind==BACKWARD?"backward_difference":kind==CENTRAL?"central_difference":kind==FIVE?"five_point_central":kind==RICHARDSON?"richardson_derivative":"central_second_derivative";if(in)o=*in;else numerix_options_init(&o);s=numerix_options_validate(&o,e);if(s)return r->status=s;if(!f||!isfinite(x)||!isfinite(h)||h<=0)return r->status=numerix_error_set(e,NUMERIX_STATUS_INVALID_ARGUMENT,"callback, finite x, and positive finite h are required");
 #define EVAL(xx,ff) do{s=d_eval(f,d,(xx),&(ff),r,&o,e);if(s){r->status=s;return s;}}while(0)
     if(kind==FORWARD||kind==BACKWARD||kind==CENTRAL||kind==RICHARDSON||kind==SECOND)EVAL(x,f0);

@@ -12,3 +12,9 @@
 *.obj
 *.lib
 *.exe
+/numerix_*_demo
+/numerix_*_tests
+/numerix_*_benchmark
+/numerix_comparison_memory
+*.plist
+__pycache__/
