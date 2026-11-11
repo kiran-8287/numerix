@@ -528,6 +528,79 @@ numerix_status numerix_execute_recommended(
     numerix_execution_output *output, numerix_error *error);
 void numerix_execution_output_destroy(numerix_execution_output *output);
 
+/* Phase 6: post-execution numerical diagnostics. */
+typedef enum numerix_reliability_class {
+    NUMERIX_RELIABILITY_INCONCLUSIVE = 0,
+    NUMERIX_RELIABILITY_ACCEPTABLE,
+    NUMERIX_RELIABILITY_CAUTION,
+    NUMERIX_RELIABILITY_LOW_CONFIDENCE,
+    NUMERIX_RELIABILITY_UNRELIABLE
+} numerix_reliability_class;
+
+typedef struct numerix_diagnostics_options {
+    int estimate_linear_condition;
+} numerix_diagnostics_options;
+
+typedef struct numerix_diagnostics_report {
+    numerix_problem_category category;
+    numerix_status solver_status;
+    numerix_algorithm algorithm;
+    int has_residual;
+    size_t additional_function_evaluations;
+    double absolute_residual;
+    int has_relative_residual;
+    double relative_residual;
+    int residual_satisfies_tolerance;
+    int has_estimated_error;
+    double estimated_absolute_error;
+    int has_relative_estimated_error;
+    double relative_estimated_error;
+    int estimated_error_satisfies_tolerance;
+    int has_backward_error;
+    double normwise_backward_error;
+    int has_condition_estimate;
+    double condition_estimate;
+    int has_residual_vector;
+    numerix_vector *residual_vector;
+    int has_data_residual;
+    double maximum_data_residual;
+    numerix_reliability_class reliability;
+    size_t warning_count;
+    char warning[4][160];
+} numerix_diagnostics_report;
+
+/*
+ * Analyze an existing execution without changing it. The report owns an
+ * optional residual_vector and must be released with the destroy function.
+ * Only diagnostics supported by the request and execution outputs are set.
+ */
+numerix_status numerix_diagnostics_analyze(
+    const numerix_recommendation_request *request,
+    const numerix_execution_output *output,
+    const numerix_diagnostics_options *options,
+    numerix_diagnostics_report *report,
+    numerix_error *error);
+void numerix_diagnostics_report_destroy(numerix_diagnostics_report *report);
+
+typedef struct numerix_sensitivity_report {
+    double evaluation_point;
+    double perturbation;
+    double derivative;
+    double estimated_uncertainty;
+    int has_relative_sensitivity;
+    double relative_sensitivity;
+    size_t function_evaluations;
+    const char *method; /* Borrowed static string. */
+} numerix_sensitivity_report;
+
+/* Uses Richardson finite differences; the callback is evaluated additionally. */
+numerix_status numerix_diagnostics_scalar_sensitivity(
+    numerix_function function, void *user_data, double x, double step,
+    const numerix_options *options, numerix_sensitivity_report *report,
+    numerix_error *error);
+const char *numerix_reliability_class_name(
+    numerix_reliability_class reliability);
+
 /* Phase 5: managed root execution and resumable Bisection sessions. */
 typedef struct numerix_managed_execution numerix_managed_execution;
 
