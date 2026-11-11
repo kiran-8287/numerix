@@ -20,7 +20,7 @@ SOURCES = src/core/numerix_core.c src/core/numerix_platform.c \
 	src/intelligence/problem.c src/intelligence/recommendation.c \
 	src/intelligence/root_execution.c src/intelligence/portfolio.c \
 	src/intelligence/execution.c src/execution/managed_execution.c \
-	src/diagnostics/diagnostics.c
+	src/diagnostics/diagnostics.c src/diagnostics/diagnostic_analysis.c
 VPATH = $(sort $(dir $(SOURCES)))
 OBJECTS = $(addprefix build/,$(notdir $(SOURCES:.c=.o)))
 
@@ -54,7 +54,7 @@ DIAGNOSTICS_TEST_EXE = numerix_diagnostics_tests
 LDLIBS = -lm
 endif
 
-.PHONY: all test clean
+.PHONY: all test clean benchmark-diagnostics
 all: $(LIB) $(CLI) $(EXPRESSION_DEMO) $(PIECEWISE_DEMO) $(INTELLIGENCE_DEMO) $(MANAGED_EXECUTION_DEMO)
 
 build:
@@ -99,6 +99,12 @@ $(EXECUTION_TEST_EXE): tests/test_execution.c $(LIB)
 $(DIAGNOSTICS_TEST_EXE): tests/test_diagnostics.c $(LIB)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $< $(LIB) $(LDLIBS) -o $@
 
+numerix_diagnostics_benchmark: benchmarks/diagnostics_benchmark.c $(LIB)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $< $(LIB) $(LDLIBS) -o $@
+
+benchmark-diagnostics: numerix_diagnostics_benchmark
+	./numerix_diagnostics_benchmark
+
 $(PIECEWISE_TEST_EXE): tests/test_piecewise.c $(LIB)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $< $(LIB) $(LDLIBS) -o $@
 
@@ -126,9 +132,9 @@ clean:
 	$(CLEAN_COMMAND)
 
 ifeq ($(OS),Windows_NT)
-CLEAN_COMMAND = cmd /c "if exist build rmdir /s /q build & if exist libnumerix.a del /q libnumerix.a & if exist numerix_cli.exe del /q numerix_cli.exe & if exist numerix_piecewise_demo.exe del /q numerix_piecewise_demo.exe & if exist numerix_intelligence_demo.exe del /q numerix_intelligence_demo.exe & if exist numerix_managed_execution_demo.exe del /q numerix_managed_execution_demo.exe & if exist numerix_expression_demo.exe del /q numerix_expression_demo.exe & if exist numerix_tests.exe del /q numerix_tests.exe & if exist numerix_phase1_tests.exe del /q numerix_phase1_tests.exe & if exist numerix_expression_tests.exe del /q numerix_expression_tests.exe & if exist numerix_audit_regression_tests.exe del /q numerix_audit_regression_tests.exe & if exist numerix_piecewise_tests.exe del /q numerix_piecewise_tests.exe & if exist numerix_intelligence_tests.exe del /q numerix_intelligence_tests.exe & if exist numerix_execution_tests.exe del /q numerix_execution_tests.exe & if exist numerix_diagnostics_tests.exe del /q numerix_diagnostics_tests.exe & if exist numerix_tests_direct.exe del /q numerix_tests_direct.exe & if exist build_core.o del /q build_core.o & if exist build_platform.o del /q build_platform.o"
+CLEAN_COMMAND = cmd /c "if exist build rmdir /s /q build & if exist libnumerix.a del /q libnumerix.a & if exist numerix_cli.exe del /q numerix_cli.exe & if exist numerix_piecewise_demo.exe del /q numerix_piecewise_demo.exe & if exist numerix_intelligence_demo.exe del /q numerix_intelligence_demo.exe & if exist numerix_managed_execution_demo.exe del /q numerix_managed_execution_demo.exe & if exist numerix_expression_demo.exe del /q numerix_expression_demo.exe & if exist numerix_tests.exe del /q numerix_tests.exe & if exist numerix_phase1_tests.exe del /q numerix_phase1_tests.exe & if exist numerix_expression_tests.exe del /q numerix_expression_tests.exe & if exist numerix_audit_regression_tests.exe del /q numerix_audit_regression_tests.exe & if exist numerix_piecewise_tests.exe del /q numerix_piecewise_tests.exe & if exist numerix_intelligence_tests.exe del /q numerix_intelligence_tests.exe & if exist numerix_execution_tests.exe del /q numerix_execution_tests.exe & if exist numerix_diagnostics_tests.exe del /q numerix_diagnostics_tests.exe & if exist numerix_diagnostics_benchmark.exe del /q numerix_diagnostics_benchmark.exe & if exist numerix_tests_direct.exe del /q numerix_tests_direct.exe & if exist build_core.o del /q build_core.o & if exist build_platform.o del /q build_platform.o"
 MKDIR_COMMAND = cmd /c "if not exist build mkdir build"
 else
-CLEAN_COMMAND = rm -rf build $(LIB) numerix_cli numerix_expression_demo numerix_tests numerix_phase1_tests numerix_expression_tests numerix_audit_regression_tests numerix_piecewise_demo numerix_intelligence_demo numerix_managed_execution_demo numerix_piecewise_tests numerix_intelligence_tests numerix_execution_tests numerix_diagnostics_tests numerix_tests_direct.exe build_core.o build_platform.o
+CLEAN_COMMAND = rm -rf build $(LIB) numerix_cli numerix_expression_demo numerix_tests numerix_phase1_tests numerix_expression_tests numerix_audit_regression_tests numerix_piecewise_demo numerix_intelligence_demo numerix_managed_execution_demo numerix_piecewise_tests numerix_intelligence_tests numerix_execution_tests numerix_diagnostics_tests numerix_diagnostics_benchmark numerix_tests_direct.exe build_core.o build_platform.o
 MKDIR_COMMAND = mkdir -p build
 endif

@@ -29,6 +29,7 @@ add_library(numerix STATIC
     src/intelligence/execution.c
     src/execution/managed_execution.c
     src/diagnostics/diagnostics.c
+    src/diagnostics/diagnostic_analysis.c
 )
 target_include_directories(numerix PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(numerix PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/internal)
@@ -56,6 +57,10 @@ target_link_libraries(numerix_intelligence_demo PRIVATE numerix)
 add_executable(numerix_managed_execution_demo examples/managed_execution_demo.c)
 target_link_libraries(numerix_managed_execution_demo PRIVATE numerix)
 
+add_executable(numerix_diagnostics_benchmark EXCLUDE_FROM_ALL
+    benchmarks/diagnostics_benchmark.c)
+target_link_libraries(numerix_diagnostics_benchmark PRIVATE numerix)
+
 include(CTest)
 if(BUILD_TESTING)
     add_executable(numerix_tests tests/test_numerix.c)
@@ -75,6 +80,7 @@ if(BUILD_TESTING)
     add_executable(numerix_diagnostics_tests tests/test_diagnostics.c)
     target_link_libraries(numerix_diagnostics_tests PRIVATE numerix)
     if(NOT MSVC)
+        target_compile_options(numerix_diagnostics_benchmark PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
         target_compile_options(numerix_tests PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
         target_compile_options(numerix_phase1_tests PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
         target_compile_options(numerix_expression_tests PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)

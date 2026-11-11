@@ -18,9 +18,17 @@ static numerix_status diagnostics_error(
 
 static void add_warning(
     numerix_diagnostics_report *report,
-    const char *message)
+    const char *identifier,
+    numerix_diagnostic_severity severity,
+    numerix_diagnostic_category category,
+    const char *message,
+    const char *possible_cause,
+    const char *suggested_action,
+    int is_estimated,
+    int is_heuristic)
 {
     size_t index = report->warning_count;
+    numerix_diagnostic_record *record;
 
     if (index >= sizeof(report->warning) / sizeof(report->warning[0]))
     {
@@ -29,6 +37,23 @@ static void add_warning(
 
     (void)snprintf(report->warning[index], sizeof(report->warning[index]),
                    "%s", message);
+    record = &report->diagnostics[index];
+    (void)snprintf(record->identifier, sizeof(record->identifier), "%s",
+                   identifier);
+    record->severity = severity;
+    record->category = category;
+    record->problem_category = report->category;
+    record->algorithm = report->algorithm;
+    (void)snprintf(record->description, sizeof(record->description), "%s",
+                   message);
+    (void)snprintf(record->possible_cause,
+                   sizeof(record->possible_cause), "%s", possible_cause);
+    (void)snprintf(record->consequence, sizeof(record->consequence), "%s",
+                   message);
+    (void)snprintf(record->suggested_action,
+                   sizeof(record->suggested_action), "%s", suggested_action);
+    record->is_estimated = is_estimated;
+    record->is_heuristic = is_heuristic;
     report->warning_count++;
 }
 
@@ -144,8 +169,13 @@ static numerix_status analyze_linear_system(
     if (solution == NULL && output->scalar_result.status !=
                                  NUMERIX_STATUS_SUCCESS)
     {
-        add_warning(report,
-                    "The linear solver did not return a solution vector, so residual and backward-error analysis are unavailable.");
+        add_warning(report, "NUMERIX.LINEAR.NO_SOLUTION",
+                    NUMERIX_DIAGNOSTIC_ERROR,
+                    NUMERIX_DIAGNOSTIC_RESIDUAL,
+                    "The linear solver did not return a solution vector, so residual and backward-error analysis are unavailable.",
+                    "The solver stopped before constructing a solution.",
+                    "Review the solver status and correct the system or its tolerances.",
+                    0, 0);
         return NUMERIX_STATUS_SUCCESS;
     }
 
@@ -225,8 +255,13 @@ static numerix_status analyze_linear_system(
 
         if (matrix->rows > NUMERIX_CONDITION_ESTIMATE_MAX_SIZE)
         {
-            add_warning(report,
-                        "Condition estimate skipped because the matrix exceeds the implementation size limit.");
+            add_warning(report, "NUMERIX.CONDITION.SIZE_LIMIT",
+                        NUMERIX_DIAGNOSTIC_NOTICE,
+                        NUMERIX_DIAGNOSTIC_CONDITIONING,
+                        "Condition estimate skipped because the matrix exceeds the implementation size limit.",
+                        "The optional dense estimator is capped at 256 rows.",
+                        "Use a smaller problem or request a future scalable estimator.",
+                        0, 0);
         }
         else
         {
@@ -302,8 +337,13 @@ static numerix_status analyze_linear_system(
             }
             else
             {
-                add_warning(report,
-                            "Condition estimate is unavailable because LU factorization reported a singular or numerically singular matrix.");
+                add_warning(report, "NUMERIX.CONDITION.SINGULAR",
+                            NUMERIX_DIAGNOSTIC_WARNING,
+                            NUMERIX_DIAGNOSTIC_CONDITIONING,
+                            "Condition estimate is unavailable because LU factorization reported a singular or numerically singular matrix.",
+                            "The matrix has a pivot below the LU numerical threshold.",
+                            "Inspect rank and scaling; do not interpret this as a finite condition estimate.",
+                            1, 0);
                 numerix_error_clear(error);
             }
         }
@@ -420,8 +460,13 @@ static void classify_report(numerix_diagnostics_report *report)
     if (report->solver_status != NUMERIX_STATUS_SUCCESS)
     {
         report->reliability = NUMERIX_RELIABILITY_UNRELIABLE;
-        add_warning(report,
-                    "The numerical solver did not report success; the output requires independent review.");
+        add_warning(report, "NUMERIX.SOLVER.NON_SUCCESS",
+                    NUMERIX_DIAGNOSTIC_ERROR,
+                    NUMERIX_DIAGNOSTIC_EXECUTION,
+                    "The numerical solver did not report success; the output requires independent review.",
+                    "The solver status indicates failure, cancellation, or a reached limit.",
+                    "Inspect the solver status and execution summary before using the value.",
+                    0, 0);
         return;
     }
 
@@ -431,11 +476,17 @@ static void classify_report(numerix_diagnostics_report *report)
         (report->has_backward_error &&
          !isfinite(report->normwise_backward_error)) ||
         (report->has_condition_estimate &&
-         !isfinite(report->condition_estimate)))
+         !isfinite(report->condition_estimate)) ||
+        (report->has_ode_summary && !report->ode_state_is_finite))
     {
         report->reliability = NUMERIX_RELIABILITY_LOW_CONFIDENCE;
-        add_warning(report,
-                    "A required numerical diagnostic is non-finite.");
+        add_warning(report, "NUMERIX.FLOATING_POINT.NONFINITE_METRIC",
+                    NUMERIX_DIAGNOSTIC_ERROR,
+                    NUMERIX_DIAGNOSTIC_FLOATING_POINT,
+                    "A required numerical diagnostic is non-finite.",
+                    "An intermediate or diagnostic calculation exceeded the finite range.",
+                    "Check input scaling and inspect the affected computation.",
+                    0, 0);
         return;
     }
 
@@ -446,8 +497,47 @@ static void classify_report(numerix_diagnostics_report *report)
          report->condition_estimate > 1.0 / sqrt(DBL_EPSILON)))
     {
         report->reliability = NUMERIX_RELIABILITY_CAUTION;
-        add_warning(report,
-                    "Available residual, error, or conditioning evidence warrants caution; this is not a proof of solution inaccuracy.");
+        add_warning(report, "NUMERIX.RELIABILITY.CAUTION_EVIDENCE",
+                    NUMERIX_DIAGNOSTIC_WARNING,
+                    NUMERIX_DIAGNOSTIC_RESIDUAL,
+                    "Available residual, error, or conditioning evidence warrants caution; this is not a proof of solution inaccuracy.",
+                    "One or more measured or estimated indicators crossed its configured assessment rule.",
+                    "Review the individual metrics and consider a better-scaled or alternative method.",
+                    1, 1);
+        if (report->warning_count > 0)
+        {
+            numerix_diagnostic_record *record =
+                &report->diagnostics[report->warning_count - 1U];
+
+            if (report->has_residual &&
+                !report->residual_satisfies_tolerance)
+            {
+                record->has_metric = 1;
+                record->metric = report->has_backward_error
+                                     ? report->normwise_backward_error
+                                     : report->absolute_residual;
+                record->has_threshold = report->has_residual_tolerance;
+                record->threshold = report->requested_residual_tolerance;
+            }
+            else if (report->has_estimated_error &&
+                     !report->estimated_error_satisfies_tolerance)
+            {
+                record->has_metric = 1;
+                record->metric = report->estimated_absolute_error;
+                record->has_threshold =
+                    report->has_estimated_error_tolerance;
+                record->threshold = report->requested_error_tolerance;
+                record->is_estimated = 1;
+            }
+            else if (report->has_condition_estimate)
+            {
+                record->has_metric = 1;
+                record->metric = report->condition_estimate;
+                record->has_threshold = 1;
+                record->threshold = 1.0 / sqrt(DBL_EPSILON);
+                record->category = NUMERIX_DIAGNOSTIC_CONDITIONING;
+            }
+        }
         return;
     }
 
@@ -459,8 +549,13 @@ static void classify_report(numerix_diagnostics_report *report)
     }
 
     report->reliability = NUMERIX_RELIABILITY_INCONCLUSIVE;
-    add_warning(report,
-                "The current algorithm output does not expose enough evidence for a reliability classification.");
+    add_warning(report, "NUMERIX.RELIABILITY.INSUFFICIENT_EVIDENCE",
+                NUMERIX_DIAGNOSTIC_NOTICE,
+                NUMERIX_DIAGNOSTIC_EXECUTION,
+                "The current algorithm output does not expose enough evidence for a reliability classification.",
+                "This algorithm result contains no applicable residual or error estimate.",
+                "Supply reference information or collect suitable execution history.",
+                0, 0);
 }
 
 numerix_status numerix_diagnostics_analyze(
@@ -486,6 +581,12 @@ numerix_status numerix_diagnostics_analyze(
     {
         return diagnostics_error(error, NUMERIX_STATUS_INVALID_ARGUMENT,
                                  "condition-estimation option must be zero or one");
+    }
+    if (options != NULL && options->estimate_root_condition != 0 &&
+        options->estimate_root_condition != 1)
+    {
+        return diagnostics_error(error, NUMERIX_STATUS_INVALID_ARGUMENT,
+                                 "root-condition option must be zero or one");
     }
     if (request->category != output->category)
     {
@@ -527,16 +628,61 @@ numerix_status numerix_diagnostics_analyze(
             {
                 report->has_residual = 1;
                 report->absolute_residual = fabs(residual_value);
-                report->residual_satisfies_tolerance =
-                    report->absolute_residual <=
+                report->has_residual_tolerance = 1;
+                report->requested_residual_tolerance =
                     solver_options->absolute_tolerance +
                     solver_options->relative_tolerance *
                         fabs(output->scalar_result.value);
+                report->residual_satisfies_tolerance =
+                    report->absolute_residual <=
+                    report->requested_residual_tolerance;
+                if (options != NULL && options->estimate_root_condition != 0 &&
+                    request->representation ==
+                        NUMERIX_REPRESENTATION_CALLBACK)
+                {
+                    numerix_root_condition_report root_condition;
+                    double step = cbrt(DBL_EPSILON) *
+                        fmax(1.0, fabs(output->scalar_result.value));
+
+                    status = numerix_diagnostics_root_condition(
+                        request->function, request->derivative,
+                        request->user_data, output->scalar_result.value,
+                        step, solver_options, &root_condition, error);
+                    if (status == NUMERIX_STATUS_SUCCESS)
+                    {
+                        report->additional_function_evaluations +=
+                            root_condition.function_evaluations;
+                        report->additional_derivative_evaluations +=
+                            root_condition.derivative_evaluations;
+                        report->has_condition_estimate =
+                            root_condition.condition_available;
+                        report->condition_estimate =
+                            root_condition.reciprocal_derivative_condition;
+                    }
+                    else
+                    {
+                        add_warning(report,
+                            "NUMERIX.ROOT.CONDITION_UNAVAILABLE",
+                            NUMERIX_DIAGNOSTIC_NOTICE,
+                            NUMERIX_DIAGNOSTIC_CONDITIONING,
+                            "Root conditioning could not be estimated reliably near the reported approximation.",
+                            "The derivative callback or local finite-difference stencil did not provide usable evidence.",
+                            "Treat the root sensitivity as unknown and inspect the function locally.",
+                            1, 0);
+                        numerix_error_clear(error);
+                        status = NUMERIX_STATUS_SUCCESS;
+                    }
+                }
             }
             else
             {
-                add_warning(report,
-                            "Root residual could not be evaluated; callback or representation evaluation failed.");
+                add_warning(report, "NUMERIX.ROOT.RESIDUAL_UNAVAILABLE",
+                            NUMERIX_DIAGNOSTIC_WARNING,
+                            NUMERIX_DIAGNOSTIC_RESIDUAL,
+                            "Root residual could not be evaluated; callback or representation evaluation failed.",
+                            "The original function failed at the reported approximation.",
+                            "Inspect callback errors and evaluate the function over the local root interval.",
+                            0, 0);
                 numerix_error_clear(error);
                 status = NUMERIX_STATUS_SUCCESS;
             }
@@ -547,16 +693,33 @@ numerix_status numerix_diagnostics_analyze(
                                            report, error);
             if (status == NUMERIX_STATUS_SUCCESS)
             {
-                report->residual_satisfies_tolerance =
-                    report->normwise_backward_error <=
+                report->has_residual_tolerance = 1;
+                report->requested_residual_tolerance =
                     solver_options->absolute_tolerance +
                     solver_options->relative_tolerance;
+                report->residual_satisfies_tolerance =
+                    report->normwise_backward_error <=
+                    report->requested_residual_tolerance;
                 if (report->has_condition_estimate &&
                     report->condition_estimate >
                         1.0 / sqrt(DBL_EPSILON))
                 {
-                    add_warning(report,
-                                "The computed infinity-norm condition estimate is large; solution sensitivity may be high.");
+                    add_warning(report, "NUMERIX.CONDITION.LARGE_ESTIMATE",
+                                NUMERIX_DIAGNOSTIC_WARNING,
+                                NUMERIX_DIAGNOSTIC_CONDITIONING,
+                                "The computed infinity-norm condition estimate is large; solution sensitivity may be high.",
+                                "The estimated matrix condition number exceeds the floating-point caution threshold.",
+                                "Check scaling and consider higher precision or a reformulated system.",
+                                1, 1);
+                    if (report->warning_count > 0)
+                    {
+                        numerix_diagnostic_record *record =
+                            &report->diagnostics[report->warning_count - 1U];
+                        record->has_metric = 1;
+                        record->metric = report->condition_estimate;
+                        record->has_threshold = 1;
+                        record->threshold = 1.0 / sqrt(DBL_EPSILON);
+                    }
                 }
             }
             break;
@@ -567,21 +730,47 @@ numerix_status numerix_diagnostics_analyze(
                 report->has_estimated_error = 1;
                 report->estimated_absolute_error =
                     output->scalar_result.estimated_error;
-                report->estimated_error_satisfies_tolerance =
-                    output->scalar_result.estimated_error <=
+                report->has_estimated_error_tolerance = 1;
+                report->requested_error_tolerance =
                     solver_options->absolute_tolerance +
                     solver_options->relative_tolerance *
                         fabs(output->scalar_result.value);
+                report->estimated_error_satisfies_tolerance =
+                    output->scalar_result.estimated_error <=
+                    report->requested_error_tolerance;
+            }
+            if (report->has_gradient_norm &&
+                !report->residual_satisfies_tolerance)
+            {
+                add_warning(report, "NUMERIX.OPTIMIZATION.GRADIENT_REMAINS_LARGE",
+                            NUMERIX_DIAGNOSTIC_WARNING,
+                            NUMERIX_DIAGNOSTIC_CONVERGENCE,
+                            "The reported gradient norm is larger than the absolute tolerance.",
+                            "The gradient-based method stopped with a non-negligible first-order residual.",
+                            "Inspect the termination status and consider improved scaling or a different starting point.",
+                            0, 0);
+                if (report->warning_count > 0)
+                {
+                    numerix_diagnostic_record *record =
+                        &report->diagnostics[report->warning_count - 1U];
+                    record->has_metric = 1;
+                    record->metric = report->gradient_norm;
+                    record->has_threshold = 1;
+                    record->threshold = solver_options->absolute_tolerance;
+                }
             }
             break;
         case NUMERIX_PROBLEM_INTERPOLATION:
             status = analyze_interpolation(request, report, error);
             if (status == NUMERIX_STATUS_SUCCESS)
             {
-                report->residual_satisfies_tolerance =
-                    report->absolute_residual <=
+                report->has_residual_tolerance = 1;
+                report->requested_residual_tolerance =
                     solver_options->absolute_tolerance +
                     solver_options->relative_tolerance;
+                report->residual_satisfies_tolerance =
+                    report->absolute_residual <=
+                    report->requested_residual_tolerance;
             }
             break;
         case NUMERIX_PROBLEM_INTEGRATION:
@@ -591,6 +780,11 @@ numerix_status numerix_diagnostics_analyze(
                 report->has_estimated_error = 1;
                 report->estimated_absolute_error =
                     output->scalar_result.estimated_error;
+                report->has_estimated_error_tolerance = 1;
+                report->requested_error_tolerance =
+                    solver_options->absolute_tolerance +
+                    solver_options->relative_tolerance *
+                        fabs(output->scalar_result.value);
                 report->has_relative_estimated_error =
                     fabs(output->scalar_result.value) > DBL_MIN;
                 if (report->has_relative_estimated_error)
@@ -605,20 +799,118 @@ numerix_status numerix_diagnostics_analyze(
                 }
                 report->estimated_error_satisfies_tolerance =
                     report->estimated_absolute_error <=
-                    solver_options->absolute_tolerance +
-                    solver_options->relative_tolerance *
-                        fabs(output->scalar_result.value);
+                        report->requested_error_tolerance;
             }
             else
             {
-                add_warning(report,
-                            "The selected integration method did not provide a finite error estimate.");
+                add_warning(report, "NUMERIX.INTEGRATION.NO_ERROR_ESTIMATE",
+                            NUMERIX_DIAGNOSTIC_NOTICE,
+                            NUMERIX_DIAGNOSTIC_ERROR_ESTIMATION,
+                            "The selected integration method did not provide a finite error estimate.",
+                            "The selected fixed quadrature rule does not estimate its own error.",
+                            "Use adaptive Simpson or compare results at refined resolutions.",
+                            0, 0);
             }
             break;
         case NUMERIX_PROBLEM_OPTIMIZATION:
+            if (output->algorithm ==
+                NUMERIX_ALGORITHM_OPTIMIZE_GRADIENT_DESCENT)
+            {
+                report->has_objective_value =
+                    isfinite(output->scalar_result.value);
+                report->objective_value = output->scalar_result.value;
+                report->has_gradient_norm =
+                    isfinite(output->scalar_result.residual) &&
+                    output->scalar_result.residual >= 0.0;
+                report->gradient_norm = output->scalar_result.residual;
+                report->has_residual = report->has_gradient_norm;
+                report->absolute_residual = report->gradient_norm;
+                if (report->has_gradient_norm &&
+                    output->vector_result != NULL)
+                {
+                    double solution_norm = numerix_vector_norm2(
+                        output->vector_result);
+                    double stopping_threshold =
+                        solver_options->absolute_tolerance +
+                        solver_options->relative_tolerance *
+                            fmax(1.0, solution_norm);
+
+                    report->has_residual_tolerance = 1;
+                    report->requested_residual_tolerance =
+                        stopping_threshold;
+
+                    report->residual_satisfies_tolerance =
+                        report->gradient_norm <= stopping_threshold;
+                }
+            }
+            else if (output->algorithm ==
+                     NUMERIX_ALGORITHM_OPTIMIZE_GOLDEN_SECTION)
+            {
+                report->has_objective_value =
+                    isfinite(output->scalar_result.residual);
+                report->objective_value = output->scalar_result.residual;
+                if (isfinite(output->scalar_result.estimated_error) &&
+                    output->scalar_result.estimated_error >= 0.0)
+                {
+                    report->has_estimated_error = 1;
+                    report->estimated_absolute_error =
+                        output->scalar_result.estimated_error;
+                    report->has_estimated_error_tolerance = 1;
+                    report->requested_error_tolerance =
+                        solver_options->absolute_tolerance +
+                        solver_options->relative_tolerance *
+                            fabs(output->scalar_result.value);
+                    report->estimated_error_satisfies_tolerance =
+                        report->estimated_absolute_error <=
+                        report->requested_error_tolerance;
+                }
+            }
+            break;
         case NUMERIX_PROBLEM_ODE:
-            add_warning(report,
-                        "The current execution API does not expose enough gradient or local-error history for a numerical reliability estimate.");
+            if (output->has_ode_result && output->ode_result.points > 0 &&
+                output->ode_result.y != NULL)
+            {
+                size_t state_count;
+                size_t state_index;
+
+                report->has_ode_summary = 1;
+                report->ode_points = output->ode_result.points;
+                report->ode_dimension = output->ode_result.dimension;
+                report->ode_state_is_finite = 1;
+                if (output->ode_result.dimension == 0 ||
+                    output->ode_result.points >
+                        SIZE_MAX / output->ode_result.dimension)
+                {
+                    status = diagnostics_error(
+                        error, NUMERIX_STATUS_INVALID_DIMENSIONS,
+                        "ODE output dimensions overflow diagnostic bounds");
+                    break;
+                }
+                state_count = output->ode_result.points *
+                              output->ode_result.dimension;
+                for (state_index = 0; state_index < state_count;
+                     state_index++)
+                {
+                    double magnitude = fabs(output->ode_result.y[state_index]);
+
+                    if (!isfinite(magnitude))
+                    {
+                        report->ode_state_is_finite = 0;
+                        break;
+                    }
+                    if (magnitude > report->ode_maximum_absolute_state)
+                    {
+                        report->ode_maximum_absolute_state = magnitude;
+                    }
+                }
+            }
+            add_warning(report, "NUMERIX.ODE.NO_LOCAL_ERROR_ESTIMATE",
+                        NUMERIX_DIAGNOSTIC_NOTICE,
+                        NUMERIX_DIAGNOSTIC_ERROR_ESTIMATION,
+                        "The selected fixed-step ODE method does not provide a local truncation error estimate.",
+                        "Euler, Heun, and RK4 execution outputs contain solution points but no embedded error estimate.",
+                        "Compare refined step sizes or provide a trusted reference solution.",
+                        0, 0);
             break;
         default:
             return diagnostics_error(error, NUMERIX_STATUS_INVALID_ARGUMENT,
@@ -716,4 +1008,84 @@ const char *numerix_reliability_class_name(
         default:
             return "unknown";
     }
+}
+
+numerix_status numerix_recommend_algorithm_with_diagnostics(
+    const numerix_recommendation_request *request,
+    const numerix_recommendation_request *prior_request,
+    const numerix_diagnostics_report *prior_report,
+    numerix_recommendation *recommendation,
+    numerix_error *error)
+{
+    numerix_status status;
+    int comparable_root;
+    int prior_execution_problem;
+    int prior_quality_problem;
+
+    if (request == NULL || recommendation == NULL)
+    {
+        return diagnostics_error(error, NUMERIX_STATUS_INVALID_ARGUMENT,
+                                 "current request and recommendation are required");
+    }
+
+    status = numerix_recommend_algorithm(request, recommendation, error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        return status;
+    }
+
+    if (prior_request == NULL || prior_report == NULL)
+    {
+        numerix_error_clear(error);
+        return NUMERIX_STATUS_SUCCESS;
+    }
+
+    comparable_root = request->category == NUMERIX_PROBLEM_ROOT_FINDING &&
+        prior_request->category == NUMERIX_PROBLEM_ROOT_FINDING &&
+        request->representation == NUMERIX_REPRESENTATION_CALLBACK &&
+        prior_request->representation == NUMERIX_REPRESENTATION_CALLBACK &&
+        request->function == prior_request->function &&
+        request->user_data == prior_request->user_data &&
+        request->problem.root.has_bracket != 0 &&
+        prior_request->problem.root.has_bracket != 0 &&
+        request->problem.root.lower == prior_request->problem.root.lower &&
+        request->problem.root.upper == prior_request->problem.root.upper &&
+        prior_report->category == NUMERIX_PROBLEM_ROOT_FINDING;
+    if (!comparable_root)
+    {
+        numerix_error_clear(error);
+        return NUMERIX_STATUS_SUCCESS;
+    }
+
+    prior_execution_problem = prior_report->solver_status !=
+                                  NUMERIX_STATUS_SUCCESS ||
+                              prior_report->reliability ==
+                                  NUMERIX_RELIABILITY_UNRELIABLE ||
+                              prior_report->reliability ==
+                                  NUMERIX_RELIABILITY_LOW_CONFIDENCE;
+    prior_quality_problem = prior_execution_problem ||
+        (prior_report->has_residual &&
+         !prior_report->residual_satisfies_tolerance) ||
+        (prior_report->has_condition_estimate &&
+         prior_report->condition_estimate > 1.0 / sqrt(DBL_EPSILON));
+
+    if (prior_quality_problem &&
+        (prior_report->algorithm == NUMERIX_ALGORITHM_NEWTON ||
+         prior_report->algorithm == NUMERIX_ALGORITHM_SAFEGUARDED_NEWTON) &&
+        recommendation->bracket_was_checked &&
+        recommendation->sign_changing_bracket)
+    {
+        recommendation->historical_diagnostics_used = 1;
+        recommendation->historical_algorithm = prior_report->algorithm;
+        recommendation->recommended_algorithm = NUMERIX_ALGORITHM_BRENT;
+        (void)snprintf(recommendation->historical_reason,
+                       sizeof(recommendation->historical_reason),
+                       "A prior run of the same callback and bracket had weak diagnostic evidence; Brent is suggested as a safeguarded alternative.");
+        (void)snprintf(recommendation->reason[1],
+                       sizeof(recommendation->reason[1]), "%s",
+                       recommendation->historical_reason);
+    }
+
+    numerix_error_clear(error);
+    return NUMERIX_STATUS_SUCCESS;
 }

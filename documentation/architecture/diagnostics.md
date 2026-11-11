@@ -72,3 +72,59 @@ Its uncertainty is the existing Richardson estimate, which is empirical and
 can be affected by nonsmoothness, cancellation, callback noise, and the chosen
 step. Relative sensitivity is omitted near a zero function value. The local
 linear interpretation assumes sufficiently small perturbations.
+
+## Phase 6.1 extensions
+
+Forward-error APIs compare against caller-supplied scalar or vector references.
+Vector absolute error is the Euclidean norm. A zero reference has no relative
+error. The reference is only as trustworthy as the caller's source.
+
+Multivariable sensitivity reuses the existing scalar
+`numerix_objective_function` representation and estimates its gradient with
+central differences and Richardson refinement. It uses four objective
+evaluations per input coordinate plus one nominal evaluation. Relative
+sensitivities are available only when the nominal output is nonzero.
+Independent-input error propagation uses
+`sqrt(sum((df/dx_i * sigma_i)^2))`; correlations are not represented. Both
+operations assume a locally smooth function and small perturbations.
+
+Root conditioning reports `1/|f'(x*)|` from a supplied derivative or
+Richardson estimate. This describes sensitivity to additive function-value
+perturbations under that local model; it is scale dependent, not a universal
+root condition number. The estimate is unavailable when the derivative cannot
+be distinguished from its estimated uncertainty.
+
+Convergence-history analysis accepts signed residual observations. Trend
+categories use heuristics and need at least three samples. The optional
+empirical order uses residual magnitudes as proxies for errors and is not a
+convergence guarantee. The bounded periodic observer retains at most the
+configured number of residuals. It can be called from an existing Phase 5 step
+callback (detailed steps are currently provided for Bisection). The caller
+decides which steps to pass and must serialize access; the observer does not
+install callbacks, synchronize, or alter solver state.
+
+Phase 4's history-aware recommendation accepts prior request metadata and a
+diagnostics report. It only considers the same callback, user-data pointer,
+representation, and exact bracket. Weak Newton or safeguarded Newton evidence
+can cause Brent to be suggested when the current bracket is verified. It does
+not alter explicit execution overrides or fallback rules. Expressions,
+piecewise functions, linear systems, and cross-bracket history are not used
+for diagnostic-informed selection.
+
+Optimization reports now expose the objective value and, for gradient
+descent, the final gradient norm already recorded by the optimizer. Golden
+section reports its existing interval-width estimate. No objective-change or
+parameter history is inferred. ODE diagnostics summarize stored solution
+points and finite state magnitude. Euler, Heun, and RK4 do not expose local
+error estimates; diagnostics do not invent one.
+
+Structured records accompany the backward-compatible warning strings. Records
+include stable identifiers, severity, category, problem and algorithm,
+description, cause, consequence, suggested action, and estimate/heuristic
+flags. Metric and threshold fields are populated when a comparison provides
+them. Reports remain bounded to four records.
+
+`numerix_diagnostics_check_subtraction` explicitly checks a caller-visible
+subtraction. It compares the result scale to the operand scale and estimates
+decimal digits at risk. This is a heuristic and does not instrument arbitrary
+callbacks or every expression-evaluator operation.

@@ -427,6 +427,9 @@ typedef struct numerix_recommendation {
     char reason[3][160];
     char limitation[2][160];
     char alternative_reason[4][120];
+    int historical_diagnostics_used;
+    numerix_algorithm historical_algorithm;
+    char historical_reason[160];
 } numerix_recommendation;
 
 #define NUMERIX_ROOT_SELECTION_MAX_ATTEMPTS 4
@@ -537,8 +540,47 @@ typedef enum numerix_reliability_class {
     NUMERIX_RELIABILITY_UNRELIABLE
 } numerix_reliability_class;
 
+typedef enum numerix_diagnostic_severity {
+    NUMERIX_DIAGNOSTIC_INFORMATION = 0,
+    NUMERIX_DIAGNOSTIC_NOTICE,
+    NUMERIX_DIAGNOSTIC_WARNING,
+    NUMERIX_DIAGNOSTIC_ERROR,
+    NUMERIX_DIAGNOSTIC_CRITICAL
+} numerix_diagnostic_severity;
+
+typedef enum numerix_diagnostic_category {
+    NUMERIX_DIAGNOSTIC_RESIDUAL = 0,
+    NUMERIX_DIAGNOSTIC_ERROR_ESTIMATION,
+    NUMERIX_DIAGNOSTIC_CONDITIONING,
+    NUMERIX_DIAGNOSTIC_SENSITIVITY,
+    NUMERIX_DIAGNOSTIC_STABILITY,
+    NUMERIX_DIAGNOSTIC_FLOATING_POINT,
+    NUMERIX_DIAGNOSTIC_CONVERGENCE,
+    NUMERIX_DIAGNOSTIC_RESOURCE_LIMIT,
+    NUMERIX_DIAGNOSTIC_EXECUTION
+} numerix_diagnostic_category;
+
+typedef struct numerix_diagnostic_record {
+    char identifier[48];
+    numerix_diagnostic_severity severity;
+    numerix_diagnostic_category category;
+    numerix_problem_category problem_category;
+    numerix_algorithm algorithm;
+    char description[160];
+    int has_metric;
+    double metric;
+    int has_threshold;
+    double threshold;
+    char possible_cause[120];
+    char consequence[120];
+    char suggested_action[120];
+    int is_estimated;
+    int is_heuristic;
+} numerix_diagnostic_record;
+
 typedef struct numerix_diagnostics_options {
     int estimate_linear_condition;
+    int estimate_root_condition;
 } numerix_diagnostics_options;
 
 typedef struct numerix_diagnostics_report {
@@ -547,12 +589,17 @@ typedef struct numerix_diagnostics_report {
     numerix_algorithm algorithm;
     int has_residual;
     size_t additional_function_evaluations;
+    size_t additional_derivative_evaluations;
     double absolute_residual;
+    int has_residual_tolerance;
+    double requested_residual_tolerance;
     int has_relative_residual;
     double relative_residual;
     int residual_satisfies_tolerance;
     int has_estimated_error;
     double estimated_absolute_error;
+    int has_estimated_error_tolerance;
+    double requested_error_tolerance;
     int has_relative_estimated_error;
     double relative_estimated_error;
     int estimated_error_satisfies_tolerance;
@@ -564,10 +611,27 @@ typedef struct numerix_diagnostics_report {
     numerix_vector *residual_vector;
     int has_data_residual;
     double maximum_data_residual;
+    int has_objective_value;
+    double objective_value;
+    int has_gradient_norm;
+    double gradient_norm;
+    int has_ode_summary;
+    size_t ode_points;
+    size_t ode_dimension;
+    double ode_maximum_absolute_state;
+    int ode_state_is_finite;
     numerix_reliability_class reliability;
     size_t warning_count;
     char warning[4][160];
+    numerix_diagnostic_record diagnostics[4];
 } numerix_diagnostics_report;
+
+/* Applies only matching prior callback-root evidence; never changes execution overrides. */
+numerix_status numerix_recommend_algorithm_with_diagnostics(
+    const numerix_recommendation_request *request,
+    const numerix_recommendation_request *prior_request,
+    const numerix_diagnostics_report *prior_report,
+    numerix_recommendation *recommendation, numerix_error *error);
 
 /*
  * Analyze an existing execution without changing it. The report owns an
@@ -600,6 +664,112 @@ numerix_status numerix_diagnostics_scalar_sensitivity(
     numerix_error *error);
 const char *numerix_reliability_class_name(
     numerix_reliability_class reliability);
+
+typedef struct numerix_forward_error {
+    double absolute_error;
+    int has_relative_error;
+    double relative_error;
+    const char *reference_description; /* Borrowed static string. */
+} numerix_forward_error;
+
+numerix_status numerix_diagnostics_forward_error_scalar(
+    double computed, double reference, numerix_forward_error *report,
+    numerix_error *error);
+numerix_status numerix_diagnostics_forward_error_vector(
+    const numerix_vector *computed, const numerix_vector *reference,
+    numerix_forward_error *report, numerix_error *error);
+
+typedef struct numerix_root_condition_report {
+    double evaluation_point;
+    double derivative;
+    double derivative_uncertainty;
+    double reciprocal_derivative_condition;
+    double perturbation_step;
+    int derivative_was_supplied;
+    int condition_available;
+    size_t function_evaluations;
+    size_t derivative_evaluations;
+} numerix_root_condition_report;
+
+numerix_status numerix_diagnostics_root_condition(
+    numerix_function function, numerix_function derivative, void *user_data,
+    double root_approximation, double step, const numerix_options *options,
+    numerix_root_condition_report *report, numerix_error *error);
+
+typedef struct numerix_multivariable_sensitivity {
+    size_t input_dimension;
+    numerix_vector *gradient;
+    int has_relative_sensitivities;
+    numerix_vector *relative_sensitivities;
+    double nominal_value;
+    double estimated_uncertainty_norm;
+    size_t function_evaluations;
+    double relative_step;
+    int uncertainty_is_estimated;
+} numerix_multivariable_sensitivity;
+
+/* The scalar objective callback reuses NUMERIX's optimization representation. */
+numerix_status numerix_diagnostics_multivariable_sensitivity(
+    numerix_objective_function objective, void *user_data,
+    const numerix_vector *point, double relative_step,
+    numerix_multivariable_sensitivity *report, numerix_error *error);
+void numerix_multivariable_sensitivity_destroy(
+    numerix_multivariable_sensitivity *report);
+
+typedef struct numerix_error_propagation_report {
+    double output_value;
+    double estimated_standard_uncertainty;
+    int has_relative_uncertainty;
+    double relative_uncertainty;
+    size_t function_evaluations;
+    int assumes_independent_inputs;
+    int uses_local_linearization;
+} numerix_error_propagation_report;
+
+numerix_status numerix_diagnostics_propagate_independent_uncertainty(
+    numerix_objective_function objective, void *user_data,
+    const numerix_vector *point, const numerix_vector *input_uncertainties,
+    double relative_step, numerix_error_propagation_report *report,
+    numerix_error *error);
+
+typedef enum numerix_convergence_trend {
+    NUMERIX_CONVERGENCE_INCONCLUSIVE = 0,
+    NUMERIX_CONVERGENCE_CONVERGING,
+    NUMERIX_CONVERGENCE_SLOW,
+    NUMERIX_CONVERGENCE_OSCILLATORY,
+    NUMERIX_CONVERGENCE_STAGNATING,
+    NUMERIX_CONVERGENCE_DIVERGING
+} numerix_convergence_trend;
+
+typedef struct numerix_convergence_report {
+    numerix_convergence_trend trend;
+    size_t observations;
+    int has_residual_ratio;
+    double final_residual_ratio;
+    int has_empirical_order;
+    double empirical_residual_order;
+    int rate_uses_residuals_as_error_proxies;
+} numerix_convergence_report;
+
+/* Signed residual history; output order follows chronological input order. */
+numerix_status numerix_diagnostics_analyze_convergence(
+    const double *residual_history, size_t observation_count,
+    numerix_convergence_report *report, numerix_error *error);
+const char *numerix_convergence_trend_name(numerix_convergence_trend trend);
+
+typedef struct numerix_cancellation_report {
+    double difference;
+    int has_condition_indicator;
+    double cancellation_condition_indicator;
+    int has_lost_decimal_digits_estimate;
+    double estimated_lost_decimal_digits;
+    int cancellation_suspected;
+} numerix_cancellation_report;
+
+/* Observes cancellation risk for NUMERIX-controlled subtraction a - b. */
+numerix_status numerix_diagnostics_check_subtraction(
+    double a, double b, numerix_cancellation_report *report,
+    numerix_error *error);
 
 /* Phase 5: managed root execution and resumable Bisection sessions. */
 typedef struct numerix_managed_execution numerix_managed_execution;
@@ -648,6 +818,26 @@ typedef struct numerix_execution_step
     double interval_upper;
     double midpoint;
 } numerix_execution_step;
+
+typedef struct numerix_periodic_diagnostics numerix_periodic_diagnostics;
+
+/*
+ * Bounded residual-history observer intended for a Phase 5 step callback.
+ * It performs no solver calls and is not internally synchronized.
+ */
+numerix_status numerix_periodic_diagnostics_create(
+    size_t history_capacity, size_t every_n_observations,
+    numerix_periodic_diagnostics **observer, numerix_error *error);
+numerix_status numerix_periodic_diagnostics_observe(
+    numerix_periodic_diagnostics *observer,
+    const numerix_execution_step *step,
+    numerix_convergence_report *report, int *assessment_updated,
+    numerix_error *error);
+numerix_status numerix_periodic_diagnostics_finish(
+    numerix_periodic_diagnostics *observer,
+    numerix_convergence_report *report, numerix_error *error);
+void numerix_periodic_diagnostics_destroy(
+    numerix_periodic_diagnostics *observer);
 
 typedef struct numerix_execution_event
 {

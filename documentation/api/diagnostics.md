@@ -69,7 +69,65 @@ Root reports contain an absolute function residual; a relative residual is not
 provided because a scale for arbitrary callback values is not defined.
 Linear backward error uses infinity norms. Integration estimated error is not
 actual error. Interpolation node residual is not between-node interpolation
-error. No actual forward error is claimed because a trusted reference solution
-is not supplied. Optimization and ODE reliability evidence is inconclusive
-when the existing output does not expose the necessary gradient or error
-history.
+error. Forward error is only calculated against explicit caller-supplied
+references.
+
+## Additional Phase 6.1 APIs
+
+- `numerix_diagnostics_forward_error_scalar` and `_vector` compare computed
+  values against caller-supplied references. Vector absolute error is the
+  Euclidean norm.
+- `numerix_diagnostics_root_condition` estimates reciprocal derivative
+  sensitivity for a simple root. Interpret it using the function's units and
+  the additive function-perturbation model.
+- `numerix_diagnostics_multivariable_sensitivity` reuses the existing scalar
+  objective callback and returns a caller-owned gradient vector. Release it
+  with `numerix_multivariable_sensitivity_destroy`.
+- `numerix_diagnostics_propagate_independent_uncertainty` assumes independent
+  standard uncertainties and local linearization. Correlations and large
+  perturbations are unsupported.
+- `numerix_diagnostics_analyze_convergence` uses signed residual history. Any
+  reported empirical order uses residuals as error proxies and is heuristic.
+- `numerix_periodic_diagnostics_*` provides bounded residual observation for
+  composition inside an existing Phase 5 step callback. It is not synchronized
+  and does not replace Phase 5 monitoring.
+- `numerix_diagnostics_check_subtraction` checks caller-visible subtraction
+  and reports a heuristic cancellation indicator.
+- `numerix_recommend_algorithm_with_diagnostics` uses prior evidence only for
+  matching callback roots with the same user-data pointer and exact bracket.
+  It returns a recommendation; explicit execution overrides remain controlled
+  by the caller.
+
+Optimization diagnostics expose objective value, final gradient norm when
+available, and Golden-section interval estimates. ODE diagnostics summarize
+stored states but do not produce local-error estimates for fixed-step methods.
+
+The standalone `make benchmark-diagnostics` target compares disabled, basic,
+and optional diagnostics for root finding, 8x8 and 32x32 linear systems,
+integration, differentiation, optimization, and RK4. It uses 10,000 runs per
+mode and C `clock()` process time. Results vary by machine and run; allocations
+and periodic observer memory are not instrumented.
+
+One measured Windows MinGW run (10,000 repetitions per mode, milliseconds per
+execution):
+
+| Case | Diagnostics disabled | Basic diagnostics | Optional diagnostics |
+| --- | ---: | ---: | ---: |
+| Root finding | 0.00760 | 0.00800 | 0.00800 |
+| Linear 8x8 | 0.00620 | 0.00700 | 0.01150 |
+| Linear 32x32 | 0.03710 | 0.04320 | 0.15250 |
+| Integration | 0.00920 | 0.03460 | 0.03250 |
+| Differentiation | 0.00450 | 0.00430 | 0.00460 |
+| Optimization | 0.00600 | 0.00590 | 0.00510 |
+| ODE RK4 | 0.01160 | 0.03570 | 0.03550 |
+
+The benchmark reported six extra function evaluations for root diagnostics in
+full mode (one residual evaluation and five Richardson evaluations); the
+other listed diagnostic paths reported no additional function or derivative
+callback evaluations. The linear full mode instead spends time on LU-based
+condition estimation.
+
+These are single-run averages from `clock()` and are sensitive to host load and
+timer resolution. In particular, the basic post-run reports scan ODE state
+history and can add cost proportional to the number of stored points. The
+condition estimate accounts for the larger 32x32 full-mode cost.
