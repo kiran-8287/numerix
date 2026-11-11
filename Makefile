@@ -40,6 +40,7 @@ INTELLIGENCE_TEST_EXE = numerix_intelligence_tests.exe
 EXECUTION_TEST_EXE = numerix_execution_tests.exe
 DIAGNOSTICS_TEST_EXE = numerix_diagnostics_tests.exe
 ROOT_DISCOVERY_TEST_EXE = numerix_root_discovery_tests.exe
+PHASE8_INTEGRATION_TEST_EXE = numerix_phase8_integration_tests.exe
 ROOT_DISCOVERY_BENCHMARK = numerix_root_discovery_benchmark.exe
 LDLIBS =
 else
@@ -57,6 +58,7 @@ INTELLIGENCE_TEST_EXE = numerix_intelligence_tests
 EXECUTION_TEST_EXE = numerix_execution_tests
 DIAGNOSTICS_TEST_EXE = numerix_diagnostics_tests
 ROOT_DISCOVERY_TEST_EXE = numerix_root_discovery_tests
+PHASE8_INTEGRATION_TEST_EXE = numerix_phase8_integration_tests
 ROOT_DISCOVERY_BENCHMARK = numerix_root_discovery_benchmark
 LDLIBS = -lm
 endif
@@ -112,6 +114,9 @@ $(DIAGNOSTICS_TEST_EXE): tests/test_diagnostics.c $(LIB)
 $(ROOT_DISCOVERY_TEST_EXE): tests/test_root_discovery.c $(LIB)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $< $(LIB) $(LDLIBS) -o $@
 
+$(PHASE8_INTEGRATION_TEST_EXE): tests/test_phase8_integration.c $(LIB)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $< $(LIB) $(LDLIBS) -o $@
+
 numerix_diagnostics_benchmark: benchmarks/diagnostics_benchmark.c $(LIB)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $< $(LIB) $(LDLIBS) -o $@
 
@@ -130,7 +135,10 @@ $(PIECEWISE_TEST_EXE): tests/test_piecewise.c $(LIB)
 $(EXPRESSION_TEST_EXE): tests/test_expression.c $(LIB)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $< $(LIB) $(LDLIBS) -o $@
 
-test: $(TEST_EXE) numerix_phase1_tests $(EXPRESSION_TEST_EXE) $(AUDIT_TEST_EXE) $(PIECEWISE_TEST_EXE) $(INTELLIGENCE_TEST_EXE) $(EXECUTION_TEST_EXE) $(DIAGNOSTICS_TEST_EXE) $(ROOT_DISCOVERY_TEST_EXE)
+test: $(TEST_EXE) numerix_phase1_tests $(EXPRESSION_TEST_EXE) $(AUDIT_TEST_EXE) \
+	$(PIECEWISE_TEST_EXE) $(INTELLIGENCE_TEST_EXE) $(EXECUTION_TEST_EXE) \
+	$(DIAGNOSTICS_TEST_EXE) $(ROOT_DISCOVERY_TEST_EXE) \
+	$(PHASE8_INTEGRATION_TEST_EXE)
 	./$(TEST_EXE) unit
 	./$(TEST_EXE) integration
 	./numerix_phase1_tests root_finding
@@ -147,14 +155,18 @@ test: $(TEST_EXE) numerix_phase1_tests $(EXPRESSION_TEST_EXE) $(AUDIT_TEST_EXE) 
 	./$(EXECUTION_TEST_EXE)
 	./$(DIAGNOSTICS_TEST_EXE)
 	./$(ROOT_DISCOVERY_TEST_EXE)
+	./$(PHASE8_INTEGRATION_TEST_EXE)
 
 clean:
 	$(CLEAN_COMMAND)
+	$(PHASE8_CLEAN_COMMAND)
 
 ifeq ($(OS),Windows_NT)
-CLEAN_COMMAND = cmd /c "if exist build rmdir /s /q build & if exist libnumerix.a del /q libnumerix.a & if exist numerix_cli.exe del /q numerix_cli.exe & if exist numerix_piecewise_demo.exe del /q numerix_piecewise_demo.exe & if exist numerix_intelligence_demo.exe del /q numerix_intelligence_demo.exe & if exist numerix_managed_execution_demo.exe del /q numerix_managed_execution_demo.exe & if exist numerix_root_discovery_demo.exe del /q numerix_root_discovery_demo.exe & if exist numerix_expression_demo.exe del /q numerix_expression_demo.exe & if exist numerix_tests.exe del /q numerix_tests.exe & if exist numerix_phase1_tests.exe del /q numerix_phase1_tests.exe & if exist numerix_expression_tests.exe del /q numerix_expression_tests.exe & if exist numerix_audit_regression_tests.exe del /q numerix_audit_regression_tests.exe & if exist numerix_piecewise_tests.exe del /q numerix_piecewise_tests.exe & if exist numerix_intelligence_tests.exe del /q numerix_intelligence_tests.exe & if exist numerix_execution_tests.exe del /q numerix_execution_tests.exe & if exist numerix_diagnostics_tests.exe del /q numerix_diagnostics_tests.exe & if exist numerix_root_discovery_tests.exe del /q numerix_root_discovery_tests.exe & if exist numerix_root_discovery_benchmark.exe del /q numerix_root_discovery_benchmark.exe & if exist numerix_diagnostics_benchmark.exe del /q numerix_diagnostics_benchmark.exe & if exist numerix_tests_direct.exe del /q numerix_tests_direct.exe & if exist build_core.o del /q build_core.o & if exist build_platform.o del /q build_platform.o"
+CLEAN_COMMAND = cmd /c "if exist build rmdir /s /q build & if exist libnumerix.a del /q libnumerix.a & if exist numerix_cli.exe del /q numerix_cli.exe & if exist numerix_piecewise_demo.exe del /q numerix_piecewise_demo.exe & if exist numerix_intelligence_demo.exe del /q numerix_intelligence_demo.exe & if exist numerix_managed_execution_demo.exe del /q numerix_managed_execution_demo.exe & if exist numerix_root_discovery_demo.exe del /q numerix_root_discovery_demo.exe & if exist numerix_expression_demo.exe del /q numerix_expression_demo.exe & if exist numerix_tests.exe del /q numerix_tests.exe & if exist numerix_phase1_tests.exe del /q numerix_phase1_tests.exe & if exist numerix_expression_tests.exe del /q numerix_expression_tests.exe & if exist numerix_audit_regression_tests.exe del /q numerix_audit_regression_tests.exe & if exist numerix_piecewise_tests.exe del /q numerix_piecewise_tests.exe & if exist numerix_intelligence_tests.exe del /q numerix_intelligence_tests.exe & if exist numerix_execution_tests.exe del /q numerix_execution_tests.exe & if exist numerix_diagnostics_tests.exe del /q numerix_diagnostics_tests.exe & if exist numerix_root_discovery_tests.exe del /q numerix_root_discovery_tests.exe & if exist numerix_phase8_integration_tests.exe del /q numerix_phase8_integration_tests.exe & if exist numerix_root_discovery_benchmark.exe del /q numerix_root_discovery_benchmark.exe & if exist numerix_diagnostics_benchmark.exe del /q numerix_diagnostics_benchmark.exe & if exist numerix_tests_direct.exe del /q numerix_tests_direct.exe & if exist build_core.o del /q build_core.o & if exist build_platform.o del /q build_platform.o"
+PHASE8_CLEAN_COMMAND =
 MKDIR_COMMAND = cmd /c "if not exist build mkdir build"
 else
 CLEAN_COMMAND = rm -rf build $(LIB) numerix_cli numerix_expression_demo numerix_tests numerix_phase1_tests numerix_expression_tests numerix_audit_regression_tests numerix_piecewise_demo numerix_intelligence_demo numerix_managed_execution_demo numerix_root_discovery_demo numerix_piecewise_tests numerix_intelligence_tests numerix_execution_tests numerix_diagnostics_tests numerix_root_discovery_tests numerix_root_discovery_benchmark numerix_diagnostics_benchmark numerix_tests_direct.exe build_core.o build_platform.o
+PHASE8_CLEAN_COMMAND = rm -f numerix_phase8_integration_tests
 MKDIR_COMMAND = mkdir -p build
 endif

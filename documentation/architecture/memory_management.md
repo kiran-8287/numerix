@@ -11,3 +11,10 @@ Phase 1 vector and matrix results are allocated objects; use `numerix_vector_des
 Compiled expressions are opaque caller-owned objects released with `numerix_expression_destroy`. Expression callback contexts borrow an expression and do not allocate; the expression must outlive each callback use. Use a separate mutable callback context per concurrent numerical call.
 
 For error paths, initialize output handles to `NULL` before work, release any locally acquired resources before returning, and do not free borrowed callback data. No custom allocator or hidden ownership transfer is used.
+
+Phase 7 root-discovery reports own result arrays until
+`numerix_root_search_report_destroy` is called. Those arrays grow only as roots
+or unresolved intervals are recorded, up to the configured candidate limit.
+The report's storage metrics count direct result and search buffers; they do
+not include nested diagnostic records, solver/context allocations, allocator
+metadata, or process resident memory.

@@ -1011,6 +1011,17 @@ typedef struct numerix_root_search_report
     size_t unresolved_count; /* Total; storage may be truncated. */
     size_t stored_unresolved_count;
     int unresolved_storage_truncated;
+    /* Capacities of the two returned arrays, grown only as results are stored. */
+    size_t root_storage_capacity;
+    size_t unresolved_storage_capacity;
+    /* Retained array bytes; excludes nested diagnostic records and allocator overhead. */
+    size_t result_storage_bytes;
+    /* Cumulative successful allocations, including arrays later released in the search. */
+    size_t root_storage_allocation_count;
+    size_t unresolved_storage_allocation_count;
+    /* Peak and successful allocation count for direct discovery buffers only. */
+    size_t workspace_peak_bytes;
+    size_t workspace_allocation_count;
     int completed_normally;
     int resource_limit_reached;
     int search_inconclusive; /* Set for performed searches; completeness is unproved. */

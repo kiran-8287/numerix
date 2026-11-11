@@ -30,7 +30,14 @@ typedef struct discovery_context {
     numerix_error callback_error;
     size_t last_progress_evaluation;
     size_t piecewise_boundary_count;
+    size_t piecewise_boundary_capacity;
     double *piecewise_boundaries;
+    size_t root_capacity;
+    size_t unresolved_capacity;
+    size_t current_workspace_bytes;
+    size_t root_storage_allocation_count;
+    size_t unresolved_storage_allocation_count;
+    size_t workspace_allocation_count;
 } discovery_context;
 
 static numerix_status discovery_error(
@@ -39,6 +46,190 @@ static numerix_status discovery_error(
     const char *message)
 {
     return numerix_error_set(error, status, message);
+}
+
+static void update_storage_metrics(discovery_context *context)
+{
+    numerix_root_search_report *report = context->report;
+
+    report->root_storage_capacity = context->root_capacity;
+    report->unresolved_storage_capacity = context->unresolved_capacity;
+    report->result_storage_bytes =
+        context->root_capacity * sizeof(*report->roots) +
+        context->unresolved_capacity * sizeof(*report->unresolved);
+    report->root_storage_allocation_count =
+        context->root_storage_allocation_count;
+    report->unresolved_storage_allocation_count =
+        context->unresolved_storage_allocation_count;
+    report->workspace_allocation_count = context->workspace_allocation_count;
+}
+
+static void *discovery_allocate(
+    discovery_context *context,
+    size_t bytes)
+{
+    void *allocation;
+
+    if (bytes == 0U || bytes > SIZE_MAX - context->current_workspace_bytes) {
+        context->stop_status = NUMERIX_STATUS_ALLOCATION_FAILURE;
+        numerix_error_set(
+            &context->callback_error,
+            context->stop_status,
+            "root discovery workspace size overflowed");
+        return NULL;
+    }
+
+    allocation = numerix_allocate(bytes);
+    if (allocation == NULL) {
+        context->stop_status = NUMERIX_STATUS_ALLOCATION_FAILURE;
+        numerix_error_set(
+            &context->callback_error,
+            context->stop_status,
+            "could not allocate root discovery workspace");
+        return NULL;
+    }
+
+    context->current_workspace_bytes += bytes;
+    if (context->current_workspace_bytes >
+        context->report->workspace_peak_bytes) {
+        context->report->workspace_peak_bytes =
+            context->current_workspace_bytes;
+    }
+    if (context->workspace_allocation_count < SIZE_MAX) {
+        ++context->workspace_allocation_count;
+    }
+    update_storage_metrics(context);
+    return allocation;
+}
+
+static void discovery_deallocate(
+    discovery_context *context,
+    void *allocation,
+    size_t bytes)
+{
+    if (allocation == NULL) {
+        return;
+    }
+
+    numerix_deallocate(allocation);
+    if (bytes <= context->current_workspace_bytes) {
+        context->current_workspace_bytes -= bytes;
+    } else {
+        context->current_workspace_bytes = 0U;
+    }
+}
+
+static size_t grown_capacity(size_t current, size_t required, size_t maximum)
+{
+    size_t capacity = current;
+
+    if (capacity == 0U) {
+        capacity = maximum < 4U ? maximum : 4U;
+    }
+    while (capacity < required) {
+        if (capacity > maximum / 2U) {
+            capacity = maximum;
+        } else {
+            capacity *= 2U;
+        }
+    }
+    return capacity;
+}
+
+static numerix_status reserve_roots(
+    discovery_context *context,
+    size_t required)
+{
+    numerix_root_search_report *report = context->report;
+    numerix_discovered_root *roots;
+    size_t capacity;
+    size_t bytes;
+
+    if (required <= context->root_capacity) {
+        return NUMERIX_STATUS_SUCCESS;
+    }
+    if (required > context->discovery_options->maximum_candidates) {
+        context->stop_status = NUMERIX_STATUS_LIMIT_REACHED;
+        return context->stop_status;
+    }
+
+    capacity = grown_capacity(
+        context->root_capacity,
+        required,
+        context->discovery_options->maximum_candidates);
+    if (capacity > SIZE_MAX / sizeof(*roots)) {
+        context->stop_status = NUMERIX_STATUS_ALLOCATION_FAILURE;
+        return context->stop_status;
+    }
+    bytes = capacity * sizeof(*roots);
+    roots = discovery_allocate(context, bytes);
+    if (roots == NULL) {
+        return context->stop_status;
+    }
+    if (report->root_count > 0U) {
+        memcpy(roots, report->roots, report->root_count * sizeof(*roots));
+    }
+
+    discovery_deallocate(
+        context,
+        report->roots,
+        context->root_capacity * sizeof(*report->roots));
+    report->roots = roots;
+    context->root_capacity = capacity;
+    if (context->root_storage_allocation_count < SIZE_MAX) {
+        ++context->root_storage_allocation_count;
+    }
+    update_storage_metrics(context);
+    return NUMERIX_STATUS_SUCCESS;
+}
+
+static numerix_status reserve_unresolved(
+    discovery_context *context,
+    size_t required)
+{
+    numerix_root_search_report *report = context->report;
+    numerix_root_unresolved_interval *unresolved;
+    size_t capacity;
+    size_t bytes;
+
+    if (required <= context->unresolved_capacity) {
+        return NUMERIX_STATUS_SUCCESS;
+    }
+    if (required > context->discovery_options->maximum_candidates) {
+        return NUMERIX_STATUS_LIMIT_REACHED;
+    }
+
+    capacity = grown_capacity(
+        context->unresolved_capacity,
+        required,
+        context->discovery_options->maximum_candidates);
+    if (capacity > SIZE_MAX / sizeof(*unresolved)) {
+        context->stop_status = NUMERIX_STATUS_ALLOCATION_FAILURE;
+        return context->stop_status;
+    }
+    bytes = capacity * sizeof(*unresolved);
+    unresolved = discovery_allocate(context, bytes);
+    if (unresolved == NULL) {
+        return context->stop_status;
+    }
+    if (report->stored_unresolved_count > 0U) {
+        memcpy(
+            unresolved,
+            report->unresolved,
+            report->stored_unresolved_count * sizeof(*unresolved));
+    }
+
+    discovery_deallocate(
+        context,
+        report->unresolved,
+        context->unresolved_capacity * sizeof(*report->unresolved));
+    report->unresolved = unresolved;
+    context->unresolved_capacity = capacity;
+    if (context->unresolved_storage_allocation_count < SIZE_MAX) {
+        ++context->unresolved_storage_allocation_count;
+    }
+    update_storage_metrics(context);
+    return NUMERIX_STATUS_SUCCESS;
 }
 
 static int sample_has_value(const discovery_sample *sample)
@@ -264,13 +455,21 @@ static void add_unresolved_interval(
         ++report->unresolved_count;
     }
     if (report->stored_unresolved_count < capacity) {
-        numerix_root_unresolved_interval *interval =
-            &report->unresolved[report->stored_unresolved_count];
+        size_t required = report->stored_unresolved_count + 1U;
+        numerix_status status = reserve_unresolved(context, required);
 
-        interval->lower = lower;
-        interval->upper = upper;
-        interval->reason = reason;
-        ++report->stored_unresolved_count;
+        if (status == NUMERIX_STATUS_SUCCESS) {
+            numerix_root_unresolved_interval *interval =
+                &report->unresolved[report->stored_unresolved_count];
+
+            interval->lower = lower;
+            interval->upper = upper;
+            interval->reason = reason;
+            ++report->stored_unresolved_count;
+        } else {
+            report->unresolved_storage_truncated = 1;
+            context->stop_status = status;
+        }
     } else {
         report->unresolved_storage_truncated = 1;
     }
@@ -507,6 +706,11 @@ static void insert_discovered_root(
 
     if (report->root_count >= context->discovery_options->maximum_candidates) {
         context->stop_status = NUMERIX_STATUS_LIMIT_REACHED;
+        return;
+    }
+
+    if (reserve_roots(context, report->root_count + 1U) !=
+        NUMERIX_STATUS_SUCCESS) {
         return;
     }
 
@@ -1272,7 +1476,9 @@ static numerix_status prepare_piecewise_boundaries(
         return NUMERIX_STATUS_ALLOCATION_FAILURE;
     }
 
-    context->piecewise_boundaries = numerix_allocate(
+    context->piecewise_boundary_capacity = total_count;
+    context->piecewise_boundaries = discovery_allocate(
+        context,
         total_count * sizeof(*context->piecewise_boundaries));
     if (context->piecewise_boundaries == NULL) {
         return NUMERIX_STATUS_ALLOCATION_FAILURE;
@@ -1542,6 +1748,24 @@ void numerix_root_search_report_destroy(numerix_root_search_report *report)
     memset(report, 0, sizeof(*report));
 }
 
+static void discard_discovered_roots(discovery_context *context)
+{
+    numerix_root_search_report *report = context->report;
+    size_t index;
+
+    for (index = 0; index < report->root_count; ++index) {
+        numerix_diagnostics_report_destroy(&report->roots[index].diagnostics);
+    }
+    report->root_count = 0U;
+    discovery_deallocate(
+        context,
+        report->roots,
+        context->root_capacity * sizeof(*report->roots));
+    report->roots = NULL;
+    context->root_capacity = 0U;
+    update_storage_metrics(context);
+}
+
 numerix_status numerix_root_find_all(
     const numerix_recommendation_request *request,
     double lower,
@@ -1626,28 +1850,6 @@ numerix_status numerix_root_find_all(
     created_report.current_lower = lower;
     created_report.current_upper = upper;
     created_report.search_inconclusive = 1;
-    created_report.roots = numerix_allocate(
-        options->maximum_candidates * sizeof(*created_report.roots));
-    created_report.unresolved = numerix_allocate(
-        options->maximum_candidates * sizeof(*created_report.unresolved));
-    if (created_report.roots == NULL || created_report.unresolved == NULL) {
-        numerix_deallocate(created_report.roots);
-        numerix_deallocate(created_report.unresolved);
-        report->status = NUMERIX_STATUS_ALLOCATION_FAILURE;
-        return discovery_error(
-            error,
-            NUMERIX_STATUS_ALLOCATION_FAILURE,
-            "could not allocate bounded root search result storage");
-    }
-    memset(
-        created_report.roots,
-        0,
-        options->maximum_candidates * sizeof(*created_report.roots));
-    memset(
-        created_report.unresolved,
-        0,
-        options->maximum_candidates * sizeof(*created_report.unresolved));
-
     memset(&context, 0, sizeof(context));
     context.request = request;
     context.discovery_options = options;
@@ -1679,17 +1881,25 @@ numerix_status numerix_root_find_all(
     }
 
     boundary_count = context.piecewise_boundary_count;
-    if (boundary_count > SIZE_MAX - options->initial_panels - 1U) {
+    if (context.stop_status != NUMERIX_STATUS_SUCCESS) {
+        cut_capacity = 0U;
+    } else if (boundary_count > SIZE_MAX - options->initial_panels - 1U) {
         context.stop_status = NUMERIX_STATUS_ALLOCATION_FAILURE;
+        cut_capacity = 0U;
     } else {
         cut_capacity = options->initial_panels + 1U + boundary_count;
         if (cut_capacity > SIZE_MAX / sizeof(*cuts) ||
             cut_capacity > SIZE_MAX / sizeof(*cut_samples)) {
             context.stop_status = NUMERIX_STATUS_ALLOCATION_FAILURE;
         } else {
-            cuts = numerix_allocate(cut_capacity * sizeof(*cuts));
-            cut_samples = numerix_allocate(
-                cut_capacity * sizeof(*cut_samples));
+            cuts = discovery_allocate(
+                &context,
+                cut_capacity * sizeof(*cuts));
+            if (cuts != NULL) {
+                cut_samples = discovery_allocate(
+                    &context,
+                    cut_capacity * sizeof(*cut_samples));
+            }
             if (cuts == NULL || cut_samples == NULL) {
                 context.stop_status = NUMERIX_STATUS_ALLOCATION_FAILURE;
             }
@@ -1766,7 +1976,7 @@ numerix_status numerix_root_find_all(
                 }
             }
             if (sampled_continuum) {
-                created_report.root_count = 0;
+                discard_discovered_roots(&context);
                 add_unresolved_interval(
                     &context,
                     lower,
@@ -1878,6 +2088,7 @@ numerix_status numerix_root_find_all(
         numerix_context_function_evaluation_count(context.execution_context);
     created_report.elapsed_seconds =
         numerix_context_elapsed_seconds(context.execution_context);
+    update_storage_metrics(&context);
     (void)notify_progress(&context, 1);
     created_report.status = context.stop_status;
     created_report.completed_normally =
@@ -1890,9 +2101,19 @@ numerix_status numerix_root_find_all(
         numerix_context_elapsed_seconds(context.execution_context);
 
     status = created_report.status;
-    numerix_deallocate(cuts);
-    numerix_deallocate(cut_samples);
-    numerix_deallocate(context.piecewise_boundaries);
+    discovery_deallocate(
+        &context,
+        cuts,
+        cuts == NULL ? 0U : cut_capacity * sizeof(*cuts));
+    discovery_deallocate(
+        &context,
+        cut_samples,
+        cut_samples == NULL ? 0U : cut_capacity * sizeof(*cut_samples));
+    discovery_deallocate(
+        &context,
+        context.piecewise_boundaries,
+        context.piecewise_boundary_capacity *
+            sizeof(*context.piecewise_boundaries));
     numerix_context_destroy(context.execution_context);
     *report = created_report;
 

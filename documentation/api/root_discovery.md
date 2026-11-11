@@ -123,6 +123,17 @@ classified; up to `maximum_candidates` intervals are stored in `unresolved`.
 Candidate, rejected, merged, evaluation, subdivision, depth, failure,
 boundary, and refinement counts are reported separately.
 
+The `roots` and `unresolved` arrays grow geometrically from a small initial
+capacity and never exceed `maximum_candidates`. Their capacities and actual
+retained array bytes are reported by `root_storage_capacity`,
+`unresolved_storage_capacity`, and `result_storage_bytes`. Empty result lists
+do not retain corresponding result arrays after the search classifies them.
+`workspace_peak_bytes` and
+`workspace_allocation_count` cover buffers directly owned by root discovery,
+including the result arrays and temporary partition/sample arrays. They
+exclude nested diagnostic allocations, execution-context and solver internals,
+allocator metadata, and process resident memory.
+
 ## Interpreting results and limitations
 
 An empty root list means **no roots were detected under the configured search
@@ -151,6 +162,7 @@ representation defines the function there.
 Build the public-API examples with `make all` or the CMake build. Run
 `numerix_root_discovery_demo` for multiple, repeated, piecewise, and cancelled
 search examples. Run `make benchmark-root-discovery` to compare root counts,
-evaluation counts, subdivision counts, and runtime at several initial scan
-resolutions. The benchmark reports reserved result-array size as an estimate;
-it does not measure allocator overhead or peak resident memory.
+evaluation counts, subdivision counts, runtime averaged over 1,000 searches, and
+the reported direct-buffer allocation metrics at several initial scan
+resolutions. Memory values exclude allocator overhead and process resident
+memory.

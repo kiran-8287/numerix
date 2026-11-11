@@ -16,7 +16,7 @@ The code targets Windows and POSIX-compatible Linux with C11 compilers. Linux ca
 
 ## Build and test
 
-With CMake:
+With CMake (when CMake is installed):
 
 ```sh
 cmake -S . -B build
@@ -32,7 +32,7 @@ make test
 make clean
 ```
 
-The CMake static library target and Make archive are named `numerix` and `libnumerix.a` respectively. The CLI executable is `numerix_cli`; `numerix_expression_demo` demonstrates expression evaluation and callback integration. `make test` runs the Phase 0 checks, Phase 1 algorithm suite, and expression engine tests.
+The CMake static library target and Make archive are named `numerix` and `libnumerix.a` respectively. The CLI executable is `numerix_cli`; `numerix_expression_demo` demonstrates expression evaluation and callback integration. `make test` and CTest run the unit and integration suites for the implemented phases, including the Phase 8 cross-phase workflow.
 
 ## Initialization example
 
@@ -63,6 +63,17 @@ int main(void)
 - `cli/`: small startup application.
 - `tests/`: automated unit and integration checks.
 - `documentation/`: architecture and development notes.
+
+## Phase 8: reliability and integration hardening
+
+Root-discovery result arrays now grow with the stored results rather than
+reserving their maximum capacity on every call. Reports expose retained result
+bytes, array capacities, direct workspace peak, and successful allocation
+counts with documented scope. The Phase 8 integration test exercises compiled
+expressions, root discovery, managed recommendation/execution, diagnostics,
+piecewise boundary analysis, and piecewise root discovery. See the
+[Phase 8 validation report](documentation/development/phase8_report.md) for
+the tested compiler, builds, benchmarks, and unavailable validation tools.
 
 ## Roadmap
 

@@ -311,6 +311,10 @@ static void test_endpoints_close_roots_and_no_roots(void)
           NUMERIX_STATUS_SUCCESS);
     CHECK(report.root_count == 0U);
     CHECK(report.unresolved_count > 0U);
+    CHECK(report.roots == NULL);
+    CHECK(report.root_storage_capacity == 0U);
+    CHECK(report.root_storage_allocation_count > 0U);
+    CHECK(report.unresolved_storage_capacity > 0U);
     numerix_root_search_report_destroy(&report);
 }
 
@@ -536,6 +540,45 @@ static void test_optional_root_conditioning(void)
     numerix_root_search_report_destroy(&report);
 }
 
+static void test_result_storage_grows_with_results(void)
+{
+    test_function function = {TEST_NO_ROOTS};
+    numerix_recommendation_request request;
+    numerix_root_discovery_options options;
+    numerix_root_search_report report;
+    numerix_error error;
+
+    initialize_request(&request, &function, NULL);
+    numerix_root_discovery_options_init(&options);
+    CHECK(numerix_root_find_all(
+              &request, -2.0, 2.0, &options, &report, &error) ==
+          NUMERIX_STATUS_SUCCESS);
+    CHECK(report.root_count == 0U);
+    CHECK(report.stored_unresolved_count == 0U);
+    CHECK(report.root_storage_capacity == 0U);
+    CHECK(report.unresolved_storage_capacity == 0U);
+    CHECK(report.result_storage_bytes == 0U);
+    CHECK(report.roots == NULL);
+    CHECK(report.unresolved == NULL);
+    CHECK(report.workspace_peak_bytes > 0U);
+    CHECK(report.workspace_allocation_count == 2U);
+    numerix_root_search_report_destroy(&report);
+
+    function.kind = TEST_TWO_ROOTS;
+    initialize_request(&request, &function, NULL);
+    CHECK(numerix_root_find_all(
+              &request, 0.0, 3.0, &options, &report, &error) ==
+          NUMERIX_STATUS_SUCCESS);
+    CHECK(report.root_count == 2U);
+    CHECK(report.root_storage_capacity == 4U);
+    CHECK(report.root_storage_allocation_count == 1U);
+    CHECK(report.unresolved_storage_capacity <= options.maximum_candidates);
+    CHECK(report.result_storage_bytes ==
+          report.root_storage_capacity * sizeof(*report.roots) +
+              report.unresolved_storage_capacity * sizeof(*report.unresolved));
+    numerix_root_search_report_destroy(&report);
+}
+
 static void test_invalid_intervals_and_options(void)
 {
     test_function function = {TEST_TWO_ROOTS};
@@ -564,6 +607,7 @@ int main(void)
     test_expression_and_piecewise_representations();
     test_resource_limits_and_cancellation();
     test_optional_root_conditioning();
+    test_result_storage_grows_with_results();
     test_invalid_intervals_and_options();
 
     if (failures != 0) {
