@@ -82,3 +82,11 @@ NUMERIX can compile ordered piecewise expression segments with open or closed bo
 ## Phase 4: algorithm recommendations
 
 NUMERIX can explain deterministic recommendations across the implemented numerical categories, execute a recommended method, retain explicit algorithm overrides, and orchestrate root-solver fallback or sequential portfolios. See [the intelligence API guide](documentation/api/intelligence.md) and [architecture notes](documentation/architecture/intelligence.md).
+
+## Phase 5: managed execution
+
+The opt-in managed execution API supports root problems, progress summaries,
+cooperative cancellation, monitored root fallback, and genuine stepwise
+pause/resume for explicit Bisection. Other problem categories and portfolio
+management are not yet supported; see [the execution API guide](documentation/api/execution_management.md)
+for details.

@@ -21,5 +21,7 @@ struct numerix_context {
 double numerix_platform_monotonic_seconds(void);
 void numerix_error_assign(numerix_error *error, numerix_status code,
                           const char *message);
+numerix_status numerix_context_accumulate_iterations(
+    numerix_context *context, size_t iterations);
 
 #endif

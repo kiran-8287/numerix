@@ -1,4 +1,5 @@
 #include "intelligence_internal.h"
+#include "numerix_execution_internal.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -250,11 +251,12 @@ static numerix_algorithm choose_fallback(
     return NUMERIX_ALGORITHM_NONE;
 }
 
-numerix_status numerix_root_solve_auto(
+numerix_status numerix_root_solve_auto_controlled(
     const numerix_recommendation_request *request,
     const numerix_root_selection_options *selection_options,
     numerix_result *result, numerix_root_selection_report *report,
-    numerix_error *error)
+    numerix_error *error, numerix_execution_stop_check stop_check,
+    void *stop_user_data)
 {
     numerix_root_selection_options defaults;
     numerix_options options;
@@ -293,6 +295,18 @@ numerix_status numerix_root_solve_auto(
                                "unknown root selection mode");
     }
     report->fallback_enabled = selection_options->enable_fallback != 0;
+    if (stop_check != NULL)
+    {
+        status = stop_check(stop_user_data);
+        if (status != NUMERIX_STATUS_SUCCESS)
+        {
+            result->status = status;
+            report->original_failure = status;
+            report->final_status = status;
+            return numerix_error_set(error, status,
+                                     "managed execution stopped before recommendation");
+        }
+    }
     status = get_options(request, &options, error);
     if (status != NUMERIX_STATUS_SUCCESS)
     {
@@ -312,6 +326,18 @@ numerix_status numerix_root_solve_auto(
         if (status != NUMERIX_STATUS_SUCCESS && error != NULL)
         {
             *error = recommendation_error;
+        }
+    }
+    if (stop_check != NULL)
+    {
+        numerix_status stop_status = stop_check(stop_user_data);
+        if (stop_status != NUMERIX_STATUS_SUCCESS)
+        {
+            result->status = stop_status;
+            report->original_failure = stop_status;
+            report->final_status = stop_status;
+            return numerix_error_set(error, stop_status,
+                                     "managed execution stopped during recommendation");
         }
     }
     if (status != NUMERIX_STATUS_SUCCESS &&
@@ -385,12 +411,36 @@ numerix_status numerix_root_solve_auto(
         {
             report->original_failure = status;
         }
+        if (stop_check != NULL)
+        {
+            numerix_status stop_status = stop_check(stop_user_data);
+            if (stop_status != NUMERIX_STATUS_SUCCESS)
+            {
+                report->final_status = stop_status;
+                report->fallback_used = report->attempt_count > 1;
+                *result = attempt_result;
+                result->status = stop_status;
+                return numerix_error_set(error, stop_status,
+                                         "managed execution stopped after algorithm attempt");
+            }
+        }
         if (status == NUMERIX_STATUS_SUCCESS)
         {
             *result = attempt_result;
             report->fallback_used = report->attempt_count > 1;
             numerix_error_clear(error);
             return NUMERIX_STATUS_SUCCESS;
+        }
+        if (stop_check != NULL &&
+            report->total_iterations >= options.maximum_iterations)
+        {
+            report->final_status = NUMERIX_STATUS_LIMIT_REACHED;
+            report->fallback_used = report->attempt_count > 1;
+            *result = attempt_result;
+            result->status = report->final_status;
+            return numerix_error_set(
+                error, report->final_status,
+                "managed total iteration limit reached");
         }
         if (!selection_options->enable_fallback ||
             (status != NUMERIX_STATUS_CONVERGENCE_FAILURE &&
@@ -420,4 +470,14 @@ numerix_status numerix_root_solve_auto(
         result->status = report->final_status;
     }
     return report->final_status;
+}
+
+numerix_status numerix_root_solve_auto(
+    const numerix_recommendation_request *request,
+    const numerix_root_selection_options *selection_options,
+    numerix_result *result, numerix_root_selection_report *report,
+    numerix_error *error)
+{
+    return numerix_root_solve_auto_controlled(
+        request, selection_options, result, report, error, NULL, NULL);
 }

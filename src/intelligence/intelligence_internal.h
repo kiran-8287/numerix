@@ -37,5 +37,4 @@ numerix_status numerix_root_run_algorithm(
     numerix_result *result, numerix_error *error);
 int numerix_root_result_is_usable(
     const numerix_result *result, const numerix_options *options);
-
 #endif

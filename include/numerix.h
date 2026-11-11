@@ -528,6 +528,148 @@ numerix_status numerix_execute_recommended(
     numerix_execution_output *output, numerix_error *error);
 void numerix_execution_output_destroy(numerix_execution_output *output);
 
+/* Phase 5: managed root execution and resumable Bisection sessions. */
+typedef struct numerix_managed_execution numerix_managed_execution;
+
+typedef enum numerix_execution_state
+{
+    NUMERIX_EXECUTION_CREATED = 0,
+    NUMERIX_EXECUTION_READY,
+    NUMERIX_EXECUTION_RUNNING,
+    NUMERIX_EXECUTION_PAUSED,
+    NUMERIX_EXECUTION_CANCELLED,
+    NUMERIX_EXECUTION_COMPLETED,
+    NUMERIX_EXECUTION_FAILED,
+    NUMERIX_EXECUTION_LIMIT_REACHED
+} numerix_execution_state;
+
+typedef enum numerix_execution_event_type
+{
+    NUMERIX_EVENT_STARTED = 0,
+    NUMERIX_EVENT_PAUSED,
+    NUMERIX_EVENT_RESUMED,
+    NUMERIX_EVENT_CANCELLED,
+    NUMERIX_EVENT_LIMIT_REACHED,
+    NUMERIX_EVENT_COMPLETED,
+    NUMERIX_EVENT_FAILED
+} numerix_execution_event_type;
+
+enum
+{
+    NUMERIX_STEP_HAS_APPROXIMATION = 1U << 0,
+    NUMERIX_STEP_HAS_RESIDUAL = 1U << 1,
+    NUMERIX_STEP_HAS_INTERVAL = 1U << 2,
+    NUMERIX_STEP_HAS_MIDPOINT = 1U << 3
+};
+
+typedef struct numerix_execution_step
+{
+    size_t number;
+    numerix_algorithm algorithm;
+    size_t valid_fields;
+    size_t iteration;
+    size_t function_evaluations;
+    double approximation;
+    double residual;
+    double interval_lower;
+    double interval_upper;
+    double midpoint;
+} numerix_execution_step;
+
+typedef struct numerix_execution_event
+{
+    numerix_execution_event_type type;
+    numerix_execution_state state;
+    numerix_algorithm algorithm;
+    numerix_status status;
+    size_t iteration;
+    size_t function_evaluations;
+} numerix_execution_event;
+
+typedef void (*numerix_execution_event_callback)(
+    numerix_managed_execution *execution,
+    const numerix_execution_event *event, void *user_data);
+typedef void (*numerix_execution_step_callback)(
+    numerix_managed_execution *execution,
+    const numerix_execution_step *step, void *user_data);
+
+typedef struct numerix_managed_execution_options
+{
+    numerix_root_selection_options root_selection;
+    numerix_execution_event_callback event_callback;
+    numerix_execution_step_callback step_callback;
+    void *callback_user_data;
+} numerix_managed_execution_options;
+
+typedef struct numerix_execution_progress
+{
+    numerix_execution_state state;
+    numerix_problem_category category;
+    numerix_algorithm algorithm;
+    size_t iterations;
+    int iterations_available;
+    size_t function_evaluations;
+    size_t derivative_evaluations;
+    int algorithm_available;
+    int has_approximation;
+    int has_residual;
+    double approximation;
+    double residual;
+    double interval_lower;
+    double interval_upper;
+    int has_interval;
+    double elapsed_seconds;
+    int percentage_available;
+} numerix_execution_progress;
+
+typedef struct numerix_execution_summary
+{
+    numerix_execution_state state;
+    numerix_status status;
+    numerix_problem_category category;
+    numerix_algorithm initially_selected;
+    numerix_algorithm final_algorithm;
+    size_t iterations;
+    size_t function_evaluations;
+    size_t derivative_evaluations;
+    size_t fallback_attempts;
+    double elapsed_seconds;
+    int has_result;
+    numerix_result result;
+    numerix_error error;
+    numerix_root_selection_report root_history;
+} numerix_execution_summary;
+
+/*
+ * The request and all input buffers are borrowed until destroy. Only root
+ * finding is currently managed. Callbacks are synchronous; step/event values
+ * are borrowed for the callback duration. Cancellation requests are thread
+ * safe. Other queries and destruction must not race with run or callbacks.
+ */
+numerix_status numerix_managed_execution_create(
+    const numerix_recommendation_request *request,
+    const numerix_managed_execution_options *options,
+    numerix_managed_execution **execution, numerix_error *error);
+/* Runs once to termination, or until a Bisection step callback requests pause. */
+numerix_status numerix_managed_execution_run(
+    numerix_managed_execution *execution, numerix_error *error);
+/* Thread-safe request; observed before the next managed root evaluation/step. */
+numerix_status numerix_managed_execution_request_cancel(
+    numerix_managed_execution *execution);
+/* Pause is supported at Bisection step boundaries only. */
+numerix_status numerix_managed_execution_request_pause(
+    numerix_managed_execution *execution);
+numerix_status numerix_managed_execution_resume(
+    numerix_managed_execution *execution, numerix_error *error);
+numerix_status numerix_managed_execution_get_progress(
+    const numerix_managed_execution *execution,
+    numerix_execution_progress *progress, numerix_error *error);
+numerix_status numerix_managed_execution_get_summary(
+    const numerix_managed_execution *execution,
+    numerix_execution_summary *summary, numerix_error *error);
+void numerix_managed_execution_destroy(
+    numerix_managed_execution *execution);
+
 /* Returns a static readable name for a status code. */
 const char *numerix_status_string(numerix_status status);
 /* Clears an error, or records a bounded, copied message and status. */

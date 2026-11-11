@@ -177,6 +177,21 @@ numerix_status numerix_context_record_iteration(numerix_context *context)
     return NUMERIX_STATUS_SUCCESS;
 }
 
+numerix_status numerix_context_accumulate_iterations(
+    numerix_context *context, size_t iterations)
+{
+    if (context == NULL)
+    {
+        return NUMERIX_STATUS_INVALID_ARGUMENT;
+    }
+    if (iterations > SIZE_MAX - context->iterations)
+    {
+        return NUMERIX_STATUS_LIMIT_REACHED;
+    }
+    context->iterations += iterations;
+    return NUMERIX_STATUS_SUCCESS;
+}
+
 numerix_status numerix_context_record_function_evaluation(numerix_context *context)
 {
     if (context == NULL) return NUMERIX_STATUS_INVALID_ARGUMENT;
