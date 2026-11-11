@@ -26,9 +26,12 @@ struct numerix_managed_execution
     numerix_result result;
     numerix_error error;
     numerix_root_selection_report root_history;
+    numerix_execution_output output;
     size_t derivative_evaluations;
     int has_result;
+    int has_output;
     int has_approximation;
+    int recommendation_counters_recorded;
     double latest_approximation;
     double latest_residual;
     int bisection_initialized;
@@ -43,10 +46,20 @@ static double execution_now(void)
     return numerix_platform_monotonic_seconds();
 }
 
-static numerix_status managed_stop_check(void *user_data)
+static numerix_status managed_stop_check(
+    void *user_data, const numerix_recommendation *recommendation)
 {
     numerix_managed_execution *execution = user_data;
 
+    if (recommendation != NULL &&
+        !execution->recommendation_counters_recorded)
+    {
+        (void)numerix_context_accumulate_function_evaluations(
+            execution->context, recommendation->probe_evaluations);
+        execution->derivative_evaluations +=
+            recommendation->derivative_probe_evaluations;
+        execution->recommendation_counters_recorded = 1;
+    }
     if (atomic_load_explicit(&execution->cancel_requested,
                              memory_order_acquire) != 0)
     {
@@ -93,7 +106,8 @@ static void emit_event(
 static void finish_execution(
     numerix_managed_execution *execution, numerix_status status)
 {
-    if (status != NUMERIX_STATUS_SUCCESS &&
+    if (execution->request.category == NUMERIX_PROBLEM_ROOT_FINDING &&
+        status != NUMERIX_STATUS_SUCCESS &&
         execution->has_approximation &&
         (!isfinite(execution->result.value) ||
          !isfinite(execution->result.residual)))
@@ -103,6 +117,19 @@ static void finish_execution(
     }
     execution->status = status;
     execution->result.status = status;
+    if (execution->request.category == NUMERIX_PROBLEM_ROOT_FINDING)
+    {
+        execution->output.category = execution->request.category;
+        execution->output.algorithm = execution->algorithm;
+        execution->output.scalar_result = execution->result;
+        execution->output.root_selection = execution->root_history;
+        execution->output.selected_automatically =
+            execution->options.root_selection.mode ==
+            NUMERIX_SELECTION_AUTOMATIC;
+        execution->output.recommendation =
+            execution->root_history.recommendation;
+        execution->has_output = 1;
+    }
     if (status == NUMERIX_STATUS_SUCCESS)
     {
         numerix_error_clear(&execution->error);
@@ -155,11 +182,12 @@ static void capture_execution_error(
     }
 }
 
-static numerix_status evaluate_managed(
-    numerix_managed_execution *execution, double x, double *value)
+static numerix_status managed_budget_check(
+    numerix_managed_execution *execution)
 {
     numerix_options options;
-    numerix_status status;
+    size_t function_evaluations =
+        numerix_context_function_evaluation_count(execution->context);
 
     if (atomic_load_explicit(&execution->cancel_requested,
                              memory_order_acquire) != 0)
@@ -174,11 +202,9 @@ static numerix_status evaluate_managed(
     {
         options = *execution->request.options;
     }
-    if (numerix_context_function_evaluation_count(execution->context) >=
-            options.maximum_function_evaluations ||
+    if (function_evaluations >= options.maximum_function_evaluations ||
         execution->derivative_evaluations >=
-            options.maximum_function_evaluations -
-                numerix_context_function_evaluation_count(execution->context))
+            options.maximum_function_evaluations - function_evaluations)
     {
         atomic_store_explicit(&execution->limit_reached, 1,
                               memory_order_release);
@@ -191,6 +217,19 @@ static numerix_status evaluate_managed(
         atomic_store_explicit(&execution->limit_reached, 1,
                               memory_order_release);
         return NUMERIX_STATUS_LIMIT_REACHED;
+    }
+    return NUMERIX_STATUS_SUCCESS;
+}
+
+static numerix_status evaluate_managed(
+    numerix_managed_execution *execution, double x, double *value)
+{
+    numerix_status status;
+
+    status = managed_budget_check(execution);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        return status;
     }
 
     status = numerix_request_evaluate(
@@ -224,38 +263,82 @@ static double managed_function(double x, void *user_data)
 static double managed_derivative(double x, void *user_data)
 {
     numerix_managed_execution *execution = user_data;
-    numerix_options options;
     numerix_status stop_status;
     double value;
 
-    stop_status = managed_stop_check(execution);
+    stop_status = managed_budget_check(execution);
     if (stop_status != NUMERIX_STATUS_SUCCESS ||
         execution->request.derivative == NULL)
     {
-        return NAN;
-    }
-    if (execution->request.options == NULL)
-    {
-        numerix_options_init(&options);
-    }
-    else
-    {
-        options = *execution->request.options;
-    }
-    if (numerix_context_function_evaluation_count(execution->context) >=
-            options.maximum_function_evaluations ||
-        execution->derivative_evaluations >=
-            options.maximum_function_evaluations -
-                numerix_context_function_evaluation_count(execution->context))
-    {
-        atomic_store_explicit(&execution->limit_reached, 1,
-                              memory_order_release);
         return NAN;
     }
     value = execution->request.derivative(
         x, execution->request.user_data);
     execution->derivative_evaluations += 1;
     return value;
+}
+
+static double managed_objective(const double *values, size_t dimension,
+                               void *user_data)
+{
+    numerix_managed_execution *execution = user_data;
+    numerix_objective_function objective =
+        execution->request.problem.optimization.objective;
+    double value;
+
+    if (managed_budget_check(execution) != NUMERIX_STATUS_SUCCESS ||
+        objective == NULL)
+    {
+        return NAN;
+    }
+    value = objective(values, dimension, execution->request.user_data);
+    (void)numerix_context_record_function_evaluation(execution->context);
+    return value;
+}
+
+static numerix_status managed_gradient(const double *values,
+                                       size_t dimension, double *gradient,
+                                       void *user_data)
+{
+    numerix_managed_execution *execution = user_data;
+    numerix_gradient_function function =
+        execution->request.problem.optimization.gradient;
+    numerix_status status;
+
+    status = managed_budget_check(execution);
+    if (status != NUMERIX_STATUS_SUCCESS || function == NULL)
+    {
+        return status == NUMERIX_STATUS_SUCCESS
+                   ? NUMERIX_STATUS_INVALID_ARGUMENT
+                   : status;
+    }
+    status = function(values, dimension, gradient,
+                      execution->request.user_data);
+    execution->derivative_evaluations += 1;
+    return status;
+}
+
+static numerix_status managed_ode_function(
+    double x, const double *state, size_t dimension, double *derivative,
+    void *user_data)
+{
+    numerix_managed_execution *execution = user_data;
+    numerix_ode_function function = execution->request.problem.ode.function;
+    numerix_status status;
+
+    status = managed_budget_check(execution);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        return status;
+    }
+    status = function(x, state, dimension, derivative,
+                      execution->request.user_data);
+    (void)numerix_context_record_function_evaluation(execution->context);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        execution->callback_status = status;
+    }
+    return status;
 }
 
 static void emit_bisection_step(numerix_managed_execution *execution,
@@ -439,6 +522,143 @@ finished:
     return status;
 }
 
+static numerix_status run_general_execution(
+    numerix_managed_execution *execution, numerix_error *error)
+{
+    numerix_recommendation_request request = execution->request;
+    numerix_execution_options options = execution->options.execution;
+    numerix_options numerical_options;
+    numerix_status status;
+    int scalar_function_managed = 0;
+
+    execution->output.category = request.category;
+
+    if (execution->request.options == NULL)
+    {
+        numerix_options_init(&numerical_options);
+    }
+    else
+    {
+        numerical_options = *execution->request.options;
+    }
+    if (request.category == NUMERIX_PROBLEM_ODE &&
+        request.problem.ode.steps > numerical_options.maximum_iterations)
+    {
+        status = NUMERIX_STATUS_LIMIT_REACHED;
+        execution->output.category = request.category;
+        execution->output.scalar_result.status = status;
+        execution->result = execution->output.scalar_result;
+        execution->result.status = status;
+        execution->has_output = 1;
+        numerix_error_set(error, status,
+                          "ODE step count exceeds the managed iteration limit");
+        capture_execution_error(execution, status, error);
+        finish_execution(execution, status);
+        return status;
+    }
+
+    if (((request.category == NUMERIX_PROBLEM_DIFFERENTIATION ||
+          request.category == NUMERIX_PROBLEM_INTEGRATION) &&
+         request.representation != NUMERIX_REPRESENTATION_PIECEWISE) ||
+        (request.category == NUMERIX_PROBLEM_OPTIMIZATION &&
+         request.function != NULL))
+    {
+        scalar_function_managed = 1;
+        request.representation = NUMERIX_REPRESENTATION_CALLBACK;
+        request.function = managed_function;
+        request.user_data = execution;
+        request.expression = NULL;
+        request.piecewise_function = NULL;
+        request.derivative = request.derivative == NULL
+                                 ? NULL
+                                 : managed_derivative;
+    }
+    if (request.category == NUMERIX_PROBLEM_OPTIMIZATION)
+    {
+        request.user_data = execution;
+        if (request.problem.optimization.objective != NULL)
+        {
+            request.problem.optimization.objective = managed_objective;
+        }
+        if (request.problem.optimization.gradient != NULL)
+        {
+            request.problem.optimization.gradient = managed_gradient;
+        }
+    }
+    if (request.category == NUMERIX_PROBLEM_ODE)
+    {
+        request.problem.ode.function = managed_ode_function;
+        request.user_data = execution;
+    }
+
+    status = numerix_execute_recommended(
+        &request, &options, &execution->output, error);
+    execution->has_output = 1;
+    execution->algorithm = execution->output.algorithm;
+    execution->initial_algorithm = execution->output.algorithm;
+    execution->result = execution->output.scalar_result;
+    if (request.category == NUMERIX_PROBLEM_ODE)
+    {
+        execution->result.status = status;
+        execution->result.algorithm =
+            numerix_algorithm_name(execution->output.algorithm);
+        if (execution->output.has_ode_result &&
+            execution->output.ode_result.points > 0)
+        {
+            execution->result.iterations =
+                execution->output.ode_result.points - 1;
+        }
+    }
+    if (!scalar_function_managed &&
+        (request.category == NUMERIX_PROBLEM_INTEGRATION ||
+         request.category == NUMERIX_PROBLEM_DIFFERENTIATION))
+    {
+        (void)numerix_context_accumulate_function_evaluations(
+            execution->context,
+            execution->output.scalar_result.function_evaluations);
+    }
+    execution->result.function_evaluations =
+        numerix_context_function_evaluation_count(execution->context);
+    execution->result.execution_time_seconds =
+        fmax(0.0, execution_now() - execution->start_seconds);
+    if (execution->result.iterations > 0)
+    {
+        (void)numerix_context_accumulate_iterations(
+            execution->context, execution->result.iterations);
+    }
+    execution->has_result =
+        status == NUMERIX_STATUS_SUCCESS &&
+        (execution->output.vector_result != NULL ||
+         execution->output.has_ode_result ||
+         isfinite(execution->result.value));
+
+    if (atomic_load_explicit(&execution->cancel_requested,
+                             memory_order_acquire) != 0)
+    {
+        status = NUMERIX_STATUS_CANCELLED;
+        numerix_error_set(error, status, "execution was cancelled");
+    }
+    else if (atomic_load_explicit(&execution->limit_reached,
+                                  memory_order_acquire) != 0)
+    {
+        status = NUMERIX_STATUS_LIMIT_REACHED;
+        numerix_error_set(error, status, "execution resource limit reached");
+    }
+    else if (execution->callback_status != NUMERIX_STATUS_SUCCESS)
+    {
+        status = execution->callback_status;
+        if (error != NULL)
+        {
+            *error = execution->error;
+        }
+    }
+    execution->result.status = status;
+    execution->output.scalar_result = execution->result;
+    capture_execution_error(execution, status, error);
+    finish_execution(execution, status);
+    return status;
+}
+
 numerix_status numerix_managed_execution_create(
     const numerix_recommendation_request *request,
     const numerix_managed_execution_options *options,
@@ -448,14 +668,38 @@ numerix_status numerix_managed_execution_create(
     numerix_options numerical_options;
     numerix_status status;
 
+    if (out != NULL)
+    {
+        *out = NULL;
+    }
     if (out == NULL || request == NULL ||
-        request->category != NUMERIX_PROBLEM_ROOT_FINDING ||
+        request->category < NUMERIX_PROBLEM_ROOT_FINDING ||
+        request->category > NUMERIX_PROBLEM_ODE)
+    {
+        return numerix_error_set(error, NUMERIX_STATUS_INVALID_ARGUMENT,
+                                 "managed execution request is invalid");
+    }
+    if ((request->category == NUMERIX_PROBLEM_ROOT_FINDING ||
+         request->category == NUMERIX_PROBLEM_DIFFERENTIATION ||
+         request->category == NUMERIX_PROBLEM_INTEGRATION) &&
         !numerix_request_has_function(request))
     {
         return numerix_error_set(error, NUMERIX_STATUS_INVALID_ARGUMENT,
-                                 "managed execution supports root problems");
+                                 "managed request requires a scalar function");
     }
-    *out = NULL;
+    if (request->category == NUMERIX_PROBLEM_ODE &&
+        request->problem.ode.function == NULL)
+    {
+        return numerix_error_set(error, NUMERIX_STATUS_INVALID_ARGUMENT,
+                                 "managed ODE request requires a callback");
+    }
+    if (request->category == NUMERIX_PROBLEM_OPTIMIZATION &&
+        !numerix_request_has_function(request) &&
+        request->problem.optimization.objective == NULL)
+    {
+        return numerix_error_set(error, NUMERIX_STATUS_INVALID_ARGUMENT,
+                                 "managed optimization request is incomplete");
+    }
     if (request->options == NULL)
     {
         numerix_options_init(&numerical_options);
@@ -484,11 +728,21 @@ numerix_status numerix_managed_execution_create(
         return status;
     }
     execution->request = *request;
+    execution->output.category = request->category;
     execution->state = NUMERIX_EXECUTION_READY;
     execution->status = NUMERIX_STATUS_SUCCESS;
-    execution->algorithm = options == NULL
-                               ? NUMERIX_ALGORITHM_NONE
-                               : options->root_selection.explicit_algorithm;
+    if (options == NULL)
+    {
+        execution->algorithm = NUMERIX_ALGORITHM_NONE;
+    }
+    else if (request->category == NUMERIX_PROBLEM_ROOT_FINDING)
+    {
+        execution->algorithm = options->root_selection.explicit_algorithm;
+    }
+    else
+    {
+        execution->algorithm = options->execution.explicit_algorithm;
+    }
     execution->initial_algorithm = execution->algorithm;
     if (options != NULL)
     {
@@ -507,7 +761,17 @@ numerix_status numerix_managed_execution_create(
         return numerix_error_set(error, NUMERIX_STATUS_INVALID_ARGUMENT,
                                  "fallback flag must be zero or one");
     }
-    if (execution->options.root_selection.mode == NUMERIX_SELECTION_EXPLICIT &&
+    if (execution->options.execution.enable_root_fallback != 0 &&
+        execution->options.execution.enable_root_fallback != 1)
+    {
+        numerix_context_destroy(execution->context);
+        numerix_deallocate(execution);
+        return numerix_error_set(
+            error, NUMERIX_STATUS_INVALID_ARGUMENT,
+            "execution fallback flag must be zero or one");
+    }
+    if (request->category == NUMERIX_PROBLEM_ROOT_FINDING &&
+        execution->options.root_selection.mode == NUMERIX_SELECTION_EXPLICIT &&
         execution->options.root_selection.explicit_algorithm ==
             NUMERIX_ALGORITHM_BISECTION &&
         (!request->problem.root.has_bracket ||
@@ -575,10 +839,15 @@ numerix_status numerix_managed_execution_run(
         emit_event(execution, NUMERIX_EVENT_STARTED);
     }
     if (execution->algorithm == NUMERIX_ALGORITHM_BISECTION &&
+        execution->request.category == NUMERIX_PROBLEM_ROOT_FINDING &&
         execution->options.root_selection.enable_fallback == 0)
     {
         status = run_bisection(execution, error);
         return status;
+    }
+    if (execution->request.category != NUMERIX_PROBLEM_ROOT_FINDING)
+    {
+        return run_general_execution(execution, error);
     }
 
     {
@@ -598,7 +867,8 @@ numerix_status numerix_managed_execution_run(
         managed_request.expression = NULL;
         managed_request.piecewise_function = NULL;
         status = numerix_root_solve_auto_controlled(
-            &managed_request, &selection, &root_result, &report, error,
+            &execution->request, &managed_request, &selection, &root_result,
+            &report, error,
             managed_stop_check, execution);
         execution->result = root_result;
         execution->root_history = report;
@@ -661,6 +931,7 @@ numerix_status numerix_managed_execution_request_pause(
     numerix_managed_execution *execution)
 {
     if (execution == NULL ||
+        execution->request.category != NUMERIX_PROBLEM_ROOT_FINDING ||
         execution->algorithm != NUMERIX_ALGORITHM_BISECTION ||
         execution->options.root_selection.enable_fallback != 0)
     {
@@ -691,6 +962,32 @@ numerix_status numerix_managed_execution_resume(
     return numerix_managed_execution_run(execution, error);
 }
 
+static int execution_is_terminal(numerix_execution_state state)
+{
+    return state == NUMERIX_EXECUTION_COMPLETED ||
+           state == NUMERIX_EXECUTION_FAILED ||
+           state == NUMERIX_EXECUTION_CANCELLED ||
+           state == NUMERIX_EXECUTION_LIMIT_REACHED;
+}
+
+static int execution_iterations_available(
+    const numerix_managed_execution *execution)
+{
+    if (execution->request.category == NUMERIX_PROBLEM_ROOT_FINDING)
+    {
+        return execution->algorithm == NUMERIX_ALGORITHM_BISECTION ||
+               execution_is_terminal(execution->state);
+    }
+    if (execution_is_terminal(execution->state) && execution->has_output &&
+        (execution->request.category == NUMERIX_PROBLEM_INTEGRATION ||
+         execution->request.category == NUMERIX_PROBLEM_OPTIMIZATION ||
+         execution->request.category == NUMERIX_PROBLEM_ODE))
+    {
+        return 1;
+    }
+    return 0;
+}
+
 numerix_status numerix_managed_execution_get_progress(
     const numerix_managed_execution *execution,
     numerix_execution_progress *progress, numerix_error *error)
@@ -707,19 +1004,38 @@ numerix_status numerix_managed_execution_get_progress(
     progress->iterations =
         numerix_context_iteration_count(execution->context);
     progress->iterations_available =
-        execution->algorithm == NUMERIX_ALGORITHM_BISECTION ||
-        execution->state == NUMERIX_EXECUTION_COMPLETED ||
-        execution->state == NUMERIX_EXECUTION_FAILED ||
-        execution->state == NUMERIX_EXECUTION_CANCELLED ||
-        execution->state == NUMERIX_EXECUTION_LIMIT_REACHED;
+        execution_iterations_available(execution);
     progress->algorithm_available =
         execution->algorithm != NUMERIX_ALGORITHM_NONE;
-    progress->function_evaluations = execution->result.function_evaluations;
+    progress->function_evaluations =
+        numerix_context_function_evaluation_count(execution->context);
     progress->derivative_evaluations = execution->derivative_evaluations;
-    progress->has_approximation = execution->has_result;
-    progress->has_residual = execution->has_result;
-    progress->approximation = execution->result.value;
-    progress->residual = execution->result.residual;
+    if (execution->request.category == NUMERIX_PROBLEM_ROOT_FINDING)
+    {
+        progress->has_approximation = execution->has_approximation;
+        progress->has_residual = execution->has_approximation;
+        progress->approximation = execution->latest_approximation;
+        progress->residual = execution->latest_residual;
+    }
+    else if (execution->has_output && execution->has_result)
+    {
+        progress->has_approximation =
+            isfinite(execution->output.scalar_result.value);
+        progress->approximation = execution->output.scalar_result.value;
+        if (execution->request.category == NUMERIX_PROBLEM_LINEAR_ALGEBRA &&
+            isfinite(execution->output.scalar_result.residual))
+        {
+            progress->has_residual = 1;
+            progress->residual = execution->output.scalar_result.residual;
+        }
+        if (execution->request.category == NUMERIX_PROBLEM_INTEGRATION &&
+            isfinite(execution->output.scalar_result.estimated_error))
+        {
+            progress->has_estimated_error = 1;
+            progress->estimated_error =
+                execution->output.scalar_result.estimated_error;
+        }
+    }
     progress->has_interval = execution->bisection_initialized;
     progress->interval_lower = execution->lower;
     progress->interval_upper = execution->upper;
@@ -750,6 +1066,8 @@ numerix_status numerix_managed_execution_get_summary(
     summary->final_algorithm = execution->algorithm;
     summary->iterations =
         numerix_context_iteration_count(execution->context);
+    summary->iterations_available =
+        execution_iterations_available(execution);
     summary->function_evaluations =
         numerix_context_function_evaluation_count(execution->context);
     summary->derivative_evaluations = execution->derivative_evaluations;
@@ -769,11 +1087,26 @@ numerix_status numerix_managed_execution_get_summary(
     return NUMERIX_STATUS_SUCCESS;
 }
 
+numerix_status numerix_managed_execution_get_output(
+    const numerix_managed_execution *execution,
+    const numerix_execution_output **output, numerix_error *error)
+{
+    if (execution == NULL || output == NULL)
+    {
+        return numerix_error_set(error, NUMERIX_STATUS_INVALID_ARGUMENT,
+                                 "execution and output pointer are required");
+    }
+    *output = &execution->output;
+    numerix_error_clear(error);
+    return NUMERIX_STATUS_SUCCESS;
+}
+
 void numerix_managed_execution_destroy(
     numerix_managed_execution *execution)
 {
     if (execution != NULL)
     {
+        numerix_execution_output_destroy(&execution->output);
         numerix_context_destroy(execution->context);
     }
     numerix_deallocate(execution);

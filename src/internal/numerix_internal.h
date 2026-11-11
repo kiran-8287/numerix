@@ -23,5 +23,7 @@ void numerix_error_assign(numerix_error *error, numerix_status code,
                           const char *message);
 numerix_status numerix_context_accumulate_iterations(
     numerix_context *context, size_t iterations);
+numerix_status numerix_context_accumulate_function_evaluations(
+    numerix_context *context, size_t evaluations);
 
 #endif

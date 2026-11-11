@@ -1,6 +1,6 @@
-# Managed root execution API
+# Managed execution API
 
-Use `numerix_managed_execution_create` with a root-finding
+Use `numerix_managed_execution_create` with a Phase 4
 `numerix_recommendation_request`, then call `numerix_managed_execution_run`.
 The request's callback, expression or piecewise function and any associated
 data are borrowed until `numerix_managed_execution_destroy`.
@@ -31,6 +31,12 @@ if (numerix_managed_execution_create(
 }
 ```
 
+For non-root problems, choose an optional method with
+`managed_options.execution.explicit_algorithm`. The final scalar result is
+available in the summary. Use `numerix_managed_execution_get_output` to inspect
+the final vector or ODE solution; that output and its buffers are borrowed
+until the execution is destroyed.
+
 For observable steps and genuine pause/resume, select Bisection explicitly and
 provide a `step_callback`. Each step pointer is borrowed only until that
 callback returns. The callback may call `numerix_managed_execution_request_pause`;
@@ -51,10 +57,12 @@ limits use the platform monotonic clock and are checked at safe evaluation
 boundaries. No strict memory limit is provided. Percent completion is marked
 unavailable because total work is not generally known.
 
-The managed API currently supports root finding only. Phase 4 root fallback is
+The managed API dispatches all implemented categories. Root fallback is
 monitored, and its per-attempt history is returned in the summary. Cancellation
 and resource limits prevent any subsequent fallback attempt. Portfolio
-statistics, per-step details for other root algorithms and managed execution
-for other problem categories are not yet available. When fallback is enabled
-for explicit Bisection, Bisection uses the library solver and therefore does
-not emit steps or support pause/resume.
+execution remains outside the managed API. Pause/resume and step snapshots are
+available only for explicit Bisection. When fallback is enabled for explicit
+Bisection, the library solver is used and does not emit steps or support
+pause/resume. Linear algebra, interpolation, piecewise differentiation and
+piecewise integration do not expose checkpoints; cancellation during those
+routines is observed after the call returns.

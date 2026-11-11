@@ -253,6 +253,7 @@ static numerix_algorithm choose_fallback(
 
 numerix_status numerix_root_solve_auto_controlled(
     const numerix_recommendation_request *request,
+    const numerix_recommendation_request *execution_request,
     const numerix_root_selection_options *selection_options,
     numerix_result *result, numerix_root_selection_report *report,
     numerix_error *error, numerix_execution_stop_check stop_check,
@@ -265,7 +266,7 @@ numerix_status numerix_root_solve_auto_controlled(
     size_t fallback_index = 0;
     int first_attempt = 1;
 
-    if (request == NULL || result == NULL || report == NULL ||
+    if (request == NULL || execution_request == NULL || result == NULL || report == NULL ||
         request->category != NUMERIX_PROBLEM_ROOT_FINDING ||
         !numerix_request_has_function(request))
     {
@@ -297,7 +298,7 @@ numerix_status numerix_root_solve_auto_controlled(
     report->fallback_enabled = selection_options->enable_fallback != 0;
     if (stop_check != NULL)
     {
-        status = stop_check(stop_user_data);
+        status = stop_check(stop_user_data, NULL);
         if (status != NUMERIX_STATUS_SUCCESS)
         {
             result->status = status;
@@ -330,7 +331,8 @@ numerix_status numerix_root_solve_auto_controlled(
     }
     if (stop_check != NULL)
     {
-        numerix_status stop_status = stop_check(stop_user_data);
+        numerix_status stop_status = stop_check(
+            stop_user_data, &report->recommendation);
         if (stop_status != NUMERIX_STATUS_SUCCESS)
         {
             result->status = stop_status;
@@ -378,7 +380,7 @@ numerix_status numerix_root_solve_auto_controlled(
         const char *reason;
 
         status = numerix_root_run_algorithm(
-            algorithm, request, &attempt_result, error);
+            algorithm, execution_request, &attempt_result, error);
         usable = numerix_root_result_is_usable(&attempt_result, &options);
         if (request->representation == NUMERIX_REPRESENTATION_PIECEWISE &&
             usable && fabs(attempt_result.residual) > options.absolute_tolerance)
@@ -413,7 +415,7 @@ numerix_status numerix_root_solve_auto_controlled(
         }
         if (stop_check != NULL)
         {
-            numerix_status stop_status = stop_check(stop_user_data);
+            numerix_status stop_status = stop_check(stop_user_data, NULL);
             if (stop_status != NUMERIX_STATUS_SUCCESS)
             {
                 report->final_status = stop_status;
@@ -479,5 +481,5 @@ numerix_status numerix_root_solve_auto(
     numerix_error *error)
 {
     return numerix_root_solve_auto_controlled(
-        request, selection_options, result, report, error, NULL, NULL);
+        request, request, selection_options, result, report, error, NULL, NULL);
 }

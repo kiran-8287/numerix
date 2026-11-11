@@ -85,8 +85,9 @@ NUMERIX can explain deterministic recommendations across the implemented numeric
 
 ## Phase 5: managed execution
 
-The opt-in managed execution API supports root problems, progress summaries,
-cooperative cancellation, monitored root fallback, and genuine stepwise
-pause/resume for explicit Bisection. Other problem categories and portfolio
-management are not yet supported; see [the execution API guide](documentation/api/execution_management.md)
+The opt-in managed execution API dispatches the implemented problem
+categories, provides summaries and cooperative cancellation, monitors root
+fallback, and supports genuine stepwise pause/resume for explicit Bisection.
+Portfolio management and internal steps for other algorithms are not yet
+supported; see [the execution API guide](documentation/api/execution_management.md)
 for details.

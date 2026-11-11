@@ -200,6 +200,21 @@ numerix_status numerix_context_record_function_evaluation(numerix_context *conte
     return NUMERIX_STATUS_SUCCESS;
 }
 
+numerix_status numerix_context_accumulate_function_evaluations(
+    numerix_context *context, size_t evaluations)
+{
+    if (context == NULL)
+    {
+        return NUMERIX_STATUS_INVALID_ARGUMENT;
+    }
+    if (evaluations > SIZE_MAX - context->function_evaluations)
+    {
+        return NUMERIX_STATUS_LIMIT_REACHED;
+    }
+    context->function_evaluations += evaluations;
+    return NUMERIX_STATUS_SUCCESS;
+}
+
 numerix_status numerix_context_reset_counters(numerix_context *context)
 {
     if (context == NULL) return NUMERIX_STATUS_INVALID_ARGUMENT;
