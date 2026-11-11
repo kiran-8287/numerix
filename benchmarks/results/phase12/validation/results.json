@@ -1,0 +1,1381 @@
+[
+  {
+    "name": "make_debug_clean",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "make",
+      "clean"
+    ],
+    "log": "make_debug_clean.log"
+  },
+  {
+    "name": "make_debug",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "make",
+      "-j2",
+      "all",
+      "test",
+      "CC=gcc",
+      "CFLAGS=-O0 -g3 -Werror"
+    ],
+    "log": "make_debug.log"
+  },
+  {
+    "name": "make_release_clean",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "make",
+      "clean"
+    ],
+    "log": "make_release_clean.log"
+  },
+  {
+    "name": "make_release",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "make",
+      "-j2",
+      "all",
+      "test",
+      "CC=gcc",
+      "CFLAGS=-O3 -DNDEBUG -Werror"
+    ],
+    "log": "make_release.log"
+  },
+  {
+    "name": "gcc_debug_configure",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/tmp/numerix-phase9-tools/python/cmake/data/bin/cmake",
+      "-S",
+      ".",
+      "-B",
+      "cmake-build-validation-gcc_debug",
+      "-DCMAKE_C_COMPILER=gcc",
+      "-DCMAKE_BUILD_TYPE=Debug",
+      "-DCMAKE_C_FLAGS=-Werror"
+    ],
+    "log": "gcc_debug_configure.log"
+  },
+  {
+    "name": "gcc_debug_build",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/tmp/numerix-phase9-tools/python/cmake/data/bin/cmake",
+      "--build",
+      "cmake-build-validation-gcc_debug",
+      "--clean-first",
+      "-j2"
+    ],
+    "log": "gcc_debug_build.log"
+  },
+  {
+    "name": "gcc_debug_ctest",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/tmp/numerix-phase9-tools/python/cmake/data/bin/ctest",
+      "--test-dir",
+      "cmake-build-validation-gcc_debug",
+      "--output-on-failure"
+    ],
+    "log": "gcc_debug_ctest.log"
+  },
+  {
+    "name": "gcc_release_configure",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/tmp/numerix-phase9-tools/python/cmake/data/bin/cmake",
+      "-S",
+      ".",
+      "-B",
+      "cmake-build-validation-gcc_release",
+      "-DCMAKE_C_COMPILER=gcc",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DCMAKE_C_FLAGS=-Werror"
+    ],
+    "log": "gcc_release_configure.log"
+  },
+  {
+    "name": "gcc_release_build",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/tmp/numerix-phase9-tools/python/cmake/data/bin/cmake",
+      "--build",
+      "cmake-build-validation-gcc_release",
+      "--clean-first",
+      "-j2"
+    ],
+    "log": "gcc_release_build.log"
+  },
+  {
+    "name": "gcc_release_ctest",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/tmp/numerix-phase9-tools/python/cmake/data/bin/ctest",
+      "--test-dir",
+      "cmake-build-validation-gcc_release",
+      "--output-on-failure"
+    ],
+    "log": "gcc_release_ctest.log"
+  },
+  {
+    "name": "clang_debug_configure",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/tmp/numerix-phase9-tools/python/cmake/data/bin/cmake",
+      "-S",
+      ".",
+      "-B",
+      "cmake-build-validation-clang_debug",
+      "-DCMAKE_C_COMPILER=clang",
+      "-DCMAKE_BUILD_TYPE=Debug",
+      "-DCMAKE_C_FLAGS=-Werror"
+    ],
+    "log": "clang_debug_configure.log"
+  },
+  {
+    "name": "clang_debug_build",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/tmp/numerix-phase9-tools/python/cmake/data/bin/cmake",
+      "--build",
+      "cmake-build-validation-clang_debug",
+      "--clean-first",
+      "-j2"
+    ],
+    "log": "clang_debug_build.log"
+  },
+  {
+    "name": "clang_debug_ctest",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/tmp/numerix-phase9-tools/python/cmake/data/bin/ctest",
+      "--test-dir",
+      "cmake-build-validation-clang_debug",
+      "--output-on-failure"
+    ],
+    "log": "clang_debug_ctest.log"
+  },
+  {
+    "name": "clang_release_configure",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/tmp/numerix-phase9-tools/python/cmake/data/bin/cmake",
+      "-S",
+      ".",
+      "-B",
+      "cmake-build-validation-clang_release",
+      "-DCMAKE_C_COMPILER=clang",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DCMAKE_C_FLAGS=-Werror"
+    ],
+    "log": "clang_release_configure.log"
+  },
+  {
+    "name": "clang_release_build",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/tmp/numerix-phase9-tools/python/cmake/data/bin/cmake",
+      "--build",
+      "cmake-build-validation-clang_release",
+      "--clean-first",
+      "-j2"
+    ],
+    "log": "clang_release_build.log"
+  },
+  {
+    "name": "clang_release_ctest",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/tmp/numerix-phase9-tools/python/cmake/data/bin/ctest",
+      "--test-dir",
+      "cmake-build-validation-clang_release",
+      "--output-on-failure"
+    ],
+    "log": "clang_release_ctest.log"
+  },
+  {
+    "name": "sanitizers_configure",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/tmp/numerix-phase9-tools/python/cmake/data/bin/cmake",
+      "-S",
+      ".",
+      "-B",
+      "cmake-build-validation-sanitizers",
+      "-DCMAKE_C_COMPILER=clang",
+      "-DCMAKE_BUILD_TYPE=Debug",
+      "-DNUMERIX_BUILD_COMPARISON_BENCHMARK=ON",
+      "-DNUMERIX_BENCHMARK_ALLOCATIONS=ON",
+      "-DCMAKE_DISABLE_FIND_PACKAGE_GSL=TRUE",
+      "-DCMAKE_C_FLAGS=-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer"
+    ],
+    "log": "sanitizers_configure.log"
+  },
+  {
+    "name": "sanitizers_build",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/tmp/numerix-phase9-tools/python/cmake/data/bin/cmake",
+      "--build",
+      "cmake-build-validation-sanitizers",
+      "--clean-first",
+      "-j2"
+    ],
+    "log": "sanitizers_build.log"
+  },
+  {
+    "name": "sanitizers_ctest",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/tmp/numerix-phase9-tools/python/cmake/data/bin/ctest",
+      "--test-dir",
+      "cmake-build-validation-sanitizers",
+      "--output-on-failure"
+    ],
+    "log": "sanitizers_ctest.log"
+  },
+  {
+    "name": "valgrind_numerix_tests",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "valgrind",
+      "--leak-check=full",
+      "--show-leak-kinds=all",
+      "--errors-for-leak-kinds=all",
+      "--error-exitcode=99",
+      "cmake-build-validation-gcc_debug/numerix_tests"
+    ],
+    "log": "valgrind_numerix_tests.log"
+  },
+  {
+    "name": "valgrind_numerix_phase1_tests",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "valgrind",
+      "--leak-check=full",
+      "--show-leak-kinds=all",
+      "--errors-for-leak-kinds=all",
+      "--error-exitcode=99",
+      "cmake-build-validation-gcc_debug/numerix_phase1_tests"
+    ],
+    "log": "valgrind_numerix_phase1_tests.log"
+  },
+  {
+    "name": "valgrind_numerix_expression_tests",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "valgrind",
+      "--leak-check=full",
+      "--show-leak-kinds=all",
+      "--errors-for-leak-kinds=all",
+      "--error-exitcode=99",
+      "cmake-build-validation-gcc_debug/numerix_expression_tests"
+    ],
+    "log": "valgrind_numerix_expression_tests.log"
+  },
+  {
+    "name": "valgrind_numerix_audit_regression_tests",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "valgrind",
+      "--leak-check=full",
+      "--show-leak-kinds=all",
+      "--errors-for-leak-kinds=all",
+      "--error-exitcode=99",
+      "cmake-build-validation-gcc_debug/numerix_audit_regression_tests"
+    ],
+    "log": "valgrind_numerix_audit_regression_tests.log"
+  },
+  {
+    "name": "valgrind_numerix_piecewise_tests",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "valgrind",
+      "--leak-check=full",
+      "--show-leak-kinds=all",
+      "--errors-for-leak-kinds=all",
+      "--error-exitcode=99",
+      "cmake-build-validation-gcc_debug/numerix_piecewise_tests"
+    ],
+    "log": "valgrind_numerix_piecewise_tests.log"
+  },
+  {
+    "name": "valgrind_numerix_intelligence_tests",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "valgrind",
+      "--leak-check=full",
+      "--show-leak-kinds=all",
+      "--errors-for-leak-kinds=all",
+      "--error-exitcode=99",
+      "cmake-build-validation-gcc_debug/numerix_intelligence_tests"
+    ],
+    "log": "valgrind_numerix_intelligence_tests.log"
+  },
+  {
+    "name": "valgrind_numerix_execution_tests",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "valgrind",
+      "--leak-check=full",
+      "--show-leak-kinds=all",
+      "--errors-for-leak-kinds=all",
+      "--error-exitcode=99",
+      "cmake-build-validation-gcc_debug/numerix_execution_tests"
+    ],
+    "log": "valgrind_numerix_execution_tests.log"
+  },
+  {
+    "name": "valgrind_numerix_diagnostics_tests",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "valgrind",
+      "--leak-check=full",
+      "--show-leak-kinds=all",
+      "--errors-for-leak-kinds=all",
+      "--error-exitcode=99",
+      "cmake-build-validation-gcc_debug/numerix_diagnostics_tests"
+    ],
+    "log": "valgrind_numerix_diagnostics_tests.log"
+  },
+  {
+    "name": "valgrind_numerix_root_discovery_tests",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "valgrind",
+      "--leak-check=full",
+      "--show-leak-kinds=all",
+      "--errors-for-leak-kinds=all",
+      "--error-exitcode=99",
+      "cmake-build-validation-gcc_debug/numerix_root_discovery_tests"
+    ],
+    "log": "valgrind_numerix_root_discovery_tests.log"
+  },
+  {
+    "name": "valgrind_numerix_phase8_integration_tests",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "valgrind",
+      "--leak-check=full",
+      "--show-leak-kinds=all",
+      "--errors-for-leak-kinds=all",
+      "--error-exitcode=99",
+      "cmake-build-validation-gcc_debug/numerix_phase8_integration_tests"
+    ],
+    "log": "valgrind_numerix_phase8_integration_tests.log"
+  },
+  {
+    "name": "valgrind_numerix_release_regression_tests",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "valgrind",
+      "--leak-check=full",
+      "--show-leak-kinds=all",
+      "--errors-for-leak-kinds=all",
+      "--error-exitcode=99",
+      "cmake-build-validation-gcc_debug/numerix_release_regression_tests"
+    ],
+    "log": "valgrind_numerix_release_regression_tests.log"
+  },
+  {
+    "name": "valgrind_numerix_accuracy_tests",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "valgrind",
+      "--leak-check=full",
+      "--show-leak-kinds=all",
+      "--errors-for-leak-kinds=all",
+      "--error-exitcode=99",
+      "cmake-build-validation-gcc_debug/numerix_accuracy_tests"
+    ],
+    "log": "valgrind_numerix_accuracy_tests.log"
+  },
+  {
+    "name": "clang_analyzer_differentiation",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/algorithms/differentiation/differentiation.c"
+    ],
+    "log": "clang_analyzer_differentiation.log"
+  },
+  {
+    "name": "gcc_analyzer_differentiation",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/algorithms/differentiation/differentiation.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/differentiation.o"
+    ],
+    "log": "gcc_analyzer_differentiation.log"
+  },
+  {
+    "name": "clang_analyzer_integration",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/algorithms/integration/integration.c"
+    ],
+    "log": "clang_analyzer_integration.log"
+  },
+  {
+    "name": "gcc_analyzer_integration",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/algorithms/integration/integration.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/integration.o"
+    ],
+    "log": "gcc_analyzer_integration.log"
+  },
+  {
+    "name": "clang_analyzer_interpolation",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/algorithms/interpolation/interpolation.c"
+    ],
+    "log": "clang_analyzer_interpolation.log"
+  },
+  {
+    "name": "gcc_analyzer_interpolation",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/algorithms/interpolation/interpolation.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/interpolation.o"
+    ],
+    "log": "gcc_analyzer_interpolation.log"
+  },
+  {
+    "name": "clang_analyzer_linear_algebra",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/algorithms/linear_algebra/linear_algebra.c"
+    ],
+    "log": "clang_analyzer_linear_algebra.log"
+  },
+  {
+    "name": "gcc_analyzer_linear_algebra",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/algorithms/linear_algebra/linear_algebra.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/linear_algebra.o"
+    ],
+    "log": "gcc_analyzer_linear_algebra.log"
+  },
+  {
+    "name": "clang_analyzer_ode",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/algorithms/ode/ode.c"
+    ],
+    "log": "clang_analyzer_ode.log"
+  },
+  {
+    "name": "gcc_analyzer_ode",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/algorithms/ode/ode.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/ode.o"
+    ],
+    "log": "gcc_analyzer_ode.log"
+  },
+  {
+    "name": "clang_analyzer_optimization",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/algorithms/optimization/optimization.c"
+    ],
+    "log": "clang_analyzer_optimization.log"
+  },
+  {
+    "name": "gcc_analyzer_optimization",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/algorithms/optimization/optimization.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/optimization.o"
+    ],
+    "log": "gcc_analyzer_optimization.log"
+  },
+  {
+    "name": "clang_analyzer_root_finding",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/algorithms/root_finding/root_finding.c"
+    ],
+    "log": "clang_analyzer_root_finding.log"
+  },
+  {
+    "name": "gcc_analyzer_root_finding",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/algorithms/root_finding/root_finding.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/root_finding.o"
+    ],
+    "log": "gcc_analyzer_root_finding.log"
+  },
+  {
+    "name": "clang_analyzer_numerix_core",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/core/numerix_core.c"
+    ],
+    "log": "clang_analyzer_numerix_core.log"
+  },
+  {
+    "name": "gcc_analyzer_numerix_core",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/core/numerix_core.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/numerix_core.o"
+    ],
+    "log": "gcc_analyzer_numerix_core.log"
+  },
+  {
+    "name": "clang_analyzer_numerix_platform",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/core/numerix_platform.c"
+    ],
+    "log": "clang_analyzer_numerix_platform.log"
+  },
+  {
+    "name": "gcc_analyzer_numerix_platform",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/core/numerix_platform.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/numerix_platform.o"
+    ],
+    "log": "gcc_analyzer_numerix_platform.log"
+  },
+  {
+    "name": "clang_analyzer_diagnostic_analysis",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/diagnostics/diagnostic_analysis.c"
+    ],
+    "log": "clang_analyzer_diagnostic_analysis.log"
+  },
+  {
+    "name": "gcc_analyzer_diagnostic_analysis",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/diagnostics/diagnostic_analysis.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/diagnostic_analysis.o"
+    ],
+    "log": "gcc_analyzer_diagnostic_analysis.log"
+  },
+  {
+    "name": "clang_analyzer_diagnostics",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/diagnostics/diagnostics.c"
+    ],
+    "log": "clang_analyzer_diagnostics.log"
+  },
+  {
+    "name": "gcc_analyzer_diagnostics",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/diagnostics/diagnostics.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/diagnostics.o"
+    ],
+    "log": "gcc_analyzer_diagnostics.log"
+  },
+  {
+    "name": "clang_analyzer_managed_execution",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/execution/managed_execution.c"
+    ],
+    "log": "clang_analyzer_managed_execution.log"
+  },
+  {
+    "name": "gcc_analyzer_managed_execution",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/execution/managed_execution.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/managed_execution.o"
+    ],
+    "log": "gcc_analyzer_managed_execution.log"
+  },
+  {
+    "name": "clang_analyzer_evaluator",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/expression/evaluator.c"
+    ],
+    "log": "clang_analyzer_evaluator.log"
+  },
+  {
+    "name": "gcc_analyzer_evaluator",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/expression/evaluator.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/evaluator.o"
+    ],
+    "log": "gcc_analyzer_evaluator.log"
+  },
+  {
+    "name": "clang_analyzer_expression",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/expression/expression.c"
+    ],
+    "log": "clang_analyzer_expression.log"
+  },
+  {
+    "name": "gcc_analyzer_expression",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/expression/expression.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/expression.o"
+    ],
+    "log": "gcc_analyzer_expression.log"
+  },
+  {
+    "name": "clang_analyzer_lexer",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/expression/lexer.c"
+    ],
+    "log": "clang_analyzer_lexer.log"
+  },
+  {
+    "name": "gcc_analyzer_lexer",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/expression/lexer.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/lexer.o"
+    ],
+    "log": "gcc_analyzer_lexer.log"
+  },
+  {
+    "name": "clang_analyzer_parser",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/expression/parser.c"
+    ],
+    "log": "clang_analyzer_parser.log"
+  },
+  {
+    "name": "gcc_analyzer_parser",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/expression/parser.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/parser.o"
+    ],
+    "log": "gcc_analyzer_parser.log"
+  },
+  {
+    "name": "clang_analyzer_execution",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/intelligence/execution.c"
+    ],
+    "log": "clang_analyzer_execution.log"
+  },
+  {
+    "name": "gcc_analyzer_execution",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/intelligence/execution.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/execution.o"
+    ],
+    "log": "gcc_analyzer_execution.log"
+  },
+  {
+    "name": "clang_analyzer_portfolio",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/intelligence/portfolio.c"
+    ],
+    "log": "clang_analyzer_portfolio.log"
+  },
+  {
+    "name": "gcc_analyzer_portfolio",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/intelligence/portfolio.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/portfolio.o"
+    ],
+    "log": "gcc_analyzer_portfolio.log"
+  },
+  {
+    "name": "clang_analyzer_problem",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/intelligence/problem.c"
+    ],
+    "log": "clang_analyzer_problem.log"
+  },
+  {
+    "name": "gcc_analyzer_problem",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/intelligence/problem.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/problem.o"
+    ],
+    "log": "gcc_analyzer_problem.log"
+  },
+  {
+    "name": "clang_analyzer_recommendation",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/intelligence/recommendation.c"
+    ],
+    "log": "clang_analyzer_recommendation.log"
+  },
+  {
+    "name": "gcc_analyzer_recommendation",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/intelligence/recommendation.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/recommendation.o"
+    ],
+    "log": "gcc_analyzer_recommendation.log"
+  },
+  {
+    "name": "clang_analyzer_root_execution",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/intelligence/root_execution.c"
+    ],
+    "log": "clang_analyzer_root_execution.log"
+  },
+  {
+    "name": "gcc_analyzer_root_execution",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/intelligence/root_execution.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/root_execution.o"
+    ],
+    "log": "gcc_analyzer_root_execution.log"
+  },
+  {
+    "name": "clang_analyzer_adapters",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/piecewise/adapters.c"
+    ],
+    "log": "clang_analyzer_adapters.log"
+  },
+  {
+    "name": "gcc_analyzer_adapters",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/piecewise/adapters.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/adapters.o"
+    ],
+    "log": "gcc_analyzer_adapters.log"
+  },
+  {
+    "name": "clang_analyzer_analysis",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/piecewise/analysis.c"
+    ],
+    "log": "clang_analyzer_analysis.log"
+  },
+  {
+    "name": "gcc_analyzer_analysis",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/piecewise/analysis.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/analysis.o"
+    ],
+    "log": "gcc_analyzer_analysis.log"
+  },
+  {
+    "name": "clang_analyzer_piecewise",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/piecewise/piecewise.c"
+    ],
+    "log": "clang_analyzer_piecewise.log"
+  },
+  {
+    "name": "gcc_analyzer_piecewise",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/piecewise/piecewise.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/piecewise.o"
+    ],
+    "log": "gcc_analyzer_piecewise.log"
+  },
+  {
+    "name": "clang_analyzer_root_discovery",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "clang",
+      "--analyze",
+      "-std=c11",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-Xanalyzer",
+      "-analyzer-output=text",
+      "src/root_discovery/root_discovery.c"
+    ],
+    "log": "clang_analyzer_root_discovery.log"
+  },
+  {
+    "name": "gcc_analyzer_root_discovery",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/opt/rh/gcc-toolset-15/root/usr/bin/gcc",
+      "-fanalyzer",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-Isrc/internal",
+      "-c",
+      "src/root_discovery/root_discovery.c",
+      "-o",
+      "/tmp/numerix-release-analyzer-6eyba6ho/root_discovery.o"
+    ],
+    "log": "gcc_analyzer_root_discovery.log"
+  },
+  {
+    "name": "cppcheck",
+    "status": "Passed",
+    "exit_code": 0,
+    "command": [
+      "/tmp/numerix-phase9-tools/cppcheck-2.18.3/cppcheck",
+      "--check-level=exhaustive",
+      "--enable=warning,performance,portability",
+      "--std=c11",
+      "--error-exitcode=1",
+      "-Iinclude",
+      "-Isrc/internal",
+      "src"
+    ],
+    "log": "cppcheck.log"
+  },
+  {
+    "name": "Windows native runtime",
+    "status": "Unavailable"
+  },
+  {
+    "name": "MSVC",
+    "status": "Unavailable"
+  },
+  {
+    "name": "installed_relocated_C_and_Cpp",
+    "status": "Passed",
+    "exit_code": 0,
+    "log": "../installed_consumer.log"
+  },
+  {
+    "name": "minimum_CMake_3_16",
+    "status": "Passed",
+    "exit_code": 0,
+    "log": "../minimum_cmake.log"
+  },
+  {
+    "name": "minimum_CMake_consumers",
+    "status": "Passed",
+    "exit_code": 0,
+    "log": "../minimum_consumer.log"
+  },
+  {
+    "name": "pkg_config_and_symbols",
+    "status": "Passed",
+    "exit_code": 0,
+    "log": "../package_audit.log"
+  },
+  {
+    "name": "source_archive_rebuild",
+    "status": "Passed",
+    "exit_code": 0,
+    "log": "../source_rebuild.log"
+  },
+  {
+    "name": "binary_archive_consumer",
+    "status": "Passed",
+    "exit_code": 0,
+    "log": "../binary_consumer.log"
+  },
+  {
+    "name": "GCC11_and_GCC15_candidate",
+    "status": "Passed",
+    "exit_code": 0,
+    "log": "../gcc_toolsets_final.log"
+  },
+  {
+    "name": "shared_policy",
+    "status": "Passed",
+    "expected_rejection": true,
+    "observed_tool_exit_code": 1,
+    "log": "../shared_policy.log"
+  },
+  {
+    "name": "version_policy",
+    "status": "Passed",
+    "expected_rejection": true,
+    "observed_tool_exit_code": 1,
+    "log": "../version_policy.log"
+  }
+]

@@ -18,3 +18,13 @@
 /numerix_comparison_memory
 *.plist
 __pycache__/
+
+/dist/
+/ci-build/
+/consumer-build/
+*.o
+*.a
+*.so
+*.dylib
+
+/validation-results/

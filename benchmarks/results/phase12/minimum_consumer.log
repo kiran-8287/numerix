@@ -1,0 +1,37 @@
+Command: ['/tmp/numerix-cmake316/cmake/data/bin/cmake', '-S', '/tmp/numerix-phase12-independent-client', '-B', '/tmp/numerix-phase12-minimum-consumer', '-DCMAKE_PREFIX_PATH=/tmp/numerix-phase12-relocated', '-DCMAKE_BUILD_TYPE=Release']
+-- The C compiler identification is GNU 8.5.0
+-- The CXX compiler identification is GNU 8.5.0
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /tmp/numerix-phase12-minimum-consumer
+Command: ['/tmp/numerix-cmake316/cmake/data/bin/cmake', '--build', '/tmp/numerix-phase12-minimum-consumer', '-j2']
+Scanning dependencies of target consumer_c
+Scanning dependencies of target consumer_cpp
+[ 50%] Building C object CMakeFiles/consumer_c.dir/main.c.o
+[ 50%] Building CXX object CMakeFiles/consumer_cpp.dir/main.cpp.o
+[ 75%] Linking C executable consumer_c
+[100%] Linking CXX executable consumer_cpp
+[100%] Built target consumer_c
+[100%] Built target consumer_cpp
+Command: ['/tmp/numerix-cmake316/cmake/data/bin/ctest', '--output-on-failure']
+Test project /tmp/numerix-phase12-minimum-consumer
+    Start 1: installed_C
+1/2 Test #1: installed_C ......................   Passed    0.00 sec
+    Start 2: installed_Cpp
+2/2 Test #2: installed_Cpp ....................   Passed    0.00 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   0.01 sec

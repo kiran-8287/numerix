@@ -1,0 +1,9 @@
+{
+  "status": "Passed",
+  "byte_identical_reproduction": true,
+  "git_free_reproduction": true,
+  "contained_source_only": true,
+  "packaged_document_links": true,
+  "local_path_and_token_scan": true,
+  "source_sha256": "eec819dec4ac7c569522fa06fae0c00089c1d2563a36279daa22a2df2e3fc067"
+}

@@ -1,0 +1,10 @@
+Command: ['/tmp/numerix-phase9-tools/python/cmake/data/bin/cmake', '-S', '/tmp/numerix-phase12-negative-version', '-B', '/tmp/numerix-phase12-negative-version/build', '-DCMAKE_PREFIX_PATH=/tmp/numerix-phase12-relocated']
+-- Configuring incomplete, errors occurred!
+CMake Error at CMakeLists.txt:3 (find_package):
+  Could not find a configuration file for package "NUMERIX" that is
+  compatible with requested version "0.1".
+
+  The following configuration files were considered but not accepted:
+
+    /tmp/numerix-phase12-relocated/lib64/cmake/NUMERIX/NUMERIXConfig.cmake, version: 0.2.0
+      The version found is not compatible with the version requested.

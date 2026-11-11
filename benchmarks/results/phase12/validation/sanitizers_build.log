@@ -1,0 +1,96 @@
+Command: ['/tmp/numerix-phase9-tools/python/cmake/data/bin/cmake', '--build', 'cmake-build-validation-sanitizers', '--clean-first', '-j2']
+[  2%] Building C object CMakeFiles/numerix.dir/src/core/numerix_core.c.o
+[  2%] Building C object CMakeFiles/numerix.dir/src/core/numerix_platform.c.o
+[  4%] Building C object CMakeFiles/numerix.dir/src/algorithms/root_finding/root_finding.c.o
+[  5%] Building C object CMakeFiles/numerix.dir/src/algorithms/linear_algebra/linear_algebra.c.o
+[  6%] Building C object CMakeFiles/numerix.dir/src/algorithms/differentiation/differentiation.c.o
+[  8%] Building C object CMakeFiles/numerix.dir/src/algorithms/interpolation/interpolation.c.o
+[  9%] Building C object CMakeFiles/numerix.dir/src/algorithms/integration/integration.c.o
+[ 11%] Building C object CMakeFiles/numerix.dir/src/algorithms/optimization/optimization.c.o
+[ 12%] Building C object CMakeFiles/numerix.dir/src/algorithms/ode/ode.c.o
+[ 13%] Building C object CMakeFiles/numerix.dir/src/expression/lexer.c.o
+[ 15%] Building C object CMakeFiles/numerix.dir/src/expression/parser.c.o
+[ 16%] Building C object CMakeFiles/numerix.dir/src/expression/evaluator.c.o
+[ 18%] Building C object CMakeFiles/numerix.dir/src/expression/expression.c.o
+[ 19%] Building C object CMakeFiles/numerix.dir/src/piecewise/piecewise.c.o
+[ 20%] Building C object CMakeFiles/numerix.dir/src/piecewise/analysis.c.o
+[ 22%] Building C object CMakeFiles/numerix.dir/src/piecewise/adapters.c.o
+[ 23%] Building C object CMakeFiles/numerix.dir/src/intelligence/problem.c.o
+[ 26%] Building C object CMakeFiles/numerix.dir/src/intelligence/root_execution.c.o
+[ 26%] Building C object CMakeFiles/numerix.dir/src/intelligence/recommendation.c.o
+[ 27%] Building C object CMakeFiles/numerix.dir/src/intelligence/portfolio.c.o
+[ 29%] Building C object CMakeFiles/numerix.dir/src/intelligence/execution.c.o
+[ 30%] Building C object CMakeFiles/numerix.dir/src/execution/managed_execution.c.o
+[ 31%] Building C object CMakeFiles/numerix.dir/src/diagnostics/diagnostics.c.o
+[ 33%] Building C object CMakeFiles/numerix.dir/src/diagnostics/diagnostic_analysis.c.o
+[ 34%] Building C object CMakeFiles/numerix.dir/src/root_discovery/root_discovery.c.o
+[ 36%] Linking C static library libnumerix.a
+[ 36%] Built target numerix
+[ 38%] Building C object CMakeFiles/numerix_cli.dir/cli/main.c.o
+[ 38%] Building C object CMakeFiles/numerix_expression_demo.dir/examples/expression_demo.c.o
+[ 40%] Linking C executable numerix_expression_demo
+[ 41%] Linking C executable numerix_cli
+[ 41%] Built target numerix_expression_demo
+[ 43%] Building C object CMakeFiles/numerix_piecewise_demo.dir/examples/piecewise_demo.c.o
+[ 43%] Built target numerix_cli
+[ 44%] Building C object CMakeFiles/numerix_intelligence_demo.dir/examples/intelligence_demo.c.o
+[ 45%] Linking C executable numerix_piecewise_demo
+[ 47%] Linking C executable numerix_intelligence_demo
+[ 47%] Built target numerix_piecewise_demo
+[ 48%] Building C object CMakeFiles/numerix_managed_execution_demo.dir/examples/managed_execution_demo.c.o
+[ 50%] Built target numerix_intelligence_demo
+[ 50%] Linking C executable numerix_managed_execution_demo
+[ 51%] Building C object CMakeFiles/numerix_root_discovery_demo.dir/examples/root_discovery_demo.c.o
+[ 52%] Linking C executable numerix_root_discovery_demo
+[ 52%] Built target numerix_managed_execution_demo
+[ 54%] Building C object CMakeFiles/numerix_tests.dir/tests/test_numerix.c.o
+[ 55%] Linking C executable numerix_tests
+[ 55%] Built target numerix_root_discovery_demo
+[ 56%] Building C object CMakeFiles/numerix_phase1_tests.dir/tests/test_phase1.c.o
+[ 56%] Built target numerix_tests
+[ 58%] Building C object CMakeFiles/numerix_expression_tests.dir/tests/test_expression.c.o
+[ 59%] Linking C executable numerix_expression_tests
+[ 61%] Linking C executable numerix_phase1_tests
+[ 61%] Built target numerix_expression_tests
+[ 62%] Building C object CMakeFiles/numerix_audit_regression_tests.dir/tests/test_audit_regressions.c.o
+[ 62%] Built target numerix_phase1_tests
+[ 63%] Building C object CMakeFiles/numerix_piecewise_tests.dir/tests/test_piecewise.c.o
+[ 65%] Linking C executable numerix_audit_regression_tests
+[ 66%] Linking C executable numerix_piecewise_tests
+[ 66%] Built target numerix_audit_regression_tests
+[ 68%] Building C object CMakeFiles/numerix_intelligence_tests.dir/tests/test_intelligence.c.o
+[ 68%] Built target numerix_piecewise_tests
+[ 69%] Building C object CMakeFiles/numerix_execution_tests.dir/tests/test_execution.c.o
+[ 70%] Linking C executable numerix_intelligence_tests
+[ 72%] Linking C executable numerix_execution_tests
+[ 72%] Built target numerix_intelligence_tests
+[ 73%] Building C object CMakeFiles/numerix_diagnostics_tests.dir/tests/test_diagnostics.c.o
+[ 75%] Linking C executable numerix_diagnostics_tests
+[ 75%] Built target numerix_execution_tests
+[ 76%] Building C object CMakeFiles/numerix_root_discovery_tests.dir/tests/test_root_discovery.c.o
+[ 77%] Linking C executable numerix_root_discovery_tests
+[ 77%] Built target numerix_diagnostics_tests
+[ 79%] Building C object CMakeFiles/numerix_phase8_integration_tests.dir/tests/test_phase8_integration.c.o
+[ 80%] Linking C executable numerix_phase8_integration_tests
+[ 80%] Built target numerix_root_discovery_tests
+[ 81%] Building C object CMakeFiles/numerix_comparison_benchmark.dir/benchmarks/comparison.c.o
+[ 81%] Built target numerix_phase8_integration_tests
+[ 83%] Building C object CMakeFiles/numerix_comparison_memory.dir/benchmarks/comparison.c.o
+[ 84%] Linking C executable numerix_comparison_benchmark
+[ 86%] Building C object CMakeFiles/numerix_comparison_memory.dir/benchmarks/allocation_tracker.c.o
+[ 86%] Built target numerix_comparison_benchmark
+[ 87%] Building C object CMakeFiles/numerix_release_regression_tests.dir/tests/test_release_regressions.c.o
+[ 88%] Linking C executable numerix_comparison_memory
+[ 90%] Linking C executable numerix_release_regression_tests
+[ 90%] Built target numerix_comparison_memory
+[ 91%] Building C object CMakeFiles/numerix_allocation_failure_tests.dir/tests/test_allocation_failures.c.o
+[ 91%] Built target numerix_release_regression_tests
+[ 93%] Building C object CMakeFiles/numerix_accuracy_tests.dir/tests/test_accuracy.c.o
+[ 94%] Building C object CMakeFiles/numerix_allocation_failure_tests.dir/benchmarks/allocation_tracker.c.o
+[ 95%] Linking C executable numerix_allocation_failure_tests
+[ 97%] Linking C executable numerix_accuracy_tests
+[ 97%] Built target numerix_allocation_failure_tests
+[ 97%] Built target numerix_accuracy_tests
+[ 98%] Building C object CMakeFiles/numerix_portability_probe.dir/tests/portability_probe.c.o
+[100%] Linking C executable numerix_portability_probe
+[100%] Built target numerix_portability_probe

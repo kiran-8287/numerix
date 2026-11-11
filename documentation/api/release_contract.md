@@ -1,7 +1,9 @@
 # Release API and compatibility review
 
-The public API remains in `include/numerix.h`. Phase 9 adds no public functions,
-algorithm families or struct fields. Names and types remain unchanged.
+The public API remains in `include/numerix.h`. The 0.2.0-rc1 hardening/distribution
+milestones add no public function signatures, algorithm families or struct fields.
+Names and types remain unchanged; corrected root stopping/status behavior is an
+intentional contract correction.
 
 ## Initialize, call, inspect, destroy
 
@@ -63,20 +65,19 @@ not completeness or mathematical proofs.
 
 Phase 8 expanded public diagnostics/root-search structures. A precompiled client
 using an earlier size/layout must be rebuilt with the matching header and archive.
-No ABI compatibility claim or stable binary interface is made for 0.1.0. Phase 9
-changes no struct layout, and retains existing source signatures. The corrected
+No ABI compatibility claim or stable binary interface is made for 0.2.0-rc1. Phases 9–12
+preserve the current struct layouts and existing source signatures. The corrected
 NULL-error status and new validation of invalid LU inputs are intentional behavior
 changes. Linux and Windows may have different pointer widths/alignment and struct
 sizes; do not compare their allocation-byte counts as though layouts were identical.
 
 ## Remaining API limitations
 
-The library has no custom allocator, stable shared-library ABI, exported installed
-CMake package configuration, or uniform initializer for every public aggregate.
+The library has no custom allocator, shared-library ABI, or uniform initializer
+for every public aggregate. CMake now installs the NUMERIX::numerix package target.
 Some metrics/status initialization conventions differ between older numerical
 entry points. These are documented limitations for the release candidate; an
 architecture rewrite or broad API rename was deliberately outside this milestone.
 
-Phase10 supersedes the older residual-stopping description above: root shared
-options now have position units only. See [tolerance semantics](tolerances.md).
-No public layout changed; numerical status/stopping behavior intentionally did.
+See [tolerance semantics](tolerances.md) and the
+[compatibility policy](../user_guide/compatibility.md) for current contracts.

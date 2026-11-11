@@ -9,9 +9,9 @@ extern "C" {
 #endif
 
 #define NUMERIX_VERSION_MAJOR 0
-#define NUMERIX_VERSION_MINOR 1
+#define NUMERIX_VERSION_MINOR 2
 #define NUMERIX_VERSION_PATCH 0
-#define NUMERIX_VERSION_STRING "0.1.0"
+#define NUMERIX_VERSION_STRING "0.2.0-rc1"
 #define NUMERIX_ERROR_MESSAGE_CAPACITY 256
 
 typedef enum numerix_status {

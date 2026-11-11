@@ -1,0 +1,10 @@
+prefix=${pcfiledir}/@NUMERIX_PC_PREFIX_RELATIVE@
+libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
+includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
+
+Name: NUMERIX
+Description: C11 numerical algorithms, execution and diagnostics
+Version: @NUMERIX_RELEASE_VERSION@
+Libs: -L${libdir} -lnumerix
+Libs.private: @NUMERIX_PRIVATE_LIBS@
+Cflags: -I${includedir}

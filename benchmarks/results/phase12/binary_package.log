@@ -1,0 +1,7 @@
+CPack: Create package using TGZ
+CPack: Install projects
+CPack: - Run preinstall target for: NUMERIX
+CPack: - Install project: NUMERIX []
+CPack: Create package
+CPack: - package: /home/142401034/numerix/dist/numerix-0.2.0-rc1-Linux-x86_64.tar.gz generated.
+CPack: - checksum file: /home/142401034/numerix/dist/numerix-0.2.0-rc1-Linux-x86_64.tar.gz.sha256 generated.

@@ -1,6 +1,6 @@
 # Core data structures
 
-- **`numerix_status`**: stable categories for success, caller input errors, allocation failure, numerical/convergence failure, unsupported operations, cancellation, limits, and internal errors. `numerix_status_string` gives a static readable name.
+- **`numerix_status`**: categories for success, caller input errors, allocation failure, numerical/convergence failure, unsupported operations, cancellation, limits, and internal errors. `numerix_status_string` gives a static readable name.
 - **`numerix_error`**: status plus a fixed-capacity message copied with bounded formatting. `value` and `has_value` reserve optional numeric context; Phase 0 APIs leave it unset.
 - **`numerix_function`**: `double (*)(double x, void *user_data)`. The callback and data are borrowed. A callback must remain valid for the lifetime of its problem.
 - **`numerix_scalar_problem`**: scalar callback and borrowed user data. Evaluation rejects invalid inputs and non-finite callback results.
@@ -15,3 +15,11 @@
 - **`numerix_expression_callback_context`**: caller-owned mutable adapter state that borrows a compiled expression and captures the latest status/error for existing callback-based algorithms.
 
 Default options are absolute tolerance `1e-8`, relative tolerance `1e-8`, 1000 iterations, 10000 function evaluations, and no time limit.
+
+Specialized current structures include piecewise callback/boundary evidence,
+recommendation requests and tagged unions, owned execution outputs, diagnostic
+reports/sensitivity vectors, opaque managed sessions and root-discovery reports.
+Availability flags distinguish absent metrics; owned aggregates must be destroyed
+before reuse. Core contexts provide counters, while managed sessions implement
+cooperative cancellation and explicit Bisection pause/resume with private atomics.
+Root residual and position units are separate; see the tolerance guide.

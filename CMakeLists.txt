@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
-project(NUMERIX VERSION 0.1.0 LANGUAGES C)
+project(NUMERIX VERSION 0.2.0 LANGUAGES C)
+set(NUMERIX_RELEASE_VERSION "0.2.0-rc1")
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+if(BUILD_SHARED_LIBS)
+    message(FATAL_ERROR "NUMERIX currently distributes a static library; shared ABI is not supported")
+endif()
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -32,7 +38,10 @@ add_library(numerix STATIC
     src/diagnostics/diagnostic_analysis.c
     src/root_discovery/root_discovery.c
 )
-target_include_directories(numerix PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+add_library(NUMERIX::numerix ALIAS numerix)
+target_include_directories(numerix PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_include_directories(numerix PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/internal)
 if(NOT WIN32)
     target_link_libraries(numerix PUBLIC m)
@@ -189,10 +198,29 @@ if(BUILD_TESTING)
     add_test(NAME numerix_release_regressions COMMAND numerix_release_regression_tests)
 endif()
 
-include(GNUInstallDirs)
-install(TARGETS numerix ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(TARGETS numerix EXPORT NUMERIXTargets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+set(NUMERIX_CONFIG_DIRECTORY "${CMAKE_INSTALL_LIBDIR}/cmake/NUMERIX")
+configure_package_config_file(cmake/NUMERIXConfig.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/NUMERIXConfig.cmake"
+    INSTALL_DESTINATION "${NUMERIX_CONFIG_DIRECTORY}")
+write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/NUMERIXConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION} COMPATIBILITY SameMinorVersion)
+install(EXPORT NUMERIXTargets NAMESPACE NUMERIX::
+    DESTINATION "${NUMERIX_CONFIG_DIRECTORY}")
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/NUMERIXConfig.cmake"
+              "${CMAKE_CURRENT_BINARY_DIR}/NUMERIXConfigVersion.cmake"
+    DESTINATION "${NUMERIX_CONFIG_DIRECTORY}")
+file(RELATIVE_PATH NUMERIX_PC_PREFIX_RELATIVE "/${CMAKE_INSTALL_LIBDIR}/pkgconfig" "/")
+set(NUMERIX_PRIVATE_LIBS "")
+if(NOT WIN32)
+    set(NUMERIX_PRIVATE_LIBS "-lm")
+endif()
+configure_file(cmake/numerix.pc.in "${CMAKE_CURRENT_BINARY_DIR}/numerix.pc" @ONLY)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/numerix.pc"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 install(FILES include/numerix.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-install(FILES LICENSE README.md DESTINATION ${CMAKE_INSTALL_DOCDIR})
+install(FILES LICENSE README.md CHANGELOG.md DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
 if(BUILD_TESTING)
     add_test(NAME numerix_cli_startup COMMAND numerix_cli)
@@ -224,9 +252,13 @@ if(NUMERIX_BENCHMARK_ALLOCATIONS AND NUMERIX_BUILD_COMPARISON_BENCHMARK AND BUIL
     add_test(NAME numerix_allocation_failures COMMAND numerix_allocation_failure_tests)
 endif()
 
-install(DIRECTORY documentation/api/ DESTINATION ${CMAKE_INSTALL_DOCDIR}/api)
+install(DIRECTORY documentation/api documentation/architecture documentation/user_guide
+    DESTINATION ${CMAKE_INSTALL_DOCDIR}/documentation)
 set(CPACK_PACKAGE_NAME "numerix")
-set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_PACKAGE_VERSION ${NUMERIX_RELEASE_VERSION})
+set(CPACK_PACKAGE_FILE_NAME "numerix-${NUMERIX_RELEASE_VERSION}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set(CPACK_PACKAGE_CHECKSUM SHA256)
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "C11 numerical library and public API documentation")
 set(CPACK_GENERATOR "TGZ")
 include(CPack)

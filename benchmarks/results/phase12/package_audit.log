@@ -1,0 +1,6 @@
+Installed consumer: roots, LU, expressions, errors and cleanup passed.
+Command: ['pkg-config', '--modversion', 'numerix']
+0.2.0-rc1
+Command: ['pkg-config', '--cflags', '--libs', '--static', 'numerix']
+-I/tmp/numerix-phase12-relocated/lib64/pkgconfig/../../include -L/tmp/numerix-phase12-relocated/lib64/pkgconfig/../../lib64 -lnumerix -lm
+All 126 public function declarations have definitions; no GSL symbols in the archive.

@@ -1,81 +1,53 @@
-# Final release checklist
+# Final release checklist — 0.2.0-rc1
 
-Date: 2026-11-12 (Asia/Kolkata). Candidate version: **0.1.0**.
-Assessment: **release candidate with documented limitations**.
+Date: 2026-11-12. Assessment: **release candidate with documented limitations**.
+Phase 10 and Phase 11 were committed before the next milestone began. Historical
+Phase 9 metrics/reports remain intact; this checklist describes the current candidate.
 
-This checklist classifies actual executed checks. “Passed” covers the stated
-scope; it does not imply every platform/input is validated. Command outputs and
-exit records are under [validation](../../benchmarks/results/phase9/validation/).
-
-| Area | Status | Evidence / remaining action |
+| Area | Actual classification | Evidence / limit |
 | --- | --- | --- |
-| Initial Git state | Passed | Clean master at 29e2f7ac536e0d71f38a0e59ad148556b1b0c84f; origin/master matched; Phase 8 report inspected |
-| Existing functionality | Passed | Original baseline17 CTests and Make suite; final regression suites preserve all numerical families |
-| Clean Make Debug | Passed | GCC 8.5 `-O0 -g3 -Werror`, all targets and complete tests |
-| Clean Make Release | Passed | GCC 8.5 `-O3 -DNDEBUG -Werror`, all targets and complete tests |
-| CMake GCC Debug / Release | Passed | Separate configurations; all 31 CTests in each |
-| CMake Clang Debug / Release | Passed | Clang 21.1.8; all 31 CTests in each, warning errors enabled |
-| CTest registration | Passed | Unit, integration, CLI and all five examples registered; optional allocation faults make32 tests |
-| Benchmark targets | Passed | Make/CMake GSL comparison; both existing internal benchmark targets |
-| GSL optional dependency | Passed | Explicitly disabled-GSL CMake build and all NUMERIX-only benchmark cases; no GSL dependency in archive/public header |
-| Linux portability | Passed | Oracle Linux8.10 x86_64 with GCC 8.5 and Clang 21.1; other Linux environments untested |
-| Windows MinGW Phase 9 | Unavailable | No native Windows environment/toolchain; Phase 8's Windows GCC 6.3 results remain historical |
-| MSVC Phase 9 | Unavailable | No MSVC; CMake MSVC branch is not treated as build evidence |
-| ASan / UBSan / leak detection | Passed | Combined Clang sanitizer configuration;32 CTests including allocation failures, detect_leaks=1, halt_on_error=1 |
-| Valgrind unit/integration | Passed | All11 test executables, zero errors and no live heap at exit |
-| Valgrind full memory benchmark / fault injection | Passed | Complete linked-static-GSL allocation probe and all injection cases, zero errors/leaks |
-| Allocation failure handling | Passed | Every observed allocation index in expression compile and six discovery workloads; selected paths only |
-| GCC static analysis | Passed | GCC 15.2.1 `-fanalyzer` on 25 library translation units, no final diagnostics |
-| Clang static analysis | Passed |25 library translation units plus benchmark, tracker and CLI, no final diagnostics |
-| Cppcheck production analysis | Passed | Locally built2.18.3, exhaustive warning/performance/portability scan of library/benchmarks/CLI/examples |
-| Supplemental Cppcheck test-harness scan | Partially passed | Three possible dereferences following failed CHECKs; two intentional integer-to-pointer sentinels. Documented in static_analysis_review.md, no suppressions |
-| Numerical accuracy | Passed | Verifier confirms recorded calculations/expected failure classes.222 observations include11 status failures and21 successful-call misses; accuracy is not claimed for those cases |
-| Runtime statistics | Passed |21 batches/case, calibrated >=2 ms target, min/median/mean/sample SD/p95 retained; different-work pairs excluded from direct ratios |
-| Memory measurements | Passed |222 independent probes; allocations/cumulative bytes/peak live/setup bytes; zero tracked bytes after cleanup. Direct search metrics and process RSS reported separately |
-| NUMERIX capabilities | Passed | Expression, piecewise, recommendation, execution, diagnostics, discovery and cross-phase functional suites; selected independent performance workloads |
-| CLI | Passed | Startup/help, expression input, managed root/diagnostics, discovery, fixed piecewise demo, invalid numeric and domain-error cases |
-| Examples | Passed | All five compile and execute through CTest; Valgrind checks library tests separately |
-| Public API review | Passed | Ownership, initialization, output/error behavior and ABI limits documented; no public signatures/fields added in Phase 9 |
-| Stable ABI guarantee | Not attempted | Deliberately not promised for 0.1.0; Phase 8 public struct growth requires rebuilding old clients |
-| Documentation | Passed | Current README, benchmark definitions, raw CSVs, generated tables, final report and ownership/release guide |
-| Install packaging | Passed | CMake install to temporary prefix; independent C11 and C++11 consumers compile/link/run |
-| Binary package generation | Passed | CPack TGZ generated outside repo; archive contains NUMERIX static library/header/API docs/license |
-| Source packaging | Passed | Git-tracked source review and reproducible archive recipe; no external dependency sources or build artifacts committed |
-| Final diff / test / working tree | Passed | Final verification and Git status recorded in completion response; raw measurement metadata deliberately captures pre-commit dirty state |
-| Commit / push | Not attempted at report snapshot | Performed after final verification; exact final hash/push/tree status is in the completion response. Existing remote only, no force push |
-| Release tag / public binary publication | Not attempted | Neither requested nor implied; no externally uploaded release assets |
+| Root accuracy/convergence | Passed |66 method/problem regression pairs; flat/scaled roots fixed; all successful valid benchmark root rows meet their position check |
+| Adaptive Simpson | Passed |sqrt endpoint error 4.18e-13 at 1e-10 request, depth 32; global budget, no depth increase; roundoff/nonfinite/limit cases tested |
+| Remaining mathematics | Partially passed |Open-method/quadrature estimates and discovery are heuristic; improper infinite endpoint samples unsupported; ill-conditioning/fixed-grid misses retained |
+| Make | Passed |Clean Debug/Release full builds/tests, PREFIX/DESTDIR basic installation, no mandatory GSL |
+| CMake/CTest | Passed |Clean Debug/Release GCC/Clang;33 standard tests,34 with optional allocation faults; declared minimum3.16.8 actually built/tested |
+| Linux compilers | Passed |GCC 8.5/11.5/15.2 and Clang 21.1; matching toolset binutils where required |
+| Windows MinGW | Unavailable execution |Native CI requested, runs queued with no job results; old6.3 results historical |
+| Windows MSVC | Unavailable execution |C11 atomics feature check/flag and CI prepared; no native result claimed |
+| macOS | Unavailable execution |Apple Clang CI requested, no job results available |
+| Unit/integration/regressions | Passed |All existing suites plus accuracy, cross-phase, layout, CLI and example tests |
+| Sanitizers | Passed |ASan+UBSan+detect_leaks on34 tests; no reported errors |
+| Memory analysis | Passed |Valgrind on full12 test executables and allocation/fault suites; zero errors/leaks in executed traces |
+| Allocation failures | Passed |Selected expression, discovery and adaptive Simpson allocation/growth indices; not exhaustive whole-library coverage |
+| Static analysis | Passed |GCC 15 analyzer, Clang analyzer and exhaustive Cppcheck; five earlier test-harness findings fixed without suppressions |
+| API audit | Passed |All126 public function declarations have archive definitions; ownership/options/errors documented; matching C/C++ headers/clients |
+| ABI policy | Passed policy; stability not established |0.x minor compatibility/rebuild policy documented; no stable/shared ABI promise |
+| CMake installation | Passed |Relocatable NUMERIX::numerix export, version file, header/archive/license/docs; GSL absent from library symbols/references |
+| Independent consumers | Passed |Separate copied CMake project, C/C++ Debug/Release after prefix relocation; roots/LU/expressions/errors/cleanup |
+| pkg-config | Passed |Relocated metadata compiles/runs a real static C consumer; math linkage included with --static |
+| Version policy | Passed |0.2.0-rc1, numeric CMake 0.2.0; prior minor request rejected; unsupported shared build explicitly rejected |
+| README/API/user guides | Passed |Updated implemented capabilities, build/install/quick start, compatibility and limitations; packaged local links checked |
+| Examples/CLI | Passed |All five examples, startup/help, expression/root/discovery/piecewise demos and invalid/domain input checks |
+| Source distribution | Passed |Curated source-only manifest; deterministic archive reproduced twice and from a Git-free extraction; no local paths/tokens/build objects/history logs |
+| Extraction/rebuild | Passed |Extracted source CMake and Make Debug/Release, full suites; binary archive extracted and C/C++ consumers run |
+| Binary distribution | Passed Linux only |Release static-library TGZ/checksum for validated Linux x86_64; no unvalidated-platform binaries |
+| License | Passed |MIT license preserved and installed; external GSL sources/binaries not shipped |
+| Git/source review | Passed |Separate milestone commits; full diff/source lists/ignore rules/artifacts reviewed; final exact hashes/tree/push in completion response |
+| Public release/tag/upload | Not attempted |Artifacts prepared locally under dist/; no stable tag or GitHub release assets published |
 
-## Remaining limitations before a stronger stable-release claim
+## Release artifacts and reproducibility
 
-1. Rebuild/test natively on Windows MinGW and MSVC. Linux success is not Windows
-   validation; no compatibility guarantee can be inferred from static review.
-2. Broaden hardware, scaling, ill-conditioning and noisy-function testing.
-   Flat/small-scaled roots need correctly scaled residual/position evidence;
-   adaptive Simpson has a demonstrated sqrt endpoint depth limit.
-3. Preserve direct versus different-work comparisons. GSL step doubling and
-   adaptive error control cannot be presented as the same work as fixed steps.
-4. Retain the root-discovery incompleteness, estimated multiplicity/conditioning
-   and memory-measurement scope caveats. Extend allocation-failure coverage to
-   other library paths in future work.
-5. Rebuild clients against the matching public header/archive. There is no
-   stable shared-library ABI or exported installed CMake package config.
-6. Existing test CHECK macros can continue into a dereference after an earlier
-   failure, and some sentinel tests assume an integer-derived pointer. These
-   harness portability warnings remain visible; production scans are clean.
+`dist/numerix-0.2.0-rc1-source.tar.gz` and
+`dist/numerix-0.2.0-rc1-Linux-x86_64.tar.gz`, each with a SHA256 sidecar.
+[Artifact hashes/sizes](../../benchmarks/results/phase12/artifacts.json) and
+[validation evidence](../../benchmarks/results/phase12/) are retained separately
+from distributable source. `scripts/package_source.py` recreates the curated
+source package; CPack produces the build-platform binary package.
 
-## Reproduce the candidate
+## Before a stable release
 
-```sh
-cmake -S . -B cmake-build-release -DCMAKE_BUILD_TYPE=Release
-cmake --build cmake-build-release -j2
-ctest --test-dir cmake-build-release --output-on-failure
-cmake --install cmake-build-release --prefix /tmp/numerix-install
-cpack --config cmake-build-release/CPackConfig.cmake -B /tmp/numerix-packages
-# After committing, produce a source archive outside the working tree:
-git archive --format=tar.gz --prefix=numerix-0.1.0/ \
-  --output=/tmp/numerix-0.1.0-source.tar.gz HEAD
-```
-
-See [benchmarks/README.md](../../benchmarks/README.md) for optional GSL setup,
-allocation probes and complete validation commands. Packaging success is not
-an assertion of ABI stability or a replacement for unavailable platform checks.
+Obtain and review actual Windows/MSVC/macOS execution results, broaden numerical
+problem/hardware coverage, continue adversarial/scaling tests and review the
+new tolerance contract with consumers. Keep discovery/conditioning/error estimates
+qualified and define/test a binary-compatibility contract before promising one.
+A green finite suite does not establish universal accuracy or portability.

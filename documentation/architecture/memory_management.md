@@ -18,3 +18,9 @@ or unresolved intervals are recorded, up to the configured candidate limit.
 The report's storage metrics count direct result and search buffers; they do
 not include nested diagnostic records, solver/context allocations, allocator
 metadata, or process resident memory.
+
+Adaptive Simpson's private max-error heap grows with observed leaves, is bounded
+by split/evaluation/depth budgets, and is released on success, numerical failure,
+resource exhaustion and allocation failure. It replaces recursive tolerance
+allocation without adding a public owner type. Selected fault tests exercise
+initial heap allocation and growth; they do not prove all possible failures safe.

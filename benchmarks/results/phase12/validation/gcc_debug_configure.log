@@ -1,0 +1,4 @@
+Command: ['/tmp/numerix-phase9-tools/python/cmake/data/bin/cmake', '-S', '.', '-B', 'cmake-build-validation-gcc_debug', '-DCMAKE_C_COMPILER=gcc', '-DCMAKE_BUILD_TYPE=Debug', '-DCMAKE_C_FLAGS=-Werror']
+-- Configuring done (0.1s)
+-- Generating done (1.9s)
+-- Build files have been written to: /home/142401034/numerix/cmake-build-validation-gcc_debug

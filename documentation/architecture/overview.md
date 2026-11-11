@@ -1,24 +1,54 @@
 # Architecture overview
 
-NUMERIX is a C11 static library with a single public entry header, `include/numerix.h`. Callers depend on that header; implementation code may depend on private declarations under `src/internal/`. Internal structures are not part of the supported ABI.
+NUMERIX is a C11 static library with one public header, include/numerix.h.
+Applications consume that interface; private headers and algorithm state stay
+under src/. The numerical families and existing ownership boundaries are preserved.
 
-## Module responsibilities
+## Modules
 
-- **Core (`src/core`)**: statuses, errors, options, scalar callback handling, allocation helpers, initialization, and the execution-context foundation.
-- **Algorithms (`src/algorithms`)**: Phase 1 implementations grouped into root finding, linear algebra, differentiation, interpolation, integration, optimization, and ODE modules.
-- **Expression (`src/expression`)**: Phase 2 lexer, recursive-descent parser, AST, mathematical evaluator, expression ownership, and callback adapter.
-- **Piecewise (`src/piecewise`)**: planned representation of piecewise functions and discontinuities.
-- **Intelligence (`src/intelligence`)**: planned problem assessment and method recommendation.
-- **Execution (`src/execution`)**: planned computation control; currently only core context state and counters exist.
-- **Diagnostics (`src/diagnostics`)**: planned numerical issue analysis.
-- **CLI (`cli`)**: a small linked startup demonstration, not an algorithm interface.
+- Core: status/error/options, allocation, scalar callbacks, execution contexts
+  and Windows/POSIX monotonic timing.
+- Algorithms: roots, dense linear algebra, finite differences, interpolation,
+  quadrature, optimization and fixed-step vector ODEs.
+- Expression: lexer, bounded recursive-descent parser, immutable AST, evaluator
+  and callback/error adapter.
+- Piecewise: ordered owned expression segments, interval inclusion, one-sided
+  limit evidence, boundary classification and guarded numerical adapters.
+- Intelligence: tagged request inspection, deterministic recommendations,
+  explicit overrides, root fallback and sequential portfolios.
+- Execution: managed dispatch, cooperative cancellation/time/evaluation limits,
+  event/progress summaries and resumable explicit Bisection sessions.
+- Diagnostics: post-run residual/error/conditioning/sensitivity analysis,
+  convergence observers and structured, qualified numerical evidence.
+- Root discovery: bounded finite sampling, candidate/refinement orchestration,
+  dynamic result storage, unresolved regions and heuristic multiplicity evidence.
+- CLI/examples: linked demonstrations and input/error checks, without a separate
+  numerical implementation or general interactive application framework.
 
-## Data flow and boundaries
+## Boundaries and flow
 
-Applications create a public problem and options, then pass them into public operations. The callback retains its caller-owned `user_data`; the library does not take ownership. The context copies validated options and owns its own internal state. Future algorithms should consume public problem descriptions and an execution context while keeping algorithm-specific state private or in specialized result types.
+Callers supply borrowed callbacks/data or representations, options and typed
+requests. Raw algorithms return scalar or owned specialized outputs. Intelligence
+selects/dispatches those algorithms; managed execution wraps supported calls and
+owns their output resources. Diagnostics observe existing results and can make
+additional, counted evaluations. Discovery shares the solver/diagnostics machinery
+while retaining its own residual/merge criteria and resource accounting.
 
-Core must not depend on algorithm modules. Algorithm families may depend on core types. Expression and piecewise implementations can later adapt their representations to the same problem-specific APIs without forcing matrices, datasets, and differential equations into the scalar callback structure.
+Matrices, datasets and ODE states retain their own representations; they are not
+forced into a scalar callback. Destroy functions release owned resources; borrowed
+inputs remain valid for the documented call/session lifetime. Only cancellation
+requests are generally thread-safe during a managed run; other queries/destruction
+must not race. No general parallel execution architecture was introduced.
 
-## Current scope
+## Reliability and distribution
 
-Phase 1 implements the algorithms listed above. Phase 2 compiles scalar expressions in `x` and adapts them to the existing callback type. Piecewise, intelligence, automatic fallback, and advanced diagnostics remain future work. Reserved directories do not indicate implemented functionality.
+Phase 10 separated root position/residual units and made adaptive Simpson globally
+error-budgeted with bounded heap storage. These are reliability changes within
+existing numerical methods. Sampling and error estimates remain heuristic; they
+cannot certify arbitrary callbacks or discover every root.
+
+Make and CMake compile the same production modules. GSL is optional benchmark-only.
+CMake exports the relocatable NUMERIX::numerix target; only the public header,
+static archive, package metadata and user/API/architecture documentation are
+installed. Raw development results/history stay in the repository. Static build
+success and source compatibility do not establish a stable shared-library ABI.

@@ -15,7 +15,7 @@ def main():
     parser.add_argument("--ctest", default="ctest")
     parser.add_argument("--gcc", default="gcc")
     parser.add_argument("--clang", default="clang")
-    parser.add_argument("--output", type=Path, default=Path("benchmarks/results/phase9/validation"))
+    parser.add_argument("--output", type=Path, default=Path("validation-results"))
     parser.add_argument("--analyzer-gcc", default="gcc")
     parser.add_argument("--cppcheck", default="cppcheck")
     args = parser.parse_args()
@@ -60,7 +60,7 @@ def main():
                     "-DCMAKE_C_COMPILER=" + compiler, "-DCMAKE_BUILD_TYPE=" + mode,
                     "-DCMAKE_C_FLAGS=-Werror"]):
                 if run(tag + "_build", [args.cmake, "--build", build, "--clean-first", "-j2"]):
-                    run(tag + "_ctest", [args.ctest, "--test-dir", build, "--output-on-failure"])
+                    run(tag + "_ctest", [args.cmake, "-E", "chdir", build, args.ctest, "--output-on-failure"])
     build = "cmake-build-validation-sanitizers"
     environment = dict(os.environ, ASAN_OPTIONS="detect_leaks=1:halt_on_error=1",
                        UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1")
@@ -70,7 +70,7 @@ def main():
             "-DNUMERIX_BENCHMARK_ALLOCATIONS=ON", "-DCMAKE_DISABLE_FIND_PACKAGE_GSL=TRUE",
             "-DCMAKE_C_FLAGS=-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer"]):
         if run("sanitizers_build", [args.cmake, "--build", build, "--clean-first", "-j2"]):
-            run("sanitizers_ctest", [args.ctest, "--test-dir", build, "--output-on-failure"], environment)
+            run("sanitizers_ctest", [args.cmake, "-E", "chdir", build, args.ctest, "--output-on-failure"], environment)
     tests = ["numerix_tests", "numerix_phase1_tests", "numerix_expression_tests",
              "numerix_audit_regression_tests", "numerix_piecewise_tests",
              "numerix_intelligence_tests", "numerix_execution_tests", "numerix_diagnostics_tests",

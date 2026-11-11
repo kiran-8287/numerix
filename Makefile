@@ -208,8 +208,11 @@ DOCDIR ?= $(PREFIX)/share/doc/numerix
 INSTALL ?= install
 .PHONY: install
 install: $(LIB)
-	$(INSTALL) -d "$(DESTDIR)$(LIBDIR)" "$(DESTDIR)$(INCLUDEDIR)" "$(DESTDIR)$(DOCDIR)/api"
+	$(INSTALL) -d "$(DESTDIR)$(LIBDIR)" "$(DESTDIR)$(INCLUDEDIR)" "$(DESTDIR)$(DOCDIR)/documentation/api"
 	$(INSTALL) -m 644 $(LIB) "$(DESTDIR)$(LIBDIR)/$(LIB)"
 	$(INSTALL) -m 644 include/numerix.h "$(DESTDIR)$(INCLUDEDIR)/numerix.h"
-	$(INSTALL) -m 644 LICENSE README.md "$(DESTDIR)$(DOCDIR)"
-	$(INSTALL) -m 644 documentation/api/*.md "$(DESTDIR)$(DOCDIR)/api"
+	$(INSTALL) -m 644 LICENSE README.md CHANGELOG.md "$(DESTDIR)$(DOCDIR)"
+	$(INSTALL) -m 644 documentation/api/*.md "$(DESTDIR)$(DOCDIR)/documentation/api"
+	$(INSTALL) -d "$(DESTDIR)$(DOCDIR)/documentation/architecture" "$(DESTDIR)$(DOCDIR)/documentation/user_guide"
+	$(INSTALL) -m 644 documentation/architecture/*.md "$(DESTDIR)$(DOCDIR)/documentation/architecture"
+	$(INSTALL) -m 644 documentation/user_guide/*.md "$(DESTDIR)$(DOCDIR)/documentation/user_guide"

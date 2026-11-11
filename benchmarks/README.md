@@ -2,8 +2,8 @@
 
 GSL is an **optional benchmark dependency**. The library, CLI, examples and tests
 build without it. No external library sources or binaries are vendored.
-See [the measured report](../documentation/development/final_benchmark_report.md)
-and [raw results](results/phase9/).
+See [the measured report](https://github.com/kiran-8287/numerix/blob/master/documentation/development/final_benchmark_report.md)
+and [raw results](https://github.com/kiran-8287/numerix/tree/master/benchmarks/results/phase9).
 
 ## Build and run
 
@@ -206,5 +206,5 @@ Historical phase9/ results retain the earlier stopping rules. Current root
 comparisons use position/contraction evidence, with no small-residual shortcut
 in either driver. Current adaptive Simpson uses a global conservative error
 sum and `max(abs,rel*abs(I))`. See [tolerance semantics](../documentation/api/tolerances.md)
-and [the accuracy report](../documentation/development/phase10_accuracy_report.md).
+and [the accuracy report](https://github.com/kiran-8287/numerix/blob/master/documentation/development/phase10_accuracy_report.md).
 Results under phase10/ are a new measured baseline, not a speed-optimization claim.
