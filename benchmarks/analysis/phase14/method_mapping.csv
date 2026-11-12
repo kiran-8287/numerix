@@ -1,0 +1,15 @@
+module,comparison_mode,numerix_method,library,library_method,eligible_problem_rule,notes
+root,algorithm_equivalent,Brent bracketing,GSL,gsl_root_fsolver_brent,root families with sign-changing brackets,Same Brent family; both use the saved interval and matching location tolerances.
+root,algorithm_equivalent,Newton with analytic derivative,GSL,gsl_root_fdfsolver_newton,multiple-root families selected by the frozen model rule,Both use Newton and the same analytic derivative callback.
+root,best_available,Brent or Newton by frozen model rule,CMINPACK,hybrd1 one-variable nonlinear system,all scalar root workloads,Local Powell hybrid has no bracket guarantee and is not equivalent to Brent.
+linear_algebra,best_available,Gaussian elimination solve,GSL,gsl_linalg_LU_decomp + gsl_linalg_LU_solve,all dense solve workloads,Combined solve path only; separate LU factorization and solve-only timing are not collected.
+linear_algebra,best_available,Gaussian elimination solve,LAPACK_REFERENCE,LAPACKE_dgesv with reference BLAS,all dense solve workloads,Combined row-major LAPACKE call; internal layout conversion is included.
+linear_algebra,best_available,Gaussian elimination solve,LAPACK_OPENBLAS,LAPACKE_dgesv backed by OpenBLAS LAPACK/BLAS,all dense solve workloads,Combined row-major LAPACKE call; internal layout conversion is included and OpenBLAS is single-threaded.
+differentiation,best_available,Two-point central difference,GSL,gsl_deriv_central,all first-derivative workloads,GSL uses its five-point central rule and step adjustment; the numerical formulas differ.
+interpolation,best_available,Newton global polynomial,GSL,gsl_interp_polynomial,all interpolation workloads,Same polynomial interpolation problem; representations and evaluation procedures differ.
+integration,best_available,Adaptive Simpson,GSL,gsl_integration_qag with 61-point Gauss-Kronrod rule,all finite-interval workloads,"Distinct quadrature algorithms; same integrand, limits, reference, and requested tolerances."
+optimization,best_available,Golden-section over full bounds,GSL,65-point grid bracket scan plus golden-section iterations,all bounded one-dimensional workloads,The timed methods include different bracket initialization and boundary behavior.
+optimization,best_available,Golden-section over full bounds,NLOPT,NLOPT_GN_DIRECT_L,all bounded one-dimensional workloads,Derivative-free global-search method; bounded one-dimensional scope only.
+ode,algorithm_equivalent,Fixed-step classical RK4,GSL,gsl_odeiv2_step_rk4,all fixed-mesh ODE workloads,"Same classical RK4 tableau, initial state, mesh, and endpoint."
+ode,algorithm_equivalent,Fixed-step classical RK4,SUNDIALS_ARKODE,ERKStep with Kutta-RK4a table and fixed step,all fixed-mesh ODE workloads,The pinned ARKODE table was source-checked against the classical RK4 tableau.
+ode,best_available,Fixed-step RK4,SUNDIALS_CVODE,CVODE Adams with fixed-point nonlinear solver and adaptive step control,adaptive ODE comparison; failures retained by family,Adaptive method and accuracy behavior differ from fixed-step RK4; do not pool with Mode A.

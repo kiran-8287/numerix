@@ -1,0 +1,131 @@
+-- The C compiler identification is GNU 8.5.0
+-- The CXX compiler identification is GNU 8.5.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- NLopt version 2.11.0
+-- Looking for getopt.h
+-- Looking for getopt.h - found
+-- Looking for unistd.h
+-- Looking for unistd.h - found
+-- Looking for stdint.h
+-- Looking for stdint.h - found
+-- Looking for time.h
+-- Looking for time.h - found
+-- Looking for sys/time.h
+-- Looking for sys/time.h - found
+-- Looking for getpid
+-- Looking for getpid - found
+-- Looking for syscall
+-- Looking for syscall - found
+-- Looking for isinf
+-- Looking for isinf - found
+-- Looking for isnan
+-- Looking for isnan - found
+-- Looking for gettimeofday
+-- Looking for gettimeofday - found
+-- Looking for qsort_r
+-- Looking for qsort_r - found
+-- Looking for time
+-- Looking for time - found
+-- Looking for copysign
+-- Looking for copysign - found
+-- Looking for getopt
+-- Looking for getopt - found
+-- Looking for sys/types.h
+-- Looking for sys/types.h - found
+-- Looking for stddef.h
+-- Looking for stddef.h - found
+-- Check size of uint32_t
+-- Check size of uint32_t - done
+-- Check size of unsigned int
+-- Check size of unsigned int - done
+-- Check size of unsigned long
+-- Check size of unsigned long - done
+-- Looking for fpclassify
+-- Looking for fpclassify - TRUE
+-- Performing Test HAVE_THREAD_LOCAL_STORAGE
+-- Performing Test HAVE_THREAD_LOCAL_STORAGE - Success
+-- Performing Test HAVE_THREAD_LOCAL_STORAGE
+-- Performing Test HAVE_THREAD_LOCAL_STORAGE - Failed
+-- Found Python: /home/142401034/.local/bin/python (found suitable version "3.9.25", minimum required is "3.6") found components: Interpreter Development.Module NumPy
+-- Could NOT find Guile (missing: GUILE_ROOT_DIR GUILE_LIBRARIES) 
+-- Found JNI: /usr/lib/jvm/java/include  found components: JVM
+-- Could NOT find Java (missing: Java_JAVAH_EXECUTABLE) (found suitable version "1.8.0.504", minimum required is "1.5")
+-- Could NOT find SWIG (missing: SWIG_EXECUTABLE SWIG_DIR) (Required is at least version "3")
+-- Could NOT find Octave (missing: OCTAVE_EXECUTABLE OCTAVE_ROOT_DIR OCTAVE_INCLUDE_DIRS OCTAVE_LIBRARIES) 
+-- Configuring done (19.8s)
+-- Generating done (0.5s)
+-- Build files have been written to: /home/142401034/.local/numerix-deps/build/phase14/nlopt
+[  2%] Generating nlopt.hpp
+[  2%] Built target generate-cpp
+[  4%] Building C object CMakeFiles/nlopt.dir/src/algs/direct/DIRect.c.o
+[  6%] Building C object CMakeFiles/nlopt.dir/src/algs/direct/direct_wrap.c.o
+[  8%] Building C object CMakeFiles/nlopt.dir/src/algs/direct/DIRserial.c.o
+[ 10%] Building C object CMakeFiles/nlopt.dir/src/algs/direct/DIRsubrout.c.o
+[ 12%] Building C object CMakeFiles/nlopt.dir/src/algs/cdirect/cdirect.c.o
+[ 14%] Building C object CMakeFiles/nlopt.dir/src/algs/cdirect/hybrid.c.o
+[ 16%] Building C object CMakeFiles/nlopt.dir/src/algs/praxis/praxis.c.o
+[ 18%] Building C object CMakeFiles/nlopt.dir/src/algs/crs/crs.c.o
+[ 20%] Building C object CMakeFiles/nlopt.dir/src/algs/mlsl/mlsl.c.o
+[ 22%] Building C object CMakeFiles/nlopt.dir/src/algs/mma/mma.c.o
+[ 24%] Building C object CMakeFiles/nlopt.dir/src/algs/mma/ccsa_quadratic.c.o
+[ 26%] Building C object CMakeFiles/nlopt.dir/src/algs/cobyla/cobyla.c.o
+[ 28%] Building C object CMakeFiles/nlopt.dir/src/algs/newuoa/newuoa.c.o
+[ 30%] Building C object CMakeFiles/nlopt.dir/src/algs/neldermead/nldrmd.c.o
+[ 32%] Building C object CMakeFiles/nlopt.dir/src/algs/neldermead/sbplx.c.o
+[ 34%] Building C object CMakeFiles/nlopt.dir/src/algs/auglag/auglag.c.o
+[ 36%] Building C object CMakeFiles/nlopt.dir/src/algs/bobyqa/bobyqa.c.o
+[ 38%] Building C object CMakeFiles/nlopt.dir/src/algs/isres/isres.c.o
+[ 40%] Building C object CMakeFiles/nlopt.dir/src/algs/slsqp/slsqp.c.o
+[ 42%] Building C object CMakeFiles/nlopt.dir/src/algs/esch/esch.c.o
+[ 44%] Building C object CMakeFiles/nlopt.dir/src/api/general.c.o
+[ 46%] Building C object CMakeFiles/nlopt.dir/src/api/options.c.o
+[ 48%] Building C object CMakeFiles/nlopt.dir/src/api/optimize.c.o
+[ 51%] Building C object CMakeFiles/nlopt.dir/src/api/deprecated.c.o
+[ 53%] Building C object CMakeFiles/nlopt.dir/src/api/f77api.c.o
+[ 55%] Building C object CMakeFiles/nlopt.dir/src/util/mt19937ar.c.o
+[ 57%] Building C object CMakeFiles/nlopt.dir/src/util/sobolseq.c.o
+[ 59%] Building C object CMakeFiles/nlopt.dir/src/util/timer.c.o
+[ 61%] Building C object CMakeFiles/nlopt.dir/src/util/stop.c.o
+[ 63%] Building C object CMakeFiles/nlopt.dir/src/util/redblack.c.o
+[ 65%] Building C object CMakeFiles/nlopt.dir/src/util/qsort_r.c.o
+[ 67%] Building C object CMakeFiles/nlopt.dir/src/util/rescale.c.o
+[ 69%] Building C object CMakeFiles/nlopt.dir/src/algs/luksan/plis.c.o
+[ 71%] Building C object CMakeFiles/nlopt.dir/src/algs/luksan/plip.c.o
+[ 73%] Building C object CMakeFiles/nlopt.dir/src/algs/luksan/pnet.c.o
+[ 75%] Building C object CMakeFiles/nlopt.dir/src/algs/luksan/mssubs.c.o
+[ 77%] Building C object CMakeFiles/nlopt.dir/src/algs/luksan/pssubs.c.o
+[ 79%] Building CXX object CMakeFiles/nlopt.dir/src/algs/stogo/global.cc.o
+[ 81%] Building CXX object CMakeFiles/nlopt.dir/src/algs/stogo/linalg.cc.o
+[ 83%] Building CXX object CMakeFiles/nlopt.dir/src/algs/stogo/local.cc.o
+[ 85%] Building CXX object CMakeFiles/nlopt.dir/src/algs/stogo/stogo.cc.o
+[ 87%] Building CXX object CMakeFiles/nlopt.dir/src/algs/stogo/tools.cc.o
+[ 89%] Building CXX object CMakeFiles/nlopt.dir/src/algs/ags/evolvent.cc.o
+[ 91%] Building CXX object CMakeFiles/nlopt.dir/src/algs/ags/solver.cc.o
+[ 93%] Building CXX object CMakeFiles/nlopt.dir/src/algs/ags/local_optimizer.cc.o
+[ 95%] Building CXX object CMakeFiles/nlopt.dir/src/algs/ags/ags.cc.o
+[ 97%] Linking CXX shared library libnlopt.so
+[100%] Built target nlopt
+-- Install configuration: "Release"
+-- Installing: /home/142401034/.local/numerix-deps/prefix/phase14/nlopt/lib64/pkgconfig/nlopt.pc
+-- Installing: /home/142401034/.local/numerix-deps/prefix/phase14/nlopt/include/nlopt.h
+-- Installing: /home/142401034/.local/numerix-deps/prefix/phase14/nlopt/include/nlopt.hpp
+-- Installing: /home/142401034/.local/numerix-deps/prefix/phase14/nlopt/lib64/libnlopt.so.1.1.0
+-- Installing: /home/142401034/.local/numerix-deps/prefix/phase14/nlopt/lib64/libnlopt.so.1
+-- Set non-toolchain portion of runtime path of "/home/142401034/.local/numerix-deps/prefix/phase14/nlopt/lib64/libnlopt.so.1.1.0" to "/home/142401034/.local/numerix-deps/prefix/phase14/nlopt/lib64"
+-- Installing: /home/142401034/.local/numerix-deps/prefix/phase14/nlopt/lib64/libnlopt.so
+-- Installing: /home/142401034/.local/numerix-deps/prefix/phase14/nlopt/share/man/man3/nlopt.3
+-- Installing: /home/142401034/.local/numerix-deps/prefix/phase14/nlopt/share/man/man3/nlopt_minimize.3
+-- Installing: /home/142401034/.local/numerix-deps/prefix/phase14/nlopt/share/man/man3/nlopt_minimize_constrained.3
+-- Installing: /home/142401034/.local/numerix-deps/prefix/phase14/nlopt/lib64/cmake/nlopt/NLoptLibraryDepends.cmake
+-- Installing: /home/142401034/.local/numerix-deps/prefix/phase14/nlopt/lib64/cmake/nlopt/NLoptLibraryDepends-release.cmake
+-- Installing: /home/142401034/.local/numerix-deps/prefix/phase14/nlopt/lib64/cmake/nlopt/NLoptConfig.cmake
+-- Installing: /home/142401034/.local/numerix-deps/prefix/phase14/nlopt/lib64/cmake/nlopt/NLoptConfigVersion.cmake

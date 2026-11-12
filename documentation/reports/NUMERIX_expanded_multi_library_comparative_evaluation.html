@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NUMERIX Phase 14 Comparative Evaluation</title>
+<style>
+body{font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif;max-width:1200px;margin:2rem auto;padding:0 1.25rem;color:#18212b}
+h1,h2,h3{line-height:1.2;color:#102a43}h1{border-bottom:2px solid #bcccdc;padding-bottom:.5rem}
+table{border-collapse:collapse;width:100%;font-size:.9rem;display:block;overflow-x:auto;margin:1rem 0 1.5rem}
+th,td{border:1px solid #bcccdc;padding:.45rem .6rem;text-align:left;vertical-align:top}th{background:#f0f4f8}
+img{max-width:100%;height:auto;border:1px solid #d9e2ec}pre{background:#f0f4f8;padding:1rem;overflow:auto}
+code{background:#f0f4f8;padding:.1rem .25rem;border-radius:3px}a{color:#1261a0}
+</style></head><body>
+<h1>NUMERIX Phase 14 — Expanded Multi-Library Comparative Evaluation</h1>
+<p><strong>Study date:</strong> 12 November 2026<br>
+<strong>Primary run:</strong> phase14-main-20261112<br>
+<strong>Project version:</strong> 0.2.0-rc1<br>
+<strong>Study status:</strong> <strong>Partial, with the problem-count floor and paired-run coverage met.</strong></p>
+<h2>1. Executive summary</h2>
+<p>The primary run exercised 700 distinct mathematical problems: 100 in each of NUMERIX's seven modules, drawn from 20 families per module. Every configured library/module combination ran the same 100 stable problem IDs. The run contains 2,000 library/problem accuracy records, 62,000 raw wall/CPU timing batches (31 per pair), 8,000 work-metric records, and 2,000 isolated-process RSS probes. There were no launch or output-write failures.</p>
+<p>The evidence does not meet every broad method-coverage requirement in the supplied Phase 14 brief. This run measures one selected method family per module and omits several required NUMERIX methods and operation-level phases. CPU and wall timing are retained, but paired inference is based on wall time. Process RSS includes the harness/library baseline and requested heap allocation could not be instrumented. The study is therefore partial and does not claim comprehensive evaluation of every method or a universal winner.</p>
+<p>NUMERIX passed accuracy on all 100 root and ODE cases; 82 differentiation, 76 linear-system, 38 interpolation, 95 integration, and 100 optimization cases. NLopt returned accurate minimizers for all 100 optimization cases but exhausted its 4,000-evaluation limit in all 100 and had zero successful convergence statuses. Those NLopt trials do not support a valid speed claim. The main numerical limitations exposed here are differentiation accuracy, global-polynomial interpolation, difficult linear systems, and inverse-square-root endpoint integration.</p>
+<h2>2. NUMERIX overview and repository state</h2>
+<p>The benchmark used the existing 0.2.0-rc1 public C API and did not modify production algorithms, public headers, mathematical behavior, or project version. NUMERIX currently exposes scalar root finding; vector/matrix operations, dense solves and LU; first/second finite differences; linear/Lagrange/Newton interpolation; finite trapezoid/Simpson/adaptive Simpson quadrature; bounded one-dimensional golden-section and vector gradient descent; and vector-valued fixed-step Euler, Heun and RK4 ODE methods. This run measured only the selected paths below.</p>
+<p>The repository was on branch master at commit 2292ee804b02bd82be56803a6eae9d36327ef117 at run time. Phase 13 files are preserved and have a SHA-256 inventory. The full pasted request is copied to <a href="../../PHASE14_REQUIREMENTS.md">PHASE14_REQUIREMENTS.md</a>. The brief forbids a Phase 14 commit, push, tag, or version change.</p>
+<h2>3. Competitor libraries</h2>
+<table>
+<thead>
+<tr>
+<th>Library/configuration</th>
+<th>Modules</th>
+<th>Measured role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GSL 2.8</td>
+<td>all seven</td>
+<td>Broad native-C comparator; actual methods are listed below.</td>
+</tr>
+<tr>
+<td>CMINPACK 1.3.15</td>
+<td>root</td>
+<td>One-variable MINPACK hybrid solver; best-available local method, no bracket guarantee.</td>
+</tr>
+<tr>
+<td>Reference LAPACK/LAPACKE 3.12.1 + reference BLAS</td>
+<td>linear algebra</td>
+<td>Row-major LAPACKE dgesv combined dense solve.</td>
+</tr>
+<tr>
+<td>LAPACK/LAPACKE 3.12.1 + OpenBLAS 0.3.34</td>
+<td>linear algebra</td>
+<td>OpenBLAS-backed LAPACKE dgesv; one runtime thread.</td>
+</tr>
+<tr>
+<td>NLopt 2.11.0</td>
+<td>optimization</td>
+<td>Bounded one-dimensional DIRECT-L best available.</td>
+</tr>
+<tr>
+<td>SUNDIALS 7.9.0 ARKODE</td>
+<td>ODE</td>
+<td>Fixed-step Kutta-RK4a tableau verified against classical RK4.</td>
+</tr>
+<tr>
+<td>SUNDIALS 7.9.0 CVODE</td>
+<td>ODE</td>
+<td>Adaptive Adams with serial fixed-point solver; best available.</td>
+</tr>
+</tbody>
+</table>
+<p>All competitor builds are optional benchmark dependencies. Versions, licenses, official URLs, build flags, linked BLAS, API type, exclusions and limitations are in the <a href="../development/phase_14_library_capability_matrix.md">library capability matrix</a> and <a href="../../benchmarks/analysis/phase14/libraries.csv">libraries.csv</a>. ALGLIB and Boost.Math were excluded from the native-C run due to language/API fit; Cuba targets multidimensional integration; Cephes is not a comparable seven-module package.</p>
+<h2>4. Experimental methodology</h2>
+<p>The workload seed is 20261112. Each module has 20 named families and five distinct parameterized inputs per family. Stable IDs, SHA-256-linked input data, references, tolerances, difficulty, expected behavior, eligible libraries and method metadata are saved. References use closed forms, known constructed solutions, 70-digit mpmath, or independent SciPy DOP853 with a halved-step check for nonlinear ODEs. A harmonic-oscillator reference formula was corrected during pilot validation before the primary run; IDs and input hashes were retained.</p>
+<p>The primary build used gcc (GCC) 8.5.0 20210514 (Red Hat 8.5.0-30.0.1), -O3 -DNDEBUG, no -ffast-math, double precision, and single-threaded libraries. The machine was a01-109-119l (Linux-5.15.0-326.222.4.el8uek.x86_64-x86_64-with-glibc2.28; x86_64, 4 logical CPUs). Each pair had 31 timing batches after warm-up/calibration; library execution order was deterministically shuffled with seed 20261112. Raw rows contain CLOCK_MONOTONIC wall time and CLOCK_PROCESS_CPUTIME_ID CPU time; per-call summaries are in measurements.csv. Paired inference uses wall time.</p>
+<p>Mode A means algorithm-equivalent; Mode B means best-available but algorithmically different. Categories are not pooled. The speed ratio is competitor median wall time / NUMERIX median wall time, so above 1 favors NUMERIX. Only pairs where both libraries returned successful status and both passed the frozen accuracy gate contribute to speed estimates. Confidence intervals are 95% paired-problem bootstrap intervals (10,000 resamples); two-sided Wilcoxon tests on log ratios are exploratory and not adjusted for multiple comparisons.</p>
+<h2>5. Benchmark coverage</h2>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Problems</th>
+<th>Families</th>
+<th>Library/problem pairs</th>
+<th>Accuracy records</th>
+<th>Timing batches</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Root finding</td>
+<td>100</td>
+<td>20</td>
+<td>300</td>
+<td>300</td>
+<td>9300</td>
+</tr>
+<tr>
+<td>Linear algebra</td>
+<td>100</td>
+<td>20</td>
+<td>400</td>
+<td>400</td>
+<td>12400</td>
+</tr>
+<tr>
+<td>Numerical differentiation</td>
+<td>100</td>
+<td>20</td>
+<td>200</td>
+<td>200</td>
+<td>6200</td>
+</tr>
+<tr>
+<td>Interpolation</td>
+<td>100</td>
+<td>20</td>
+<td>200</td>
+<td>200</td>
+<td>6200</td>
+</tr>
+<tr>
+<td>Numerical integration</td>
+<td>100</td>
+<td>20</td>
+<td>200</td>
+<td>200</td>
+<td>6200</td>
+</tr>
+<tr>
+<td>Optimization</td>
+<td>100</td>
+<td>20</td>
+<td>300</td>
+<td>300</td>
+<td>9300</td>
+</tr>
+<tr>
+<td>ODE solving</td>
+<td>100</td>
+<td>20</td>
+<td>400</td>
+<td>400</td>
+<td>12400</td>
+</tr>
+</tbody>
+</table>
+<p>Every configured competitor has 100 common IDs in its applicable module. Status, convergence and accuracy are separate measurements.</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Library</th>
+<th>Observed</th>
+<th>Status</th>
+<th>Converged</th>
+<th>Accurate</th>
+<th>Timing batches</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Numerical differentiation</td>
+<td>GSL 2.8</td>
+<td>100</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>3100</td>
+</tr>
+<tr>
+<td>Numerical differentiation</td>
+<td>NUMERIX</td>
+<td>100</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>82/100 (82%)</td>
+<td>3100</td>
+</tr>
+<tr>
+<td>Numerical integration</td>
+<td>GSL 2.8</td>
+<td>100</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>3100</td>
+</tr>
+<tr>
+<td>Numerical integration</td>
+<td>NUMERIX</td>
+<td>100</td>
+<td>95/100 (95%)</td>
+<td>95/100 (95%)</td>
+<td>95/100 (95%)</td>
+<td>3100</td>
+</tr>
+<tr>
+<td>Interpolation</td>
+<td>GSL 2.8</td>
+<td>100</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>38/100 (38%)</td>
+<td>3100</td>
+</tr>
+<tr>
+<td>Interpolation</td>
+<td>NUMERIX</td>
+<td>100</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>38/100 (38%)</td>
+<td>3100</td>
+</tr>
+<tr>
+<td>Linear algebra</td>
+<td>GSL 2.8</td>
+<td>100</td>
+<td>95/100 (95%)</td>
+<td>95/100 (95%)</td>
+<td>76/100 (76%)</td>
+<td>3100</td>
+</tr>
+<tr>
+<td>Linear algebra</td>
+<td>LAPACK/LAPACKE + OpenBLAS</td>
+<td>100</td>
+<td>95/100 (95%)</td>
+<td>95/100 (95%)</td>
+<td>76/100 (76%)</td>
+<td>3100</td>
+</tr>
+<tr>
+<td>Linear algebra</td>
+<td>Reference LAPACK/LAPACKE</td>
+<td>100</td>
+<td>95/100 (95%)</td>
+<td>95/100 (95%)</td>
+<td>76/100 (76%)</td>
+<td>3100</td>
+</tr>
+<tr>
+<td>Linear algebra</td>
+<td>NUMERIX</td>
+<td>100</td>
+<td>87/100 (87%)</td>
+<td>87/100 (87%)</td>
+<td>76/100 (76%)</td>
+<td>3100</td>
+</tr>
+<tr>
+<td>ODE solving</td>
+<td>GSL 2.8</td>
+<td>100</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>3100</td>
+</tr>
+<tr>
+<td>ODE solving</td>
+<td>NUMERIX</td>
+<td>100</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>3100</td>
+</tr>
+<tr>
+<td>ODE solving</td>
+<td>SUNDIALS ARKODE 7.9.0</td>
+<td>100</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>3100</td>
+</tr>
+<tr>
+<td>ODE solving</td>
+<td>SUNDIALS CVODE 7.9.0</td>
+<td>100</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>3100</td>
+</tr>
+<tr>
+<td>Optimization</td>
+<td>GSL 2.8</td>
+<td>100</td>
+<td>95/100 (95%)</td>
+<td>95/100 (95%)</td>
+<td>100/100 (100%)</td>
+<td>3100</td>
+</tr>
+<tr>
+<td>Optimization</td>
+<td>NLopt 2.11.0</td>
+<td>100</td>
+<td>0/100 (0%)</td>
+<td>0/100 (0%)</td>
+<td>100/100 (100%)</td>
+<td>3100</td>
+</tr>
+<tr>
+<td>Optimization</td>
+<td>NUMERIX</td>
+<td>100</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>3100</td>
+</tr>
+<tr>
+<td>Root finding</td>
+<td>CMINPACK 1.3.15</td>
+<td>100</td>
+<td>96/100 (96%)</td>
+<td>96/100 (96%)</td>
+<td>100/100 (100%)</td>
+<td>3100</td>
+</tr>
+<tr>
+<td>Root finding</td>
+<td>GSL 2.8</td>
+<td>100</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>3100</td>
+</tr>
+<tr>
+<td>Root finding</td>
+<td>NUMERIX</td>
+<td>100</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>100/100 (100%)</td>
+<td>3100</td>
+</tr>
+</tbody>
+</table>
+<h2>6. Results by module</h2>
+<h3>Root finding</h3>
+<p><strong>Methods measured:</strong> NUMERIX Brent, or Newton with analytic derivative for designated multiple-root families; GSL Brent/Newton; CMINPACK hybrd1 as a one-variable nonlinear system.</p>
+<p><strong>NUMERIX:</strong> status 100/100; converged 100/100; accurate 100/100. Each configured competitor completed all 100 input IDs.</p>
+<table>
+<thead>
+<tr>
+<th>Competitor</th>
+<th>Mode</th>
+<th>Common IDs</th>
+<th>Accuracy-qualified</th>
+<th>Status + accuracy</th>
+<th>Median speedup (95% CI)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CMINPACK 1.3.15</td>
+<td>B: best available</td>
+<td>100</td>
+<td>100</td>
+<td>96</td>
+<td>1.76 (1.59, 1.94)</td>
+</tr>
+<tr>
+<td>GSL 2.8</td>
+<td>A: equivalent</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>0.958 (0.796, 1.05)</td>
+</tr>
+<tr>
+<td>GSL's pooled median interval spans parity. CMINPACK is a local nonlinear-system comparison, not a bracketed-root equivalent.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3>Linear algebra</h3>
+<p><strong>Methods measured:</strong> Dense Gaussian-elimination solve through NUMERIX, GSL LU decomposition/solve, and LAPACKE dgesv with reference BLAS or OpenBLAS.</p>
+<p><strong>NUMERIX:</strong> status 87/100; converged 87/100; accurate 76/100. Each configured competitor completed all 100 input IDs.</p>
+<table>
+<thead>
+<tr>
+<th>Competitor</th>
+<th>Mode</th>
+<th>Common IDs</th>
+<th>Accuracy-qualified</th>
+<th>Status + accuracy</th>
+<th>Median speedup (95% CI)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GSL 2.8</td>
+<td>B: best available</td>
+<td>100</td>
+<td>76</td>
+<td>76</td>
+<td>0.95 (0.716, 1.06)</td>
+</tr>
+<tr>
+<td>LAPACK/LAPACKE + OpenBLAS</td>
+<td>B: best available</td>
+<td>100</td>
+<td>76</td>
+<td>76</td>
+<td>0.868 (0.478, 0.98)</td>
+</tr>
+<tr>
+<td>Reference LAPACK/LAPACKE</td>
+<td>B: best available</td>
+<td>100</td>
+<td>76</td>
+<td>76</td>
+<td>0.833 (0.753, 0.944)</td>
+</tr>
+<tr>
+<td>All paths are combined dense solves. This run does not isolate factorization, solve-only, BLAS primitives, or a full backward-error comparison. Row-major LAPACKE conversion is included end to end.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3>Numerical differentiation</h3>
+<p><strong>Methods measured:</strong> NUMERIX two-point central difference and GSL gsl_deriv_central. First derivatives only in this measured path.</p>
+<p><strong>NUMERIX:</strong> status 100/100; converged 100/100; accurate 82/100. Each configured competitor completed all 100 input IDs.</p>
+<table>
+<thead>
+<tr>
+<th>Competitor</th>
+<th>Mode</th>
+<th>Common IDs</th>
+<th>Accuracy-qualified</th>
+<th>Status + accuracy</th>
+<th>Median speedup (95% CI)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GSL 2.8</td>
+<td>B: best available</td>
+<td>100</td>
+<td>82</td>
+<td>82</td>
+<td>1.51 (1.33, 1.64)</td>
+</tr>
+<tr>
+<td>NUMERIX accuracy is 82/100 under the preregistered gate. Speed comparison uses only successful and accurate pairs and does not imply greater overall accuracy.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3>Interpolation</h3>
+<p><strong>Methods measured:</strong> NUMERIX global Newton polynomial evaluation and GSL gsl_interp_polynomial evaluation.</p>
+<p><strong>NUMERIX:</strong> status 100/100; converged 100/100; accurate 38/100. Each configured competitor completed all 100 input IDs.</p>
+<table>
+<thead>
+<tr>
+<th>Competitor</th>
+<th>Mode</th>
+<th>Common IDs</th>
+<th>Accuracy-qualified</th>
+<th>Status + accuracy</th>
+<th>Median speedup (95% CI)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GSL 2.8</td>
+<td>B: best available</td>
+<td>100</td>
+<td>38</td>
+<td>38</td>
+<td>1.07 (0.99, 1.12)</td>
+</tr>
+<tr>
+<td>Both global-polynomial implementations pass only 38/100 under the strict frozen gate. Conclusions apply only to that passing subset.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3>Numerical integration</h3>
+<p><strong>Methods measured:</strong> NUMERIX adaptive Simpson and GSL QAG with a 61-point Gauss-Kronrod rule.</p>
+<p><strong>NUMERIX:</strong> status 95/100; converged 95/100; accurate 95/100. Each configured competitor completed all 100 input IDs.</p>
+<table>
+<thead>
+<tr>
+<th>Competitor</th>
+<th>Mode</th>
+<th>Common IDs</th>
+<th>Accuracy-qualified</th>
+<th>Status + accuracy</th>
+<th>Median speedup (95% CI)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GSL 2.8</td>
+<td>B: best available</td>
+<td>100</td>
+<td>95</td>
+<td>95</td>
+<td>0.35 (0.308, 0.49)</td>
+</tr>
+<tr>
+<td>NUMERIX has 95 successful/accurate cases; inverse-square-root endpoint stress cases account for its main misses. GSL QAG and adaptive Simpson are different algorithms.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3>Optimization</h3>
+<p><strong>Methods measured:</strong> NUMERIX bounded 1D golden section; GSL grid bracket scan plus golden section; NLopt bounded 1D DIRECT-L.</p>
+<p><strong>NUMERIX:</strong> status 100/100; converged 100/100; accurate 100/100. Each configured competitor completed all 100 input IDs.</p>
+<table>
+<thead>
+<tr>
+<th>Competitor</th>
+<th>Mode</th>
+<th>Common IDs</th>
+<th>Accuracy-qualified</th>
+<th>Status + accuracy</th>
+<th>Median speedup (95% CI)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GSL 2.8</td>
+<td>B: best available</td>
+<td>100</td>
+<td>100</td>
+<td>95</td>
+<td>2.32 (2.25, 2.39)</td>
+</tr>
+<tr>
+<td>NLopt 2.11.0</td>
+<td>B: best available</td>
+<td>100</td>
+<td>100</td>
+<td>0</td>
+<td>not estimable: no qualifying pairs</td>
+</tr>
+<tr>
+<td>NLopt passes the location accuracy gate for 100 returned points but reports zero successful/converged statuses because all runs hit the 4,000-evaluation cap. It has no status+accuracy-qualified speed estimate. GSL has five status failures despite 100 accuracy passes.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3>ODE solving</h3>
+<p><strong>Methods measured:</strong> Fixed-step classical RK4 through NUMERIX, GSL odeiv2, and SUNDIALS ARKODE Kutta-RK4a; adaptive CVODE Adams is reported separately.</p>
+<p><strong>NUMERIX:</strong> status 100/100; converged 100/100; accurate 100/100. Each configured competitor completed all 100 input IDs.</p>
+<table>
+<thead>
+<tr>
+<th>Competitor</th>
+<th>Mode</th>
+<th>Common IDs</th>
+<th>Accuracy-qualified</th>
+<th>Status + accuracy</th>
+<th>Median speedup (95% CI)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GSL 2.8</td>
+<td>A: equivalent</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>1.95 (1.88, 2.02)</td>
+</tr>
+<tr>
+<td>SUNDIALS ARKODE 7.9.0</td>
+<td>A: equivalent</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>5.77 (5.47, 6.1)</td>
+</tr>
+<tr>
+<td>SUNDIALS CVODE 7.9.0</td>
+<td>B: best available</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>4.68 (4.14, 5.16)</td>
+</tr>
+<tr>
+<td>Fixed-mesh RK4 comparisons use the matched classical tableau. Adaptive CVODE is Mode B and remains separate. All implementations pass all 100 status, convergence and accuracy checks.</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2>7. Cross-module paired performance results</h2>
+<p>Only successful-status and accuracy-passing pairs enter these ratios. Above 1 favors NUMERIX. n counts distinct problem pairs; a missing estimate means no qualifying pairs, not zero speed.</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Competitor</th>
+<th>Mode</th>
+<th>n</th>
+<th>Median ratio</th>
+<th>95% problem CI</th>
+<th>Wilcoxon p</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Numerical differentiation</td>
+<td>GSL 2.8</td>
+<td>B</td>
+<td>82</td>
+<td>1.51</td>
+<td>[1.33, 1.64]</td>
+<td>1.76e-12</td>
+</tr>
+<tr>
+<td>Numerical integration</td>
+<td>GSL 2.8</td>
+<td>B</td>
+<td>95</td>
+<td>0.35</td>
+<td>[0.308, 0.49]</td>
+<td>1.27e-08</td>
+</tr>
+<tr>
+<td>Interpolation</td>
+<td>GSL 2.8</td>
+<td>B</td>
+<td>38</td>
+<td>1.07</td>
+<td>[0.99, 1.12]</td>
+<td>0.0792</td>
+</tr>
+<tr>
+<td>Linear algebra</td>
+<td>GSL 2.8</td>
+<td>B</td>
+<td>76</td>
+<td>0.95</td>
+<td>[0.716, 1.06]</td>
+<td>0.183</td>
+</tr>
+<tr>
+<td>Linear algebra</td>
+<td>LAPACK/LAPACKE + OpenBLAS</td>
+<td>B</td>
+<td>76</td>
+<td>0.868</td>
+<td>[0.478, 0.98]</td>
+<td>0.00306</td>
+</tr>
+<tr>
+<td>Linear algebra</td>
+<td>Reference LAPACK/LAPACKE</td>
+<td>B</td>
+<td>76</td>
+<td>0.833</td>
+<td>[0.753, 0.944]</td>
+<td>6.01e-05</td>
+</tr>
+<tr>
+<td>ODE solving</td>
+<td>GSL 2.8</td>
+<td>A</td>
+<td>100</td>
+<td>1.95</td>
+<td>[1.88, 2.02]</td>
+<td>3.9e-18</td>
+</tr>
+<tr>
+<td>ODE solving</td>
+<td>SUNDIALS ARKODE 7.9.0</td>
+<td>A</td>
+<td>100</td>
+<td>5.77</td>
+<td>[5.47, 6.1]</td>
+<td>3.9e-18</td>
+</tr>
+<tr>
+<td>ODE solving</td>
+<td>SUNDIALS CVODE 7.9.0</td>
+<td>B</td>
+<td>100</td>
+<td>4.68</td>
+<td>[4.14, 5.16]</td>
+<td>3.9e-18</td>
+</tr>
+<tr>
+<td>Optimization</td>
+<td>GSL 2.8</td>
+<td>B</td>
+<td>95</td>
+<td>2.32</td>
+<td>[2.25, 2.39]</td>
+<td>1.88e-16</td>
+</tr>
+<tr>
+<td>Optimization</td>
+<td>NLopt 2.11.0</td>
+<td>B</td>
+<td>0</td>
+<td>—</td>
+<td>not estimable</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Root finding</td>
+<td>CMINPACK 1.3.15</td>
+<td>B</td>
+<td>96</td>
+<td>1.76</td>
+<td>[1.59, 1.94]</td>
+<td>1.15e-12</td>
+</tr>
+<tr>
+<td>Root finding</td>
+<td>GSL 2.8</td>
+<td>A</td>
+<td>100</td>
+<td>0.958</td>
+<td>[0.796, 1.05]</td>
+<td>0.00647</td>
+</tr>
+</tbody>
+</table>
+<p>These results are algorithm- and workload-specific. GSL was faster on the accuracy/status-qualified adaptive-integration subset; NUMERIX was faster on the qualified differentiation subset. Neither result generalizes to a whole library.</p>
+<h2>8. Accuracy analysis</h2>
+<p>Accuracy is tested against independent references using absolute and relative tolerances recorded in the manifest. Solver success and reported error estimates are not substitutes for actual error.</p>
+<p>See the per-library table in Section 5, <a href="../../benchmarks/results/phase14/main/accuracy.csv">accuracy.csv</a>, and module figures below. Linear failures include singular/ill-conditioned systems; both global polynomial implementations have low pass rates at this strict tolerance; NUMERIX misses some differentiation and endpoint integration cases. ODE references were corrected before the main run and all 20 harmonic checks passed in validation.</p>
+<h2>9. Performance and computational effort</h2>
+<p>The run retained 62,000 raw batches with both clocks. 61,943 positive CPU batch measurements are included in per-call summaries in measurements.csv; 57 zero-resolution CPU timer deltas are retained in raw_timing.csv but excluded from those summaries. There are 94 grouped method/size summaries. Each of 2,000 library/problem pairs has 31 batches.</p>
+<p>Function evaluations, iterations and ODE right-hand-side evaluations are recorded where exposed by the API. Missing and inapplicable work metrics are explicitly marked; they are not written as zero. Work summaries provide medians, means, p95 and maxima. There is no complete linear algebra operation decomposition or interpolation construction/evaluation timing split.</p>
+<h2>10. Memory analysis</h2>
+<p>There are 2,000 isolated-process getrusage(RUSAGE_SELF).ru_maxrss observations in KiB. Typical measurements are about 9.7 MiB and nearly flat because the process and shared-library baseline dominates. RSS includes the harness and setup; it is not solver-only memory. Requested heap bytes, allocation counts and live heap are unavailable and blank, not zero. These data do not establish a memory winner.</p>
+<h2>11. Reliability and convergence</h2>
+<p>The main run has 0 launch/write failures, and all planned adapter/problem outputs are represented. Numerical status failures remain in counts and raw records. NLopt's 0/100 successful statuses and 0/100 convergence are distinct from its 100/100 accurate returned locations.</p>
+<h2>12. Scalability</h2>
+<p>Input dimensions vary for selected workloads such as dense matrix order, interpolation nodes and ODE step counts. The overview plots size curves where the input has a meaningful size variable. Fixed-size scalar workloads use independent workload index and are not presented as size-scaling curves. This method-level scope cannot establish broad asymptotic behavior.</p>
+<h2>13. Main observations</h2>
+<ul>
+<li>NUMERIX has strong status/accuracy outcomes in measured root, bounded optimization and ODE paths, while differentiation, interpolation, difficult linear systems and endpoint integration expose correctness work.</li>
+<li>GSL is the broad baseline. Specialist libraries add scoped comparisons; LAPACK/LAPACKE + OpenBLAS is accurately described as the LAPACKE path backed by OpenBLAS.</li>
+<li>NLopt's accurate output is not a converged result under the configured budget.</li>
+<li>RSS mostly measures process baseline. Heap instrumentation is still needed for useful library-memory attribution.</li>
+<li>Fixed-step RK4 and adaptive/best-available comparisons remain separate.</li>
+</ul>
+<h2>14. Limitations and unmet requirements</h2>
+<p>The primary run meets the 700 distinct-problem floor, 20 families/module, applicable competitors, and 100 paired inputs/current adapter. It does not comprehensively measure all public methods requested in the brief:</p>
+<ul>
+<li>Root: selected Brent/Newton paths only; no method-by-method bisection, regula falsi, secant, safeguarded-method, or multiple-root discovery recall study.</li>
+<li>Linear algebra: combined dense solve only; no vector/matrix primitives, NUMERIX LU factorization, factor-only/solve-only phases, or full backward-error comparison.</li>
+<li>Differentiation: first derivative central difference only; no second derivative, NUMERIX five-point/Richardson paths, or method-by-method coverage.</li>
+<li>Interpolation: global Newton polynomial only; no linear/Lagrange comparisons or construction/evaluation timing split.</li>
+<li>Integration: adaptive Simpson only; no fixed trapezoid/Simpson methods or separately preregistered common tolerance sweep.</li>
+<li>Optimization: one-dimensional golden section only; no NUMERIX gradient descent. NLopt's budget exhaustion leaves no successful speed estimate.</li>
+<li>ODE: fixed RK4 plus adaptive CVODE; no NUMERIX Euler/Heun comparison, and main accuracy gate uses endpoint rather than full trajectory norm.</li>
+<li>CPU time is retained and summarized but inferential comparisons use wall time. Memory is RSS-only; heap allocation instrumentation is unavailable.</li>
+<li>One Linux host, compiler and thread configuration do not establish cross-platform performance.</li>
+</ul>
+<p>These gaps are why the study remains partial. A follow-on should add method-level workload/run matrices, operation-specific linear algebra timing/error, more differentiation and interpolation alternatives, fixed quadrature and optimization/ODE coverage, trajectory-wide ODE error, and allocation instrumentation.</p>
+<h2>15. Recommendations</h2>
+<ol>
+<li>Improve NUMERIX central-difference accuracy under curvature and floating-point-scale stress.</li>
+<li>Investigate interpolation conditioning and node strategy while retaining the observed low pass rate as a correctness signal.</li>
+<li>Investigate singular endpoint handling in adaptive Simpson.</li>
+<li>Improve status/error reporting for singular and ill-conditioned systems.</li>
+<li>Use a separately preregistered realistic NLopt budget; do not reinterpret the current exhausted runs as converged.</li>
+<li>Extend the benchmark to every public method and add heap instrumentation before category-wide conclusions.</li>
+</ol>
+<h2>16. Reproducibility and artifacts</h2>
+<p>From repository root, validate the saved workload; preparation can regenerate the Phase 14 manifest and input sidecar:</p>
+<pre><code>python3 benchmarks/analysis/phase14/verify_workloads.py
+</code></pre>
+<p>Regenerate analysis, figures and reports without rerunning timed library measurements:</p>
+<pre><code>python3 benchmarks/analysis/phase14/analyze_results.py benchmarks/results/phase14/main
+python3 benchmarks/analysis/phase14/plot_results.py benchmarks/results/phase14/main
+python3 benchmarks/analysis/phase14/generate_report.py benchmarks/results/phase14/main
+</code></pre>
+<p>Analysis requires NumPy/SciPy, plotting requires NumPy/Matplotlib, and HTML conversion uses Python-Markdown. Adapter build details are in <a href="../../benchmarks/adapters/phase14/README.md">README</a>, <a href="../../benchmarks/analysis/phase14/run_benchmark.py">runner</a>, and the <a href="../development/phase_14_audit_and_execution_log.md">execution log</a>.</p>
+<p>Evidence: <a href="../../benchmarks/problems/phase14/workloads.csv">manifest</a>, <a href="../../benchmarks/problems/phase14/problem_inputs.jsonl">input sidecar</a>, <a href="../../benchmarks/results/phase14/main/raw_timing.csv">raw timing</a>, <a href="../../benchmarks/results/phase14/main/accuracy.csv">accuracy</a>, <a href="../../benchmarks/results/phase14/main/work_metrics.csv">work metrics</a>, <a href="../../benchmarks/results/phase14/main/memory.csv">RSS</a>, <a href="../../benchmarks/results/phase14/main/run_metadata.json">run metadata</a>, <a href="../../benchmarks/results/phase14/main/analysis_verification.json">verification</a>, <a href="../../benchmarks/results/phase14/main/coverage.csv">coverage</a>, and <a href="../../benchmarks/results/phase14/main/comparisons.csv">comparisons</a>.</p>
+<h2>Figures</h2>
+<h3>Differentiation error-estimate calibration</h3>
+<p><img alt="Differentiation error-estimate calibration" src="../../benchmarks/results/phase14/main/figures/differentiation_error_estimate_calibration.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/differentiation_error_estimate_calibration.svg">SVG</a></p>
+<h3>Differentiation error versus step</h3>
+<p><img alt="Differentiation error versus step" src="../../benchmarks/results/phase14/main/figures/differentiation_error_vs_step.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/differentiation_error_vs_step.svg">SVG</a></p>
+<h3>Differentiation error versus work</h3>
+<p><img alt="Differentiation error versus work" src="../../benchmarks/results/phase14/main/figures/differentiation_error_vs_work.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/differentiation_error_vs_work.svg">SVG</a></p>
+<h3>Integration error-estimate calibration</h3>
+<p><img alt="Integration error-estimate calibration" src="../../benchmarks/results/phase14/main/figures/integration_error_estimate_calibration.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/integration_error_estimate_calibration.svg">SVG</a></p>
+<h3>Integration error versus work</h3>
+<p><img alt="Integration error versus work" src="../../benchmarks/results/phase14/main/figures/integration_error_vs_work.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/integration_error_vs_work.svg">SVG</a></p>
+<h3>Integration evaluations versus tolerance</h3>
+<p><img alt="Integration evaluations versus tolerance" src="../../benchmarks/results/phase14/main/figures/integration_evaluations_vs_tolerance.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/integration_evaluations_vs_tolerance.svg">SVG</a></p>
+<h3>Interpolation error versus node count</h3>
+<p><img alt="Interpolation error versus node count" src="../../benchmarks/results/phase14/main/figures/interpolation_error_vs_node_count.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/interpolation_error_vs_node_count.svg">SVG</a></p>
+<h3>Linear conditioning and residual</h3>
+<p><img alt="Linear conditioning and residual" src="../../benchmarks/results/phase14/main/figures/linear_algebra_conditioning_and_residual.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/linear_algebra_conditioning_and_residual.svg">SVG</a></p>
+<h3>ODE accuracy by family</h3>
+<p><img alt="ODE accuracy by family" src="../../benchmarks/results/phase14/main/figures/ode_accuracy_by_family.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/ode_accuracy_by_family.svg">SVG</a></p>
+<h3>ODE error versus RHS evaluations</h3>
+<p><img alt="ODE error versus RHS evaluations" src="../../benchmarks/results/phase14/main/figures/ode_error_vs_work.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/ode_error_vs_work.svg">SVG</a></p>
+<h3>Optimization error versus work</h3>
+<p><img alt="Optimization error versus work" src="../../benchmarks/results/phase14/main/figures/optimization_error_vs_work.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/optimization_error_vs_work.svg">SVG</a></p>
+<h3>Optimization gap, work and runtime</h3>
+<p><img alt="Optimization gap, work and runtime" src="../../benchmarks/results/phase14/main/figures/optimization_gap_work_runtime.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/optimization_gap_work_runtime.svg">SVG</a></p>
+<h3>Coverage by module and library</h3>
+<p><img alt="Coverage by module and library" src="../../benchmarks/results/phase14/main/figures/overview_01_coverage.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/overview_01_coverage.svg">SVG</a></p>
+<h3>Status, convergence and accuracy</h3>
+<p><img alt="Status, convergence and accuracy" src="../../benchmarks/results/phase14/main/figures/overview_02_status_convergence_accuracy.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/overview_02_status_convergence_accuracy.svg">SVG</a></p>
+<h3>Status and convergence counts</h3>
+<p><img alt="Status and convergence counts" src="../../benchmarks/results/phase14/main/figures/overview_03_reliability.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/overview_03_reliability.svg">SVG</a></p>
+<h3>Status and accuracy-qualified speedups</h3>
+<p><img alt="Status and accuracy-qualified speedups" src="../../benchmarks/results/phase14/main/figures/overview_04_paired_speedup.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/overview_04_paired_speedup.svg">SVG</a></p>
+<h3>Runtime by module and available size axis</h3>
+<p><img alt="Runtime by module and available size axis" src="../../benchmarks/results/phase14/main/figures/overview_05_runtime_scalability.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/overview_05_runtime_scalability.svg">SVG</a></p>
+<h3>Isolated-process peak RSS</h3>
+<p><img alt="Isolated-process peak RSS" src="../../benchmarks/results/phase14/main/figures/overview_06_memory_scalability.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/overview_06_memory_scalability.svg">SVG</a></p>
+<h3>Module-specific error distributions</h3>
+<p><img alt="Module-specific error distributions" src="../../benchmarks/results/phase14/main/figures/overview_07_accuracy_distribution.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/overview_07_accuracy_distribution.svg">SVG</a></p>
+<h3>Wall time versus observed error</h3>
+<p><img alt="Wall time versus observed error" src="../../benchmarks/results/phase14/main/figures/overview_08_time_to_accuracy.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/overview_08_time_to_accuracy.svg">SVG</a></p>
+<h3>Root accuracy by difficulty</h3>
+<p><img alt="Root accuracy by difficulty" src="../../benchmarks/results/phase14/main/figures/root_accuracy_by_difficulty.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/root_accuracy_by_difficulty.svg">SVG</a></p>
+<h3>Root error versus function evaluations</h3>
+<p><img alt="Root error versus function evaluations" src="../../benchmarks/results/phase14/main/figures/root_error_vs_work.png" /></p>
+<p><a href="../../benchmarks/results/phase14/main/figures/root_error_vs_work.svg">SVG</a></p>
+</body></html>

@@ -1,0 +1,53 @@
+{
+  "batch_size_by_module": {
+    "differentiation": 1,
+    "integration": 1,
+    "interpolation": 1,
+    "linear_algebra": 1,
+    "ode": 1,
+    "optimization": 1,
+    "root": 1
+  },
+  "compiler": "gcc (GCC) 8.5.0 20210514 (Red Hat 8.5.0-30.0.1)",
+  "compiler_flags": "-O3 -DNDEBUG -Wall -Wextra -Wpedantic; dependency flags recorded in library manifest",
+  "git": {
+    "branch": "master",
+    "head": "2292ee804b02bd82be56803a6eae9d36327ef117",
+    "status_porcelain": "?? PHASE14_REQUIREMENTS.md\n?? benchmarks/adapters/\n?? benchmarks/analysis/phase14/\n?? benchmarks/problems/\n?? benchmarks/results/phase14/\n?? documentation/development/phase_14_audit_and_execution_log.md\n?? documentation/development/phase_14_library_capability_matrix.md"
+  },
+  "machine": "a01-109-119l",
+  "measurements": {
+    "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID, elapsed seconds per batch",
+    "requested_heap": "unavailable; not encoded as zero",
+    "rss": "getrusage(RUSAGE_SELF).ru_maxrss in isolated process; includes harness and shared-library baseline",
+    "wall_clock": "CLOCK_MONOTONIC, elapsed seconds per batch"
+  },
+  "memory_requested": false,
+  "pair_count_failed_to_launch_or_write": 0,
+  "pair_count_planned": 2000,
+  "problem_count": 700,
+  "processor": "x86_64",
+  "python": "3.9.25 (main, Dec 19 2025, 15:38:47) \n[GCC 8.5.0 20210514 (Red Hat 8.5.0-28.0.1)]",
+  "randomized_library_order_within_problem": true,
+  "run_id": "phase14-pilot-20261112b",
+  "run_kind": "pilot",
+  "schema_version": "phase14-run-metadata-v1",
+  "seed": 20261112,
+  "sha256": {
+    "adapter_source": "58f38c6c2576fb0e35f1320a2a08f3014fe236e4d2a665fdc0f192fefc99b8ec",
+    "input_sidecar": "5ff5879d5beed4b7c723361a5832d4642c124226a5b7b70362d648e82fbedcb9",
+    "json_reader": "702f301c93c8a7053678d346dcda03de9c9f240c1a17a1755532335935ca36fa",
+    "manifest": "7aac53e576e1c8ebbb4008436339b0c4e3c869f6b94f9f6397eda86250d64c9c",
+    "runner_script": "6b19f837d7ec9adb33ad8903a07131222e4544e684fbdd287018d434db16484b"
+  },
+  "started_or_recorded_utc": "2026-11-12T01:40:55.199006+00:00",
+  "system": "Linux-5.15.0-326.222.4.el8uek.x86_64-x86_64-with-glibc2.28",
+  "thread_environment": {
+    "BLIS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "timing_batches": 21
+}

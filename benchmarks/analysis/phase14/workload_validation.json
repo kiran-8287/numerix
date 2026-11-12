@@ -1,0 +1,40 @@
+{
+  "checks": [
+    "unique IDs",
+    "module and family coverage",
+    "five distinct inputs per family",
+    "input SHA-256 linkage",
+    "finite references",
+    "matrix/reference residuals",
+    "interpolation data dimensions",
+    "root bounds and logarithm domain",
+    "optimization bounds",
+    "ODE state dimensions and mesh endpoint"
+  ],
+  "distinct_input_payloads": 700,
+  "families_per_module": 20,
+  "family_counts": {
+    "differentiation": 20,
+    "integration": 20,
+    "interpolation": 20,
+    "linear_algebra": 20,
+    "ode": 20,
+    "optimization": 20,
+    "root": 20
+  },
+  "input_sidecar": "benchmarks/problems/phase14/problem_inputs.jsonl",
+  "manifest": "benchmarks/problems/phase14/workloads.csv",
+  "module_counts": {
+    "differentiation": 100,
+    "integration": 100,
+    "interpolation": 100,
+    "linear_algebra": 100,
+    "ode": 100,
+    "optimization": 100,
+    "root": 100
+  },
+  "problem_count": 700,
+  "result": "PASS",
+  "schema_version": "phase14-workload-validation-v1",
+  "variants_per_family": 5
+}

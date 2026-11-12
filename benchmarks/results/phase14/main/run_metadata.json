@@ -1,0 +1,59 @@
+{
+  "batch_size_by_module": {
+    "differentiation": 64,
+    "integration": 32,
+    "interpolation": 8,
+    "linear_algebra": 8,
+    "ode": 4,
+    "optimization": 32,
+    "root": 32
+  },
+  "compiler": "gcc (GCC) 8.5.0 20210514 (Red Hat 8.5.0-30.0.1)",
+  "compiler_flags": "-O3 -DNDEBUG -Wall -Wextra -Wpedantic; dependency flags recorded in library manifest",
+  "cpu_count_logical": 4,
+  "finished_utc": "2026-11-12T02:01:43.581357+00:00",
+  "git": {
+    "branch": "master",
+    "head": "2292ee804b02bd82be56803a6eae9d36327ef117",
+    "status_porcelain": "?? PHASE14_REQUIREMENTS.md\n?? benchmarks/adapters/\n?? benchmarks/analysis/phase14/\n?? benchmarks/problems/\n?? benchmarks/results/phase14/\n?? documentation/development/phase_14_audit_and_execution_log.md\n?? documentation/development/phase_14_library_capability_matrix.md"
+  },
+  "machine": "a01-109-119l",
+  "measurements": {
+    "cpu_clock": "CLOCK_PROCESS_CPUTIME_ID, elapsed seconds per batch",
+    "requested_heap": "unavailable; not encoded as zero",
+    "rss": "getrusage(RUSAGE_SELF).ru_maxrss in isolated process; includes harness and shared-library baseline",
+    "wall_clock": "CLOCK_MONOTONIC, elapsed seconds per batch"
+  },
+  "memory_requested": true,
+  "pair_count_failed_to_launch_or_write": 0,
+  "pair_count_planned": 2000,
+  "problem_count": 700,
+  "problems_in_run": 700,
+  "processor": "x86_64",
+  "python": "3.9.25 (main, Dec 19 2025, 15:38:47) \n[GCC 8.5.0 20210514 (Red Hat 8.5.0-28.0.1)]",
+  "randomized_library_order_within_problem": true,
+  "run_id": "phase14-main-20261112",
+  "run_kind": "main",
+  "schema_version": "phase14-run-metadata-v1",
+  "seed": 20261112,
+  "sha256": {
+    "adapter_cmake": "9bb563caba19364eee3b3d99995ddad275c370e84a9e90f1d7bca43716dd2cad",
+    "adapter_source": "b17092a05cf4b5d6cb8b5378f039373da8820e9a359a90a9462bda915d3ae1c5",
+    "input_sidecar": "9a93895682caf257a8aa61e9c47b796f8e22f2fe5510a8aaefded51877b3b3f1",
+    "json_reader": "702f301c93c8a7053678d346dcda03de9c9f240c1a17a1755532335935ca36fa",
+    "library_manifest": "e42ee2ad27d61ede49fb26bd8b0f95d4d6c770f24afb89ea7a3069b9e3520763",
+    "manifest": "1abacac47909aa0a12e7359d8aba86df71261b797c58f19bfe7a064c15041754",
+    "method_mapping": "6dc0f48dea338d83c13d96c35d29ee25d31a2930759f57832de6a4ac9fc635d9",
+    "runner_script": "8ccac5d6d1e70e4daeca29f4a9e073082f7d09bb79efc01b260d0485f2e566e8"
+  },
+  "started_utc": "2026-11-12T01:53:49.601840+00:00",
+  "system": "Linux-5.15.0-326.222.4.el8uek.x86_64-x86_64-with-glibc2.28",
+  "thread_environment": {
+    "BLIS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "timing_batches": 31
+}

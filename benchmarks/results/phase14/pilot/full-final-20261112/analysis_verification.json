@@ -1,0 +1,33 @@
+{
+  "accuracy_pair_records": 2000,
+  "duplicate_accuracy_rows": 0,
+  "duplicate_timing_rows": 0,
+  "duplicate_work_rows": 0,
+  "eligible_problem_library_pairs_expected": 2000,
+  "execution_failures": 0,
+  "expected_batches_per_pair": 21,
+  "expected_memory_problem_library_pairs": 0,
+  "maximum_batches_per_pair": 21,
+  "memory_problem_library_pairs": 0,
+  "memory_rows": 0,
+  "minimum_batches_per_pair": 21,
+  "missing_accuracy_pairs": 0,
+  "pairs_with_wrong_batch_count": 0,
+  "problem_count": 700,
+  "problem_count_by_module": {
+    "differentiation": 100,
+    "integration": 100,
+    "interpolation": 100,
+    "linear_algebra": 100,
+    "ode": 100,
+    "optimization": 100,
+    "root": 100
+  },
+  "result": "PASS",
+  "schema_version": "phase14-analysis-verification-v1",
+  "timing_rows": 42000,
+  "unique_accuracy_problem_library_pairs": 2000,
+  "unique_timing_problem_library_pairs": 2000,
+  "work_metric_rows": 8000,
+  "work_missing_value_errors": 0
+}
