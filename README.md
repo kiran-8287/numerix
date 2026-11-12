@@ -752,7 +752,8 @@ private link flags (including `-lm`) with `--static`:
 
 ```bash
 export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig"  # use lib64/pkgconfig if configured
-cc -std=c11 $(pkg-config --cflags --libs --static numerix) main.c -o my_program
+cc -std=c11 $(pkg-config --cflags numerix) main.c \
+  $(pkg-config --libs --static numerix) -o my_program
 ```
 
 Native Windows pkg-config consumption was not tested. CMake package discovery

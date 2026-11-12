@@ -42,7 +42,7 @@ jobs:
           if [ "${{ matrix.platform.compiler }}" = msvc ]; then
             cmake -S tests/installed_consumer -B consumer-build -G "Visual Studio 17 2022" -A x64 -DNUMERIX_INSTALL_PREFIX="${{ runner.temp }}/numerix-installed"
           else
-            cmake -S tests/installed_consumer -B consumer-build -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_C_COMPILER=${{ matrix.platform.compiler }} -DCMAKE_CXX_COMPILER=${{ matrix.platform.cxx }}
+            cmake -S tests/installed_consumer -B consumer-build -DNUMERIX_INSTALL_PREFIX="${{ runner.temp }}/numerix-installed" -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_C_COMPILER=${{ matrix.platform.compiler }} -DCMAKE_CXX_COMPILER=${{ matrix.platform.cxx }}
           fi
           cmake --build consumer-build --config ${{ matrix.configuration }} --parallel 2
           ctest --test-dir consumer-build -C ${{ matrix.configuration }} --output-on-failure

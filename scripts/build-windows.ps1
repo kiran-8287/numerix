@@ -67,6 +67,7 @@ if ($Compiler -eq 'MinGW') {
     Invoke-CheckedNative 'cmake' @(
         '-S', (Join-Path $repoRoot 'tests/installed_consumer'), '-B', $consumerDir,
         '-G', 'MinGW Makefiles', "-DNUMERIX_INSTALL_PREFIX=$installDir",
+        "-DCMAKE_BUILD_TYPE=$Configuration",
         '-DCMAKE_C_COMPILER=gcc', '-DCMAKE_CXX_COMPILER=g++'
     )
 }

@@ -1,0 +1,1 @@
+/usr/bin/gcc -Werror -O3 -DNDEBUG CMakeFiles/numerix_diagnostics_tests.dir/tests/test_diagnostics.c.o -o numerix_diagnostics_tests  libnumerix.a -lm 

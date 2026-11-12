@@ -1,0 +1,1 @@
+/usr/bin/gcc -Werror -O3 -DNDEBUG CMakeFiles/numerix_accuracy_tests.dir/tests/test_accuracy.c.o -o numerix_accuracy_tests  libnumerix.a -lm 

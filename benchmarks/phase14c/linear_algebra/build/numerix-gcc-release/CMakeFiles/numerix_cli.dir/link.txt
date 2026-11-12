@@ -1,0 +1,1 @@
+/usr/bin/gcc -Werror -O3 -DNDEBUG CMakeFiles/numerix_cli.dir/cli/main.c.o -o numerix_cli  libnumerix.a -lm 
