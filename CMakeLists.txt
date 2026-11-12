@@ -241,7 +241,29 @@ install(EXPORT NUMERIXTargets NAMESPACE NUMERIX::
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/NUMERIXConfig.cmake"
               "${CMAKE_CURRENT_BINARY_DIR}/NUMERIXConfigVersion.cmake"
     DESTINATION "${NUMERIX_CONFIG_DIRECTORY}")
-file(RELATIVE_PATH NUMERIX_PC_PREFIX_RELATIVE "/${CMAKE_INSTALL_LIBDIR}/pkgconfig" "/")
+if(IS_ABSOLUTE "${CMAKE_INSTALL_LIBDIR}")
+    # An absolute libdir is deliberately non-relocatable. Keep the .pc paths
+    # tied to the configured install locations instead of inventing a prefix
+    # relationship between unrelated directories (or Windows drive letters).
+    set(NUMERIX_PC_PREFIX "${CMAKE_INSTALL_PREFIX}")
+    set(NUMERIX_PC_LIBDIR "${CMAKE_INSTALL_LIBDIR}")
+else()
+    # Calculate the location of the prefix relative to the installed .pc file.
+    # Both operands are native absolute paths on the install prefix's drive;
+    # the result itself is prefix-independent (for example, ../.. for lib/pkgconfig).
+    set(_numerix_pc_pkgconfig_dir
+        "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+    file(RELATIVE_PATH NUMERIX_PC_PREFIX_RELATIVE
+        "${_numerix_pc_pkgconfig_dir}"
+        "${CMAKE_INSTALL_PREFIX}")
+    set(NUMERIX_PC_PREFIX "\${pcfiledir}/${NUMERIX_PC_PREFIX_RELATIVE}")
+    set(NUMERIX_PC_LIBDIR "\${prefix}/${CMAKE_INSTALL_LIBDIR}")
+endif()
+if(IS_ABSOLUTE "${CMAKE_INSTALL_INCLUDEDIR}")
+    set(NUMERIX_PC_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}")
+else()
+    set(NUMERIX_PC_INCLUDEDIR "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+endif()
 set(NUMERIX_PRIVATE_LIBS "")
 if(NOT WIN32)
     set(NUMERIX_PRIVATE_LIBS "-lm")

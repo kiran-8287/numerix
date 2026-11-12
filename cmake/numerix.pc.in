@@ -1,6 +1,6 @@
-prefix=${pcfiledir}/@NUMERIX_PC_PREFIX_RELATIVE@
-libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
-includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
+prefix=@NUMERIX_PC_PREFIX@
+libdir=@NUMERIX_PC_LIBDIR@
+includedir=@NUMERIX_PC_INCLUDEDIR@
 
 Name: NUMERIX
 Description: C11 numerical algorithms, execution and diagnostics

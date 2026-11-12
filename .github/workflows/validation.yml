@@ -15,10 +15,10 @@ jobs:
       matrix:
         configuration: [Debug, Release]
         platform:
-          - {os: ubuntu-latest, compiler: gcc}
-          - {os: ubuntu-latest, compiler: clang}
-          - {os: macos-latest, compiler: clang}
-          - {os: windows-latest, compiler: msvc}
+          - {os: ubuntu-latest, compiler: gcc, cxx: g++}
+          - {os: ubuntu-latest, compiler: clang, cxx: clang++}
+          - {os: macos-latest, compiler: clang, cxx: clang++}
+          - {os: windows-latest, compiler: msvc, cxx: cl}
     runs-on: ${{ matrix.platform.os }}
     steps:
       - uses: actions/checkout@v7.0.1
@@ -26,7 +26,7 @@ jobs:
         shell: bash
         run: |
           if [ "${{ matrix.platform.compiler }}" = msvc ]; then
-            cmake -S . -B ci-build -DNUMERIX_BUILD_COMPARISON_BENCHMARK=ON -DCMAKE_DISABLE_FIND_PACKAGE_GSL=TRUE
+            cmake -S . -B ci-build -G "Visual Studio 17 2022" -A x64 -DNUMERIX_BUILD_COMPARISON_BENCHMARK=ON -DCMAKE_DISABLE_FIND_PACKAGE_GSL=TRUE
           else
             cmake -S . -B ci-build -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_C_COMPILER=${{ matrix.platform.compiler }} -DCMAKE_C_FLAGS=-Werror -DNUMERIX_BUILD_COMPARISON_BENCHMARK=ON -DCMAKE_DISABLE_FIND_PACKAGE_GSL=TRUE
           fi
@@ -39,7 +39,11 @@ jobs:
       - name: Independent installed C and C++ consumers
         shell: bash
         run: |
-          cmake -S tests/installed_consumer -B consumer-build -DNUMERIX_INSTALL_PREFIX="${{ runner.temp }}/numerix-installed" -DCMAKE_BUILD_TYPE=${{ matrix.configuration }}
+          if [ "${{ matrix.platform.compiler }}" = msvc ]; then
+            cmake -S tests/installed_consumer -B consumer-build -G "Visual Studio 17 2022" -A x64 -DNUMERIX_INSTALL_PREFIX="${{ runner.temp }}/numerix-installed"
+          else
+            cmake -S tests/installed_consumer -B consumer-build -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_C_COMPILER=${{ matrix.platform.compiler }} -DCMAKE_CXX_COMPILER=${{ matrix.platform.cxx }}
+          fi
           cmake --build consumer-build --config ${{ matrix.configuration }} --parallel 2
           ctest --test-dir consumer-build -C ${{ matrix.configuration }} --output-on-failure
       - name: Versions and public layouts
@@ -71,6 +75,7 @@ jobs:
           install: >-
             make
             mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-make
             mingw-w64-ucrt-x86_64-cmake
             mingw-w64-ucrt-x86_64-ninja
       - name: CMake, Make, tests and examples
@@ -78,7 +83,7 @@ jobs:
           MSYS2_ARG_CONV_EXCL: /c
         shell: msys2 {0}
         run: |
-          cmake -S . -B ci-build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_C_FLAGS=-Werror -DNUMERIX_BUILD_COMPARISON_BENCHMARK=ON -DCMAKE_DISABLE_FIND_PACKAGE_GSL=TRUE
+          cmake -S . -B ci-build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_FLAGS=-Werror -DNUMERIX_BUILD_COMPARISON_BENCHMARK=ON -DCMAKE_DISABLE_FIND_PACKAGE_GSL=TRUE
           cmake --build ci-build --parallel 2
           ctest --test-dir ci-build --output-on-failure
           if [ "${{ matrix.configuration }}" = Debug ]; then
@@ -93,7 +98,7 @@ jobs:
           ./ci-build/numerix_portability_probe.exe > portability.txt
           gcc --version >> portability.txt
           cmake --install ci-build --prefix "$RUNNER_TEMP/numerix-mingw-installed"
-          cmake -S tests/installed_consumer -B consumer-build -G Ninja -DNUMERIX_INSTALL_PREFIX="$RUNNER_TEMP/numerix-mingw-installed" -DCMAKE_BUILD_TYPE=${{ matrix.configuration }}
+          cmake -S tests/installed_consumer -B consumer-build -G Ninja -DNUMERIX_INSTALL_PREFIX="$RUNNER_TEMP/numerix-mingw-installed" -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
           cmake --build consumer-build --parallel 2
           ctest --test-dir consumer-build --output-on-failure
       - uses: actions/upload-artifact@v7.0.2

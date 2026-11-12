@@ -243,7 +243,7 @@ static int opposite_sign(double left, double right)
     if (left == 0.0 || right == 0.0) {
         return 0;
     }
-    return signbit(left) != signbit(right);
+    return (left < 0.0) != (right < 0.0);
 }
 
 static double interval_midpoint(double lower, double upper)

@@ -398,6 +398,7 @@ static void test_root_condition_and_convergence_history(void)
     numerix_error error;
     numerix_status status;
     const double residuals[] = {1.0, 0.1, 0.01, 0.001};
+    const double signed_zero_residuals[] = {1.0, -0.0, 0.01, 0.001};
 
     status = numerix_diagnostics_root_condition(
         root_function, square_derivative, NULL, sqrt(2.0), 0.01, NULL,
@@ -421,6 +422,15 @@ static void test_root_condition_and_convergence_history(void)
           "sufficient residual history produces empirical order");
     check(convergence.rate_uses_residuals_as_error_proxies,
           "empirical order labels residual proxy limitation");
+
+    status = numerix_diagnostics_analyze_convergence(
+        signed_zero_residuals,
+        sizeof(signed_zero_residuals) / sizeof(signed_zero_residuals[0]),
+        &convergence, &error);
+    check(status == NUMERIX_STATUS_SUCCESS,
+          "signed-zero convergence history analysis succeeds");
+    check(convergence.trend == NUMERIX_CONVERGENCE_OSCILLATORY,
+          "negative zero retains its sign in residual history analysis");
 }
 
 static void test_cancellation_indicator(void)

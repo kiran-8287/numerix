@@ -23,6 +23,13 @@ static numerix_status analysis_error(
     return status;
 }
 
+static int has_negative_sign(double value)
+{
+    /* copysign keeps signed-zero semantics without implementation-specific
+       signbit macros that narrow double arguments on some MinGW headers. */
+    return copysign(1.0, value) < 0.0;
+}
+
 static double stable_norm(const double *values, size_t count)
 {
     size_t index;
@@ -578,8 +585,8 @@ numerix_status numerix_diagnostics_analyze_convergence(
             return analysis_error(error, NUMERIX_STATUS_NUMERICAL_FAILURE,
                                   "residual history contains a non-finite value");
         }
-        if (index > 0 && signbit(residual_history[index]) !=
-                             signbit(residual_history[index - 1]))
+        if (index > 0 && has_negative_sign(residual_history[index]) !=
+                             has_negative_sign(residual_history[index - 1]))
         {
             sign_changes++;
         }

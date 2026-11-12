@@ -37,6 +37,11 @@ static double phase14b_root_value(double x, void *data)
     return p14_root_value(x,data);
 }
 
+static int phase14b_has_negative_sign(double value)
+{
+    return copysign(1.0, value) < 0.0;
+}
+
 static double phase14b_root_derivative(double x, void *data)
 {
     p14_problem *p=(p14_problem *)data;
@@ -323,7 +328,9 @@ static numerix_status root_gsl_once(p14_problem *p, const char *method,
         for(size_t i=1;i<=4096;i++) {
             double x=p->lower+(p->upper-p->lower)*(double)i/4096.0;
             double fx=phase14b_root_value(x,p);
-            if(isfinite(previous_f)&&isfinite(fx) && (fx==0.0 || signbit(fx)!=signbit(previous_f))) {
+            if(isfinite(previous_f)&&isfinite(fx) &&
+               (fx==0.0 || phase14b_has_negative_sign(fx)!=
+                               phase14b_has_negative_sign(previous_f))) {
                 double root=x;
                 if(fx!=0.0) {
                     gsl_root_fsolver *solver=gsl_root_fsolver_alloc(gsl_root_fsolver_brent);
@@ -414,7 +421,9 @@ static numerix_status root_once(p14_problem *p,const char *library,const char *m
 static int root_applicable(p14_problem *p,const char *method)
 {
     double fl=phase14b_root_value(p->lower,p), fu=phase14b_root_value(p->upper,p);
-    int bracket=isfinite(fl)&&isfinite(fu)&&(fl==0.0||fu==0.0||signbit(fl)!=signbit(fu));
+    int bracket=isfinite(fl)&&isfinite(fu)&&
+        (fl==0.0||fu==0.0||phase14b_has_negative_sign(fl)!=
+                              phase14b_has_negative_sign(fu));
     if(strcmp(method,"bisection")==0||strcmp(method,"regula_falsi")==0||
        strcmp(method,"brent")==0||strcmp(method,"safeguarded_newton")==0)
         return bracket && p->lower<p->upper && p->model!=100 && p->model!=101;
