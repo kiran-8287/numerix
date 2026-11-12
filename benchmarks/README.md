@@ -1,9 +1,17 @@
-# Reproducible Phase 9 evaluation
+# NUMERIX benchmark protocol
+
+Phase 9 and Phase 10 outputs are historical records and retain their original
+CSV schema. Phase 13B outputs are also retained unchanged. New Phase 13C
+comparison runs use schema version 2 and are written to `results/phase13c/`.
+`scripts/run_benchmarks.py` creates a
+unique run ID by default, refuses non-empty output directories, and refuses
+paths under the Phase 9 or Phase 10 historical directories.
 
 GSL is an **optional benchmark dependency**. The library, CLI, examples and tests
 build without it. No external library sources or binaries are vendored.
-See [the measured report](https://github.com/kiran-8287/numerix/blob/master/documentation/development/final_benchmark_report.md)
-and [raw results](https://github.com/kiran-8287/numerix/tree/master/benchmarks/results/phase9).
+See the [Phase 13C/13D comparative evaluation](../documentation/reports/NUMERIX_comparative_evaluation.md)
+and the saved [Phase 13C raw results](results/phase13c/). Historical Phase 9
+results remain available under `results/phase9/`.
 
 ## Build and run
 
@@ -13,9 +21,17 @@ cmake -S . -B cmake-build-bench -DCMAKE_BUILD_TYPE=Release \
 cmake --build cmake-build-bench -j2
 ./cmake-build-bench/numerix_comparison_benchmark --versions
 python3 scripts/run_benchmarks.py --build-dir cmake-build-bench \
-  --output /tmp/numerix-results --samples 21 --compiler gcc \
+  --samples 21 --seed 20261112 --compiler gcc \
   --gsl-flags='record the actual GSL build flags here'
 ```
+
+The run directory contains `measurements.csv` (summary), `raw_timing.csv`
+(one row per timing batch), `accuracy.csv` (one untimed result probe associated
+with each batch), `workloads.csv` (stable configuration identity and reference
+metadata), `comparisons.csv`, `environment.json`, and a generated `summary.md`.
+The driver independently verifies the raw timing records and summaries before
+writing the comparison and summary reports. Use `--output PATH` to choose an
+empty directory outside the historical Phase 9/10 trees.
 
 Install GSL with your package manager, or build its official release locally:
 
@@ -43,7 +59,7 @@ With Make:
 ```sh
 make clean
 make CFLAGS='-O3 -DNDEBUG' numerix_comparison_benchmark
-./numerix_comparison_benchmark > /tmp/measurements.csv
+make benchmark-comparison
 # Local install, if needed:
 # make GSL_CFLAGS=-I/path/include GSL_LIBS='/path/lib/libgsl.a /path/lib/libgslcblas.a -lm' numerix_comparison_benchmark
 ```
@@ -53,10 +69,11 @@ flag changes. CMake explicitly reports when GSL is unavailable; `--versions`
 also reports it and only NUMERIX rows are produced. A deliberately dependency-free
 configuration can use `-DCMAKE_DISABLE_FIND_PACKAGE_GSL=TRUE`.
 
-## Measurement contract
+## Historical Phase 9/10 measurement contract
 
-- All problems use binary64 (`DBL_MANT_DIG=53`), analytical references rounded
-  to double, identical inputs, and no fast-math or architecture-specific flags.
+- The historical Phase 9/10 runs used binary64 (`DBL_MANT_DIG=53`), analytical
+  references rounded to double, identical inputs, and no fast-math or
+  architecture-specific flags.
 - Level 1 is basic, 2 intermediate, 3 difficult and 4 stress. Each CSV row
   records its level, size, methods, tolerances and library status. A status of
   zero is that library's success; other integers belong to that library's enum.
@@ -102,6 +119,69 @@ configuration can use `-DCMAKE_DISABLE_FIND_PACKAGE_GSL=TRUE`.
   hashes and git base/dirty status. Paths in that historical record describe the
   measurement environment and are not required reproduction paths.
 
+## Phase 13B measurement protocol
+
+Schema version 2 records actual floating-point properties per workload:
+`storage_bits = sizeof(double) * CHAR_BIT`, `significand_bits = DBL_MANT_DIG`,
+`min_exponent = DBL_MIN_EXP`, and `max_exponent = DBL_MAX_EXP`. It does not
+assume every supported C platform has binary64.
+
+The stable configuration ID hashes a canonical serialization of category,
+case and variant, difficulty, dimensions, input parameters, scale, expected
+value, reference-generation method, tolerances, method, phase, and comparison
+mode. The same problem, numerical target, and method share an ID across
+libraries. The manifest stores the fields alongside the ID so results can be
+audited without reversing the hash.
+
+Two comparison modes are distinct:
+
+- `same_algorithm` is reserved for rows classified as API-equivalent in this
+  suite. It requires the same mathematical inputs and target, equivalent
+  algorithms, and matched precision and stopping settings. Differences in
+  callback budgets or setup boundaries must be disclosed before ranking.
+- `best_available` compares suitable methods for the same problem and target;
+  it measures practical library performance, not the cost of one algorithm.
+  Capability-only and excluded/unranked cases have their own labels.
+
+Timing uses monotonic wall-clock time (`CLOCK_MONOTONIC` on POSIX and
+`QueryPerformanceCounter` on Windows); CPU time is not collected. Timer
+granularity depends on the operating system and host timer implementation; the
+runner records the timer API but does not query or claim a measured resolution.
+Each library/workload receives one untimed warm-up, then powers-of-two batches
+are calibrated to at least 2 ms (capped at 1,048,576 operations) to reduce
+timer quantization effects. The default is 21 measured batches. Each batch is
+preserved with elapsed batch time, nanoseconds per operation, batch size,
+status, precision, seed, and linked accuracy record. A separate deterministic
+result probe follows each batch; accuracy probes are not timing repetitions.
+
+Paired library execution uses a reproducible counterbalance schedule. Adjacent
+pairs run one NUMERIX-first and one GSL-first; the recorded 64-bit seed selects
+the orientation of each block. Every paired raw observation records its actual
+order and seed. A library-filtered or NUMERIX-only run is marked unpaired.
+Calibration and warm-up are applied separately to both libraries with the same
+policy. No outlier is silently removed.
+
+Summary statistics are recalculated from the raw batch records: minimum,
+median (middle value, or average of the middle pair), arithmetic mean, sample
+standard deviation, nearest-rank p95 (`ceil(0.95*n)`), maximum, raw sample
+count, and batch size. The verifier independently recalculates all statistics
+and checks missing/duplicate samples, accuracy linkage, workload identity,
+batch consistency, execution order, and precision metadata.
+
+The timer encloses the selected API operation and its in-call validation,
+resets, required allocations, data copies, and output handling; input generation
+and persistent workspace creation remain outside the timer where the API
+supports separation. Setup and per-operation costs are reported as separate
+phases when present. These are API-level costs, not isolated arithmetic-kernel
+times.
+
+Memory figures from the optional allocator wrapper count requested bytes seen
+through wrapped `malloc`, `calloc`, `realloc`, and `free` calls. They exclude
+stack storage, allocator metadata, unwrapped allocations, and process memory.
+RSS or private-memory measurements are whole-process metrics and must be
+recorded separately; they are not interchangeable with requested heap bytes.
+Cross-platform memory comparability has not been established.
+
 ## Test definitions and references
 
 Common root tolerance is `1e-10 + 1e-10*abs(x)`; the endpoint case uses absolute
@@ -128,7 +208,7 @@ this harness. None of the valid root cases reaches either budget. Difficult inva
 | Integration | `x^4` on [0,1] ->1/5; sin(x) on [0,pi] ->2; exp(x) on [0,1] ->e-1; `1/(1+100x^2)` on [0,1] ->atan(10)/10; sqrt(x) on [0,1] ->2/3; sin(40x) on [0,1] ->(1-cos(40))/40 | `1e-10+1e-10*abs(reference)` is the common *accuracy check*. NUMERIX adaptive Simpson (depth 32, sum-based initial tolerance) versus GSL QAG21 (`max(abs,rel*abs(I))`); different methods/stopping, unranked. Fixed trapezoid/Simpson use 1024 panels and have no tolerance guarantee. Actual and estimated errors are separate |
 | Interpolation | 8 nodes on [0,1], x_i=i/7 or (i/7)^2; y_i=s*(x_i^3-2x_i+1), s=1 or1e10; query0.37; reference s*0.310653 | `1e-10+1e-10*abs(reference)`; Newton vs GSL divided differences, separate setup/evaluation. Lagrange vs GSL polynomial has different representation and is unranked. Two-node linear segment (0,1),(1,0) ->0.63 has no NUMERIX construction object |
 | Golden section | `(x-0.3)^2` on [0,2], `exp(x)-x` on [-1,2] (min0), `(x-1.7)^2` on [0,2], `1e12*(x-0.3)^2` on [0,2] | absolute interval tolerance1e-6, relative0; position error <=1e-6; GSL starting point0.5 (1.5 for shifted), NUMERIX starts from interval only; equivalent family with different initialization; final objective recorded |
-| ODE | y'=y, y(0)=1; y'=-2y, y(0)=1; harmonic (u'=v,v'=-u),(1,0); t in[0,1], h=0.01,100 steps; exact exp(t),exp(-2t),(cos(t),-sin(t)) | Final infinity error and maximum trajectory error on returned time grid; checks1e-7 for RK4,1e-4 Heun,0.02 Euler. GSL RK4 does step doubling (two accepted half steps plus error estimation); NUMERIX classical RK4 has4 RHS calls/step. Same outer grid, different work, unranked. GSL adapter stores the full trajectory to match NUMERIX output |
+| ODE | y'=lambda*y, y(0)=1 at several rates and step counts; harmonic (u'=v,v'=-u),(1,0); t in[0,1]; exact exponential or harmonic trajectories | Final infinity error and maximum trajectory error on returned time grid; method-specific tolerances scale with the reference magnitude. GSL `gsl_odeiv2_step_apply` uses fixed-step classical RK4 on the same grid as NUMERIX RK4; both perform four RHS evaluations per step. This is an API-level same-algorithm comparison. GSL adapter stores the full trajectory to match NUMERIX output |
 
 GSL offers neither the same fixed composite Simpson/trapezoid API nor an
 explicit Euler/Heun equivalent in this comparison; those rows are NUMERIX-only.
@@ -177,8 +257,10 @@ paths, not every allocation path in the whole library.
 `/usr/bin/time -v` can separately record process peak RSS for a filtered run:
 
 ```sh
+rss_dir=$(mktemp -d)
 /usr/bin/time -v ./cmake-build-bench/numerix_comparison_benchmark \
-  --samples 3 --case dense_well --library NUMERIX > /tmp/numerix-dense.csv
+  --samples 3 --case dense_well --library NUMERIX \
+  --output-dir "$rss_dir" --run-id rss > "$rss_dir/measurements.csv"
 ```
 
 RSS is for the entire process and harness, including all selected sizes and

@@ -13,12 +13,61 @@ def number(value, microseconds=False):
     return f"{value / 1000:.3f}" if microseconds else f"{value:.3g}"
 
 
+def summarize_v2(directory, rows):
+    lines = [
+        "# Phase 13B benchmark summary", "",
+        "Schema version 2 stores every timing batch in raw_timing.csv; "
+        "accuracy.csv contains separate untimed probes.",
+        "Summary values are independently checked against those records by "
+        "verify_benchmark_results.py.",
+        "The 95th percentile uses nearest rank, ceil(0.95*n). "
+        "All samples remain in the data; no outliers are removed.",
+        "Memory columns measure requested heap allocations observed by the "
+        "instrumented allocator, not process memory or RSS.", "",
+        "| Configuration | Category / case | Size | Method / phase | Library | Mode | "
+        "Median ns | Min–max ns | Raw batches | Batch size | Status / accuracy | Order |",
+        "| --- | --- | ---: | --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- |",
+    ]
+    for row in rows:
+        lines.append(
+            f"| {row['configuration_id']} | {row['category']} / {row['case']} | "
+            f"{row['input_size']} | {row['method']} / {row['phase']} | "
+            f"{row['library']} | {row['comparison_mode']} | "
+            f"{number(row['median_ns'])} | "
+            f"{number(row['min_ns'])}–{number(row['max_ns'])} | "
+            f"{row['raw_sample_count']} | {row['batch_size']} | "
+            f"{row['status']} / {row['accuracy_pass']} | "
+            f"{row['execution_order']} |"
+        )
+    lines.extend([
+        "", "## Linked records", "",
+        "- workloads.csv carries input parameters, tolerances, reference method, "
+        "precision, library, and comparison mode for each configuration.",
+        "- raw_timing.csv carries one row per measured batch, including the "
+        "recorded seed and actual paired order.",
+        "- accuracy.csv links each timing sample to a separate untimed probe.",
+        "- environment.json records the toolchain, build flags, run ID, and protocol.",
+        "- comparisons.csv includes direct ratios only for successful rows "
+        "classified as same-algorithm and passing their accuracy checks.",
+        "",
+        "Requested heap allocation metrics are separately named in "
+        "measurements.csv. They exclude stack storage, allocator metadata, "
+        "untracked library allocations, and process RSS.",
+    ])
+    (directory / "summary.md").write_text("\n".join(lines) + "\n")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("directory", type=Path)
     args = parser.parse_args()
-    with (args.directory / "measurements.csv").open() as source:
-        rows = list(csv.DictReader(source))
+    with (args.directory / "measurements.csv").open(newline="") as source:
+        reader = csv.DictReader(source)
+        rows = list(reader)
+        fields = reader.fieldnames or []
+    if "schema_version" in fields and rows and rows[0]["schema_version"] == "2":
+        summarize_v2(args.directory, rows)
+        return
     with (args.directory / "comparisons.csv").open() as source:
         comparisons = list(csv.DictReader(source))
     def key(row):

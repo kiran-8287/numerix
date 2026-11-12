@@ -33,6 +33,17 @@ residual vector belongs to the diagnostics report and is released by
 `numerix_diagnostics_report_destroy`. Destroy a prior report before reusing
 its storage.
 
+The generic `numerix_result.residual` field is method-specific. A finite zero
+is an actual measured zero where that algorithm defines a residual. `NAN`
+means the value was unavailable or does not apply; for example, differentiation
+does not produce a residual, and bisection can finish from its interval-width
+bound without evaluating a residual at the returned midpoint. The generic
+result structure has no residual-availability flag, so check `isfinite()` before
+using this field. In diagnostic reports, use `has_residual` and related `has_`
+flags; unavailable values are initialized to `NAN`. A failed diagnostic is
+reported through its returned status and must not be interpreted as an estimate
+of zero.
+
 Root residual evaluation adds one callback or expression evaluation. Linear
 diagnostics reuse the returned solution and do not reevaluate the solver.
 

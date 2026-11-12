@@ -1,0 +1,22 @@
+category,comparison_class,problem_configurations,eligible_method_phase_pairs,gmean_speedup_gsl_over_numerix,problem_bootstrap_95_low,problem_bootstrap_95_high,interpretation
+root,DIRECT,15,28,0.9125976564716903,0.8030563868603694,1.0231588270599306,ratio > 1 favors NUMERIX; < 1 favors GSL
+linear,DIRECT,24,48,0.6837398181675178,0.6144235639002442,0.7686498162572888,ratio > 1 favors NUMERIX; < 1 favors GSL
+differentiation,DIRECT,0,0,nan,nan,nan,ratio > 1 favors NUMERIX; < 1 favors GSL
+interpolation,DIRECT,1,1,0.27411231118172974,nan,nan,ratio > 1 favors NUMERIX; < 1 favors GSL
+integration,DIRECT,0,0,nan,nan,nan,ratio > 1 favors NUMERIX; < 1 favors GSL
+optimization,DIRECT,10,10,2.1409748565901845,1.9957794567024245,2.258161903874987,ratio > 1 favors NUMERIX; < 1 favors GSL
+ode,DIRECT,8,8,2.674519751447198,2.6376330089293756,2.722326202293819,ratio > 1 favors NUMERIX; < 1 favors GSL
+root,BEST_AVAILABLE,0,0,nan,nan,nan,ratio > 1 favors NUMERIX; < 1 favors GSL
+linear,BEST_AVAILABLE,0,0,nan,nan,nan,ratio > 1 favors NUMERIX; < 1 favors GSL
+differentiation,BEST_AVAILABLE,15,15,1.8921577292473586,1.8631318441077176,1.9241101318565788,ratio > 1 favors NUMERIX; < 1 favors GSL
+interpolation,BEST_AVAILABLE,0,0,nan,nan,nan,ratio > 1 favors NUMERIX; < 1 favors GSL
+integration,BEST_AVAILABLE,16,16,0.026046194043414503,0.015616922588316897,0.045255391157466636,ratio > 1 favors NUMERIX; < 1 favors GSL
+optimization,BEST_AVAILABLE,0,0,nan,nan,nan,ratio > 1 favors NUMERIX; < 1 favors GSL
+ode,BEST_AVAILABLE,0,0,nan,nan,nan,ratio > 1 favors NUMERIX; < 1 favors GSL
+root,APPROXIMATE,14,14,0.25360278936355135,0.1722849267140988,0.3972343848614551,ratio > 1 favors NUMERIX; < 1 favors GSL
+linear,APPROXIMATE,0,0,nan,nan,nan,ratio > 1 favors NUMERIX; < 1 favors GSL
+differentiation,APPROXIMATE,0,0,nan,nan,nan,ratio > 1 favors NUMERIX; < 1 favors GSL
+interpolation,APPROXIMATE,11,22,0.36448070317670617,0.3359664497035335,0.3935131728787112,ratio > 1 favors NUMERIX; < 1 favors GSL
+integration,APPROXIMATE,0,0,nan,nan,nan,ratio > 1 favors NUMERIX; < 1 favors GSL
+optimization,APPROXIMATE,0,0,nan,nan,nan,ratio > 1 favors NUMERIX; < 1 favors GSL
+ode,APPROXIMATE,0,0,nan,nan,nan,ratio > 1 favors NUMERIX; < 1 favors GSL

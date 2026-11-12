@@ -159,11 +159,55 @@ static int test_integration_failures(void)
     return 1;
 }
 
+static int test_lu_allocation_failures(void)
+{
+    double matrix_values[] = {4.0, 1.0, 2.0, 3.0};
+    numerix_matrix matrix = {2U, 2U, matrix_values};
+    numerix_lu factorization;
+    numerix_error error;
+    numerix_status status;
+    benchmark_memory memory;
+    size_t allocation_count;
+    size_t index;
+
+    memset(&factorization, 0, sizeof(factorization));
+    benchmark_memory_begin();
+    status = numerix_lu_decompose(&matrix, NULL, &factorization, &error);
+    numerix_lu_destroy(&factorization);
+    memory = benchmark_memory_end();
+    if (status != NUMERIX_STATUS_SUCCESS || memory.live_bytes != 0U ||
+        memory.overflow) {
+        fprintf(stderr, "baseline LU factorization failed\n");
+        return 0;
+    }
+    allocation_count = memory.allocations;
+    for (index = 0; index < allocation_count; ++index) {
+        memset(&factorization, 0, sizeof(factorization));
+        benchmark_memory_begin();
+        benchmark_memory_fail_at(index);
+        status = numerix_lu_decompose(&matrix, NULL, &factorization, &error);
+        numerix_lu_destroy(&factorization);
+        memory = benchmark_memory_end();
+        if (status != NUMERIX_STATUS_ALLOCATION_FAILURE ||
+            memory.live_bytes != 0U || memory.overflow ||
+            factorization.data != NULL || factorization.permutation != NULL ||
+            factorization.size != 0U) {
+            fprintf(stderr, "LU allocation cleanup failed at allocation %zu\n",
+                    index);
+            return 0;
+        }
+    }
+    printf("LU decomposition: injected failure at each of %zu allocations\n",
+           allocation_count);
+    return 1;
+}
+
 int main(void)
 {
     int variant;
 
-    if (!test_expression_failures() || !test_integration_failures()) {
+    if (!test_expression_failures() || !test_integration_failures() ||
+        !test_lu_allocation_failures()) {
         return 1;
     }
     for (variant = 0; variant < 6; ++variant) {

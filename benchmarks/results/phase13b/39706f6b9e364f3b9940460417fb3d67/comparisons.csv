@@ -1,0 +1,4 @@
+schema_version,run_id,pair_id,configuration_id,category,case,input_size,method,phase,comparison_mode,numerix_median_ns,gsl_median_ns,speedup_gsl_over_numerix,eligible_for_direct_ratio,execution_order,randomization_seed,reason
+2,39706f6b9e364f3b9940460417fb3d67,cfg-1bac02a7c2cc02de,cfg-1bac02a7c2cc02de,root,polynomial,0,bisection,execute,best_available,747.20630038882518,860.66674853668701,,0,NUMERIX_FIRST,20261112,different comparison mode or method
+2,39706f6b9e364f3b9940460417fb3d67,cfg-5b4665767d0edd1b,cfg-5b4665767d0edd1b,root,polynomial,0,brent,execute,best_available,1151.963378021037,270.82275355638785,,0,GSL_FIRST,20261112,different comparison mode or method
+2,39706f6b9e364f3b9940460417fb3d67,cfg-25e70c7d73eb1bcb,cfg-25e70c7d73eb1bcb,root,polynomial,0,newton,execute,best_available,223.70422358974906,194.60284450545373,,0,GSL_FIRST,20261112,different comparison mode or method

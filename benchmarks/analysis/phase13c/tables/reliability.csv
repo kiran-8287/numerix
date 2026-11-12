@@ -1,0 +1,16 @@
+category,library,workload_method_phase_records,distinct_problem_configurations,solver_success_records,solver_failure_records,solver_success_rate,accuracy_applicable_records,accuracy_pass_records,accuracy_pass_rate,expected_bracket_rejections,convergence_failures,ill_conditioned_failures,accuracy_failures
+root,NUMERIX,47,16,42,5,0.8936170212765957,42,42,1.0,4,1,0,0
+root,GSL,47,16,42,5,0.8936170212765957,42,42,1.0,4,1,0,0
+linear,NUMERIX,84,30,74,10,0.8809523809523809,49,48,0.9795918367346939,0,0,11,1
+linear,GSL,84,30,84,0,1.0,54,48,0.8888888888888888,0,0,6,6
+differentiation,NUMERIX,15,15,15,0,1.0,15,15,1.0,0,0,0,0
+differentiation,GSL,15,15,15,0,1.0,15,15,1.0,0,0,0,0
+interpolation,NUMERIX,34,12,34,0,1.0,23,23,1.0,0,0,0,0
+interpolation,GSL,34,12,34,0,1.0,23,23,1.0,0,0,0,0
+integration,NUMERIX,48,16,48,0,1.0,48,30,0.625,0,0,0,18
+integration,GSL,16,16,16,0,1.0,16,16,1.0,0,0,0,0
+optimization,NUMERIX,10,10,10,0,1.0,10,10,1.0,0,0,0,0
+optimization,GSL,10,10,10,0,1.0,10,10,1.0,0,0,0,0
+ode,NUMERIX,45,15,45,0,1.0,45,24,0.5333333333333333,0,0,0,21
+ode,GSL,15,15,15,0,1.0,15,12,0.8,0,0,0,3
+capability,NUMERIX,16,16,16,0,1.0,16,16,1.0,0,0,0,0

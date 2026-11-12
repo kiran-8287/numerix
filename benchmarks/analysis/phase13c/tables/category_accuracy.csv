@@ -1,0 +1,8 @@
+category,paired_problem_configurations,numerix_median_error,gsl_median_error,lower_error_problem_configurations_numerix,lower_error_problem_configurations_gsl,ties,reference_methods,metric_note
+root,15,2.067951531382569e-16,1.570092458683775e-16,0,8,7,known_analytic_root_or_declared_case_value,"median per-problem error across measured paired methods/phases; relative error when defined, otherwise absolute error"
+linear,25,1.7763568394002505e-15,1.7763568394002505e-15,2,5,18,constructed_system_with_declared_solution,"median per-problem error across measured paired methods/phases; relative error when defined, otherwise absolute error"
+differentiation,15,1.5062074365059027e-13,8.25142135354331e-12,15,0,0,analytic_derivative,"median per-problem error across measured paired methods/phases; relative error when defined, otherwise absolute error"
+interpolation,12,2.4914019915686557e-16,3.5738364819433795e-16,2,8,2,analytic_polynomial_or_linear_segment,"median per-problem error across measured paired methods/phases; relative error when defined, otherwise absolute error"
+integration,16,5.441330496599377e-16,1.2348520138516504e-16,3,10,3,analytic_antiderivative_or_declared_case_value,"median per-problem error across measured paired methods/phases; relative error when defined, otherwise absolute error"
+optimization,10,5.990663805762371e-08,4.3289667585134683e-08,5,5,0,known_minimizer_or_declared_case_value,"median per-problem error across measured paired methods/phases; relative error when defined, otherwise absolute error"
+ode,15,2.497951058434012e-07,1.5940569422670316e-08,0,15,0,closed_form_trajectory,"median per-problem error across measured paired methods/phases; relative error when defined, otherwise absolute error"

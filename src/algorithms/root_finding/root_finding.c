@@ -150,6 +150,16 @@ static numerix_status solve_bracket(
         double bound = position_bound(midpoint, lower, upper);
         int interval_converged = bound <= position_tolerance(&options, midpoint);
 
+        if (method == 0 && interval_converged)
+        {
+            double midpoint_residual = midpoint == lower ? lower_value :
+                midpoint == upper ? upper_value : NAN;
+
+            /* The bracket already certifies the requested position accuracy. */
+            result->iterations = iteration;
+            return finish_root(result, NUMERIX_STATUS_SUCCESS, midpoint,
+                               midpoint_residual, bound, error);
+        }
         if (method != 0)
         {
             double best_position = fabs(lower_value) <= fabs(upper_value) ? lower : upper;

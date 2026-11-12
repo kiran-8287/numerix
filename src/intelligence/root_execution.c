@@ -149,11 +149,11 @@ int numerix_root_result_is_usable(
 
     if (result == NULL || options == NULL ||
         result->status != NUMERIX_STATUS_SUCCESS ||
-        !isfinite(result->value) || !isfinite(result->residual))
+        !isfinite(result->value))
     {
         return 0;
     }
-    if (result->residual == 0.0)
+    if (isfinite(result->residual) && result->residual == 0.0)
     {
         return 1;
     }
@@ -396,7 +396,7 @@ numerix_status numerix_root_solve_auto_controlled(
             status = NUMERIX_STATUS_NUMERICAL_FAILURE;
             attempt_result.status = status;
             numerix_error_set(error, status,
-                              "solver reported success without a finite accurate root result");
+                              "solver reported success without a usable root estimate");
         }
         if (first_attempt)
         {

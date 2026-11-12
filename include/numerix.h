@@ -57,7 +57,7 @@ typedef struct numerix_result {
     numerix_status status;
     double value;
     double estimated_error;
-    double residual;
+    double residual; /* Method-specific; NAN when unavailable or inapplicable. */
     size_t iterations;
     size_t function_evaluations;
     double execution_time_seconds;
@@ -89,7 +89,13 @@ numerix_status numerix_root_brent(numerix_function function, void *user_data,
 /* Dynamically sized dense vector and row-major matrix types. */
 typedef struct numerix_vector { size_t size; double *data; } numerix_vector;
 typedef struct numerix_matrix { size_t rows; size_t columns; double *data; } numerix_matrix;
-typedef struct numerix_lu { size_t size; double *data; size_t *permutation; int sign; double threshold; } numerix_lu;
+typedef struct numerix_lu {
+    size_t size;
+    double *data;
+    size_t *permutation;
+    int sign;
+    double threshold; /* Relative scaled-pivot cutoff, dimension * DBL_EPSILON. */
+} numerix_lu;
 numerix_status numerix_vector_create(size_t size, numerix_vector **out, numerix_error *error);
 void numerix_vector_destroy(numerix_vector *vector);
 numerix_status numerix_vector_copy(const numerix_vector *a, numerix_vector **out, numerix_error *error);

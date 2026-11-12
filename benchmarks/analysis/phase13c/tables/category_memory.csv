@@ -1,0 +1,8 @@
+category,eligible_direct_pairs,numerix_median_peak_bytes,gsl_median_peak_bytes,median_gsl_minus_numerix_peak_bytes,numerix_lower_peak_count,gsl_lower_peak_count,ties
+root,28,0.0,56.0,56.0,28,0,0
+linear,48,33808.0,33928.0,120.0,48,0,0
+differentiation,0,,,,0,0,0
+interpolation,1,0.0,40.0,40.0,1,0,0
+integration,0,,,,0,0,0
+optimization,10,0.0,80.0,80.0,10,0,0
+ode,8,2080.0,2144.0,64.0,8,0,0

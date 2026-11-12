@@ -56,9 +56,13 @@ static void print_report(
     for (index = 0; index < report->root_count; ++index) {
         const numerix_discovered_root *root = &report->roots[index];
 
-        printf("  x = %.12g, |f(x)| = %.3g",
-               root->result.value,
-               root->diagnostics.absolute_residual);
+        printf("  x = %.12g", root->result.value);
+        if (root->diagnostics.has_residual) {
+            printf(", |f(x)| = %.3g",
+                   root->diagnostics.absolute_residual);
+        } else {
+            printf(", |f(x)| unavailable");
+        }
         if (root->has_multiplicity_estimate) {
             printf(", estimated multiplicity %u",
                    root->estimated_multiplicity);

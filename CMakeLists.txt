@@ -149,11 +149,13 @@ if(BUILD_TESTING)
 endif()
 
 # GSL is used only by the opt-in comparison executable, never by numerix itself.
-option(NUMERIX_BUILD_COMPARISON_BENCHMARK "Build the Phase 9 benchmark" OFF)
+option(NUMERIX_BUILD_COMPARISON_BENCHMARK "Build the optional comparison benchmark" OFF)
 option(NUMERIX_BENCHMARK_ALLOCATIONS "Build an untimed GNU/ELF allocation probe" OFF)
 if(NUMERIX_BUILD_COMPARISON_BENCHMARK)
     find_package(GSL QUIET)
-    add_executable(numerix_comparison_benchmark benchmarks/comparison.c)
+    add_executable(numerix_comparison_benchmark
+        benchmarks/comparison.c benchmarks/measurement.c)
+    target_include_directories(numerix_comparison_benchmark PRIVATE benchmarks)
     target_link_libraries(numerix_comparison_benchmark PRIVATE numerix)
     if(GSL_FOUND)
         target_compile_definitions(numerix_comparison_benchmark PRIVATE NUMERIX_HAVE_GSL)
@@ -174,7 +176,9 @@ if(NUMERIX_BUILD_COMPARISON_BENCHMARK)
             message(FATAL_ERROR "Allocation probing requires static GSL and CBLAS archives")
         endif()
         add_executable(numerix_comparison_memory
-            benchmarks/comparison.c benchmarks/allocation_tracker.c)
+            benchmarks/comparison.c benchmarks/measurement.c
+            benchmarks/allocation_tracker.c)
+        target_include_directories(numerix_comparison_memory PRIVATE benchmarks)
         target_compile_definitions(numerix_comparison_memory PRIVATE NUMERIX_BENCH_ALLOCATIONS)
         target_link_libraries(numerix_comparison_memory PRIVATE numerix)
         target_link_options(numerix_comparison_memory PRIVATE
@@ -184,6 +188,16 @@ if(NUMERIX_BUILD_COMPARISON_BENCHMARK)
         if(GSL_FOUND)
             target_compile_definitions(numerix_comparison_memory PRIVATE NUMERIX_HAVE_GSL)
             target_link_libraries(numerix_comparison_memory PRIVATE GSL::gsl GSL::gslcblas)
+        endif()
+    endif()
+    if(BUILD_TESTING)
+        find_package(Python3 COMPONENTS Interpreter QUIET)
+        if(Python3_Interpreter_FOUND)
+            add_test(NAME numerix_benchmark_raw_verification
+                COMMAND ${Python3_EXECUTABLE}
+                    ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_benchmark_verification.py
+                    $<TARGET_FILE:numerix_comparison_benchmark>
+                    ${CMAKE_CURRENT_SOURCE_DIR}/scripts/verify_benchmark_results.py)
         endif()
     endif()
 endif()
@@ -196,6 +210,22 @@ if(BUILD_TESTING)
             -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
     endif()
     add_test(NAME numerix_release_regressions COMMAND numerix_release_regression_tests)
+    add_executable(numerix_phase13b_regression_tests tests/test_phase13b_regressions.c)
+    target_link_libraries(numerix_phase13b_regression_tests PRIVATE numerix)
+    if(NOT MSVC)
+        target_compile_options(numerix_phase13b_regression_tests PRIVATE
+            -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+    endif()
+    add_test(NAME numerix_phase13b_regressions COMMAND numerix_phase13b_regression_tests)
+    add_executable(numerix_benchmark_measurement_tests
+        tests/test_benchmark_measurement.c benchmarks/measurement.c)
+    target_include_directories(numerix_benchmark_measurement_tests PRIVATE benchmarks)
+    target_link_libraries(numerix_benchmark_measurement_tests PRIVATE numerix)
+    if(NOT MSVC)
+        target_compile_options(numerix_benchmark_measurement_tests PRIVATE
+            -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+    endif()
+    add_test(NAME numerix_benchmark_measurement COMMAND numerix_benchmark_measurement_tests)
 endif()
 
 install(TARGETS numerix EXPORT NUMERIXTargets

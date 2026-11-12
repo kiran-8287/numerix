@@ -125,9 +125,16 @@ static void test_root_accuracy(void)
             }
             CHECK(status == NUMERIX_STATUS_SUCCESS);
             CHECK(fabs(result.value - reference) <= tolerance);
-            CHECK(isfinite(result.residual));
-            CHECK(fabs(result.residual / cases[index].scale) <=
-                  2e-8 * fmax(1.0, fabs(root_derivative(reference, &cases[index]) / cases[index].scale)));
+            if (isfinite(result.residual))
+            {
+                CHECK(fabs(result.residual / cases[index].scale) <=
+                      2e-8 * fmax(1.0, fabs(root_derivative(reference, &cases[index]) / cases[index].scale)));
+            }
+            else
+            {
+                /* Bisection may finish from its certified bracket-width bound. */
+                CHECK(method == 0 && isnan(result.residual));
+            }
             CHECK(result.estimated_error <= options.absolute_tolerance +
                   options.relative_tolerance * fabs(result.value));
         }

@@ -1,0 +1,8 @@
+category,planned_problem_configurations,attempted_problem_configurations,completed_problem_configurations,eligible_direct_method_phase_pairs,eligible_best_available_or_approximate_pairs,excluded_or_ineligible_paired_workloads
+root,16,16,16,28,14,5
+linear,30,30,30,48,0,36
+differentiation,15,15,15,0,15,0
+interpolation,12,12,12,1,22,11
+integration,16,16,16,0,16,0
+optimization,10,10,10,10,0,0
+ode,15,15,15,8,0,7

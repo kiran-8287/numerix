@@ -67,7 +67,10 @@ static numerix_status lu_raw(const numerix_matrix *matrix, double absolute_toler
     size_t column;
     size_t pivot_column;
     size_t pivot_row;
-    double maximum = 0.0;
+    double *row_scale = NULL;
+    double relative_threshold;
+    numerix_status status = NUMERIX_STATUS_SUCCESS;
+    const char *failure_message;
 
     (void)absolute_tolerance;
     memset(lu, 0, sizeof(*lu));
@@ -84,37 +87,51 @@ static numerix_status lu_raw(const numerix_matrix *matrix, double absolute_toler
     }
     lu->data = malloc(dimension * dimension * sizeof(double));
     lu->permutation = malloc(dimension * sizeof(size_t));
-    if (lu->data == NULL || lu->permutation == NULL) {
+    row_scale = malloc(dimension * sizeof(double));
+    if (lu->data == NULL || lu->permutation == NULL || row_scale == NULL) {
+        free(row_scale);
         numerix_lu_destroy(lu);
         return bad(error, NUMERIX_STATUS_ALLOCATION_FAILURE, "LU allocation failed");
     }
     memcpy(lu->data, matrix->data, dimension * dimension * sizeof(double));
     lu->size = dimension;
     lu->sign = 1;
-    for (row = 0; row < dimension * dimension; ++row) {
-        if (fabs(matrix->data[row]) > maximum) {
-            maximum = fabs(matrix->data[row]);
+    relative_threshold = DBL_EPSILON * (double)dimension;
+    lu->threshold = relative_threshold;
+    for (row = 0; row < dimension; ++row) {
+        row_scale[row] = 0.0;
+        lu->permutation[row] = row;
+        for (column = 0; column < dimension; ++column) {
+            double magnitude = fabs(matrix->data[row * dimension + column]);
+
+            if (magnitude > row_scale[row]) {
+                row_scale[row] = magnitude;
+            }
         }
     }
-    lu->threshold = fmax(DBL_MIN, DBL_EPSILON * (double)dimension * maximum);
-    for (row = 0; row < dimension; ++row) {
-        lu->permutation[row] = row;
-    }
     for (pivot_column = 0; pivot_column < dimension; ++pivot_column) {
+        double best_quality = row_scale[pivot_column] == 0.0 ? 0.0 :
+            fabs(lu->data[pivot_column * dimension + pivot_column]) /
+                row_scale[pivot_column];
+
         pivot_row = pivot_column;
         for (row = pivot_column + 1U; row < dimension; ++row) {
-            if (fabs(lu->data[row * dimension + pivot_column]) >
-                fabs(lu->data[pivot_row * dimension + pivot_column])) {
+            double quality = row_scale[row] == 0.0 ? 0.0 :
+                fabs(lu->data[row * dimension + pivot_column]) / row_scale[row];
+
+            if (quality > best_quality) {
+                best_quality = quality;
                 pivot_row = row;
             }
         }
-        if (fabs(lu->data[pivot_row * dimension + pivot_column]) <= lu->threshold) {
-            numerix_lu_destroy(lu);
-            return bad(error, NUMERIX_STATUS_SINGULAR_MATRIX,
-                       "matrix has a zero or numerically negligible pivot");
+        if (best_quality <= relative_threshold) {
+            status = NUMERIX_STATUS_SINGULAR_MATRIX;
+            failure_message = "matrix has a zero or numerically negligible scaled pivot";
+            goto cleanup;
         }
         if (pivot_row != pivot_column) {
             size_t permutation;
+            double scale;
 
             for (column = 0; column < dimension; ++column) {
                 double element = lu->data[pivot_column * dimension + column];
@@ -126,20 +143,43 @@ static numerix_status lu_raw(const numerix_matrix *matrix, double absolute_toler
             permutation = lu->permutation[pivot_column];
             lu->permutation[pivot_column] = lu->permutation[pivot_row];
             lu->permutation[pivot_row] = permutation;
+            scale = row_scale[pivot_column];
+            row_scale[pivot_column] = row_scale[pivot_row];
+            row_scale[pivot_row] = scale;
             lu->sign = -lu->sign;
         }
         for (row = pivot_column + 1U; row < dimension; ++row) {
-            lu->data[row * dimension + pivot_column] /=
+            double multiplier = lu->data[row * dimension + pivot_column] /
                 lu->data[pivot_column * dimension + pivot_column];
+
+            if (!isfinite(multiplier)) {
+                status = NUMERIX_STATUS_NUMERICAL_FAILURE;
+                failure_message = "non-finite LU elimination multiplier";
+                goto cleanup;
+            }
+            lu->data[row * dimension + pivot_column] = multiplier;
             for (column = pivot_column + 1U; column < dimension; ++column) {
-                lu->data[row * dimension + column] -=
-                    lu->data[row * dimension + pivot_column] *
+                double product = multiplier *
                     lu->data[pivot_column * dimension + column];
+                double updated = lu->data[row * dimension + column] - product;
+
+                if (!isfinite(product) || !isfinite(updated)) {
+                    status = NUMERIX_STATUS_NUMERICAL_FAILURE;
+                    failure_message = "non-finite LU factor during elimination";
+                    goto cleanup;
+                }
+                lu->data[row * dimension + column] = updated;
             }
         }
     }
+    free(row_scale);
     numerix_error_clear(error);
     return NUMERIX_STATUS_SUCCESS;
+
+cleanup:
+    free(row_scale);
+    numerix_lu_destroy(lu);
+    return bad(error, status, failure_message);
 }
 void numerix_lu_destroy(numerix_lu*l){if(l){free(l->data);free(l->permutation);memset(l,0,sizeof(*l));}}
 numerix_status numerix_lu_decompose(const numerix_matrix*a,const numerix_options*o,numerix_lu*l,numerix_error*e){numerix_options opt;numerix_status s;if(!l)return bad(e,NUMERIX_STATUS_INVALID_ARGUMENT,"LU output is required");memset(l,0,sizeof(*l));if(o)opt=*o;else numerix_options_init(&opt);s=numerix_options_validate(&opt,e);if(s)return s;return lu_raw(a,opt.absolute_tolerance,l,e);}
@@ -184,10 +224,16 @@ numerix_status numerix_lu_solve(const numerix_lu *lu, const numerix_vector *righ
         for (column = row + 1U; column < dimension; ++column) {
             value -= lu->data[row * dimension + column] * (*solution)->data[column];
         }
-        if (fabs(lu->data[row * dimension + row]) <= lu->threshold) {
+        if (lu->data[row * dimension + row] == 0.0) {
             numerix_vector_destroy(*solution);
             *solution = NULL;
             return bad(error, NUMERIX_STATUS_SINGULAR_MATRIX, "singular LU diagonal");
+        }
+        if (!isfinite(lu->data[row * dimension + row])) {
+            numerix_vector_destroy(*solution);
+            *solution = NULL;
+            return bad(error, NUMERIX_STATUS_NUMERICAL_FAILURE,
+                       "non-finite LU diagonal");
         }
         (*solution)->data[row] = value / lu->data[row * dimension + row];
         if (!isfinite((*solution)->data[row])) {
@@ -201,4 +247,163 @@ numerix_status numerix_lu_solve(const numerix_lu *lu, const numerix_vector *righ
 }
 static numerix_status residual_norm(const numerix_matrix*a,const numerix_vector*x,const numerix_vector*b,double*out,numerix_error*e){size_t i,j;double norm=0;if(!out)return NUMERIX_STATUS_SUCCESS;for(i=0;i<a->rows;i++){double v=-b->data[i];for(j=0;j<a->columns;j++)v+=a->data[i*a->columns+j]*x->data[j];if(fabs(v)>norm)norm=fabs(v);}*out=norm;if(!isfinite(norm))return bad(e,NUMERIX_STATUS_NUMERICAL_FAILURE,"residual overflow");return NUMERIX_STATUS_SUCCESS;}
 numerix_status numerix_linear_solve_gaussian(const numerix_matrix*a,const numerix_vector*b,const numerix_options*o,numerix_vector**x,double*res,numerix_error*e){numerix_lu lu;numerix_options opt;numerix_status s;if(!x)return bad(e,NUMERIX_STATUS_INVALID_ARGUMENT,"solution output required");*x=NULL;if(!matok(a)||!vecok(b)||a->rows!=a->columns||b->size!=a->rows)return bad(e,NUMERIX_STATUS_INVALID_DIMENSIONS,"linear system must be square and dimensionally compatible");if(o)opt=*o;else numerix_options_init(&opt);s=numerix_options_validate(&opt,e);if(s)return s;s=lu_raw(a,opt.absolute_tolerance,&lu,e);if(s)return s;s=numerix_lu_solve(&lu,b,x,e);numerix_lu_destroy(&lu);if(!s)s=residual_norm(a,*x,b,res,e);return s;}
-numerix_status numerix_linear_solve_gauss_jordan(const numerix_matrix*a,const numerix_vector*b,const numerix_options*o,numerix_vector**x,double*res,numerix_error*e){numerix_matrix*m=NULL;numerix_vector*v=NULL;numerix_options opt;size_t n,i,j,k,p;double maxv=0,threshold;numerix_status s;if(!x)return bad(e,NUMERIX_STATUS_INVALID_ARGUMENT,"solution output required");*x=NULL;if(!matok(a)||!vecok(b)||a->rows!=a->columns||b->size!=a->rows)return bad(e,NUMERIX_STATUS_INVALID_DIMENSIONS,"linear system must be square and dimensionally compatible");if(o)opt=*o;else numerix_options_init(&opt);s=numerix_options_validate(&opt,e);if(s)return s;n=a->rows;s=numerix_matrix_create(n,n,&m,e);if(s)return s;s=numerix_vector_copy(b,&v,e);if(s){numerix_matrix_destroy(m);return s;}memcpy(m->data,a->data,n*n*sizeof(double));for(i=0;i<n*n;i++)if(fabs(a->data[i])>maxv)maxv=fabs(a->data[i]);threshold=fmax(DBL_MIN,DBL_EPSILON*(double)n*maxv);for(k=0;k<n;k++){p=k;for(i=k+1;i<n;i++)if(fabs(m->data[i*n+k])>fabs(m->data[p*n+k]))p=i;if(fabs(m->data[p*n+k])<=threshold){s=bad(e,NUMERIX_STATUS_SINGULAR_MATRIX,"singular pivot in Gauss-Jordan elimination");goto cleanup;}if(p!=k){for(j=0;j<n;j++){double t=m->data[k*n+j];m->data[k*n+j]=m->data[p*n+j];m->data[p*n+j]=t;}{double t=v->data[k];v->data[k]=v->data[p];v->data[p]=t;}}{double pivot=m->data[k*n+k];for(j=0;j<n;j++)m->data[k*n+j]/=pivot;v->data[k]/=pivot;}for(i=0;i<n;i++)if(i!=k){double factor=m->data[i*n+k];for(j=0;j<n;j++)m->data[i*n+j]-=factor*m->data[k*n+j];v->data[i]-=factor*v->data[k];}}if(!vecok(v)){s=bad(e,NUMERIX_STATUS_NUMERICAL_FAILURE,"non-finite solution");goto cleanup;}*x=v;v=NULL;s=residual_norm(a,*x,b,res,e);cleanup:numerix_matrix_destroy(m);numerix_vector_destroy(v);return s;}
+numerix_status numerix_linear_solve_gauss_jordan(const numerix_matrix *matrix,
+                                                 const numerix_vector *right,
+                                                 const numerix_options *options,
+                                                 numerix_vector **solution,
+                                                 double *residual,
+                                                 numerix_error *error)
+{
+    numerix_matrix *work = NULL;
+    numerix_vector *values = NULL;
+    numerix_options configured;
+    double *row_scale = NULL;
+    double relative_threshold;
+    size_t dimension;
+    size_t row;
+    size_t column;
+    size_t pivot_column;
+    numerix_status status;
+
+    if (solution == NULL) {
+        return bad(error, NUMERIX_STATUS_INVALID_ARGUMENT,
+                   "solution output required");
+    }
+    *solution = NULL;
+    if (!matok(matrix) || !vecok(right) || matrix->rows != matrix->columns ||
+        right->size != matrix->rows) {
+        return bad(error, NUMERIX_STATUS_INVALID_DIMENSIONS,
+                   "linear system must be square and dimensionally compatible");
+    }
+    if (options != NULL) {
+        configured = *options;
+    } else {
+        numerix_options_init(&configured);
+    }
+    status = numerix_options_validate(&configured, error);
+    if (status != NUMERIX_STATUS_SUCCESS) {
+        return status;
+    }
+    dimension = matrix->rows;
+    status = numerix_matrix_create(dimension, dimension, &work, error);
+    if (status != NUMERIX_STATUS_SUCCESS) {
+        return status;
+    }
+    status = numerix_vector_copy(right, &values, error);
+    if (status != NUMERIX_STATUS_SUCCESS) {
+        numerix_matrix_destroy(work);
+        return status;
+    }
+    row_scale = malloc(dimension * sizeof(double));
+    if (row_scale == NULL) {
+        status = bad(error, NUMERIX_STATUS_ALLOCATION_FAILURE,
+                     "Gauss-Jordan row-scale allocation failed");
+        goto cleanup;
+    }
+    memcpy(work->data, matrix->data,
+           dimension * dimension * sizeof(double));
+    relative_threshold = DBL_EPSILON * (double)dimension;
+    for (row = 0; row < dimension; ++row) {
+        row_scale[row] = 0.0;
+        for (column = 0; column < dimension; ++column) {
+            double magnitude = fabs(matrix->data[row * dimension + column]);
+
+            if (magnitude > row_scale[row]) {
+                row_scale[row] = magnitude;
+            }
+        }
+    }
+    for (pivot_column = 0; pivot_column < dimension; ++pivot_column) {
+        size_t pivot_row = pivot_column;
+        double best_quality = row_scale[pivot_row] == 0.0 ? 0.0 :
+            fabs(work->data[pivot_row * dimension + pivot_column]) /
+                row_scale[pivot_row];
+        double pivot;
+
+        for (row = pivot_column + 1U; row < dimension; ++row) {
+            double quality = row_scale[row] == 0.0 ? 0.0 :
+                fabs(work->data[row * dimension + pivot_column]) / row_scale[row];
+
+            if (quality > best_quality) {
+                best_quality = quality;
+                pivot_row = row;
+            }
+        }
+        if (best_quality <= relative_threshold) {
+            status = bad(error, NUMERIX_STATUS_SINGULAR_MATRIX,
+                         "singular or numerically negligible scaled pivot in Gauss-Jordan elimination");
+            goto cleanup;
+        }
+        if (pivot_row != pivot_column) {
+            double scale;
+            double value;
+
+            for (column = 0; column < dimension; ++column) {
+                value = work->data[pivot_column * dimension + column];
+                work->data[pivot_column * dimension + column] =
+                    work->data[pivot_row * dimension + column];
+                work->data[pivot_row * dimension + column] = value;
+            }
+            value = values->data[pivot_column];
+            values->data[pivot_column] = values->data[pivot_row];
+            values->data[pivot_row] = value;
+            scale = row_scale[pivot_column];
+            row_scale[pivot_column] = row_scale[pivot_row];
+            row_scale[pivot_row] = scale;
+        }
+        pivot = work->data[pivot_column * dimension + pivot_column];
+        if (!isfinite(pivot) || pivot == 0.0) {
+            status = bad(error, NUMERIX_STATUS_NUMERICAL_FAILURE,
+                         "invalid Gauss-Jordan pivot");
+            goto cleanup;
+        }
+        for (column = 0; column < dimension; ++column) {
+            work->data[pivot_column * dimension + column] /= pivot;
+            if (!isfinite(work->data[pivot_column * dimension + column])) {
+                status = bad(error, NUMERIX_STATUS_NUMERICAL_FAILURE,
+                             "non-finite Gauss-Jordan normalized row");
+                goto cleanup;
+            }
+        }
+        values->data[pivot_column] /= pivot;
+        if (!isfinite(values->data[pivot_column])) {
+            status = bad(error, NUMERIX_STATUS_NUMERICAL_FAILURE,
+                         "non-finite Gauss-Jordan right-hand side");
+            goto cleanup;
+        }
+        for (row = 0; row < dimension; ++row) {
+            double factor;
+
+            if (row == pivot_column) {
+                continue;
+            }
+            factor = work->data[row * dimension + pivot_column];
+            for (column = 0; column < dimension; ++column) {
+                double updated = work->data[row * dimension + column] -
+                    factor * work->data[pivot_column * dimension + column];
+
+                if (!isfinite(updated)) {
+                    status = bad(error, NUMERIX_STATUS_NUMERICAL_FAILURE,
+                                 "non-finite Gauss-Jordan elimination value");
+                    goto cleanup;
+                }
+                work->data[row * dimension + column] = updated;
+            }
+            values->data[row] -= factor * values->data[pivot_column];
+            if (!isfinite(values->data[row])) {
+                status = bad(error, NUMERIX_STATUS_NUMERICAL_FAILURE,
+                             "non-finite Gauss-Jordan solution value");
+                goto cleanup;
+            }
+        }
+    }
+    *solution = values;
+    values = NULL;
+    status = residual_norm(matrix, *solution, right, residual, error);
+
+cleanup:
+    free(row_scale);
+    numerix_matrix_destroy(work);
+    numerix_vector_destroy(values);
+    return status;
+}

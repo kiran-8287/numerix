@@ -166,7 +166,7 @@ numerix_status numerix_root_solve_portfolio(
         {
             status = NUMERIX_STATUS_NUMERICAL_FAILURE;
             numerix_error_set(error, status,
-                              "solver reported success without a finite accurate root result");
+                              "solver reported success without a usable root estimate");
         }
         record_attempt(report, algorithm, status, &current, error);
 
@@ -175,17 +175,49 @@ numerix_status numerix_root_solve_portfolio(
             continue;
         }
         ++successful_count;
-        if (!report->has_selected_attempt ||
-            fabs(current.residual) <
-                fabs(report->attempts[best_index].result.residual) ||
-            (fabs(current.residual) ==
-                 fabs(report->attempts[best_index].result.residual) &&
-             current.iterations < report->attempts[best_index].result.iterations))
+        if (!report->has_selected_attempt)
         {
             best_index = report->attempt_count - 1;
             report->selected_attempt = best_index;
             report->has_selected_attempt = 1;
             *best_result = current;
+        }
+        else
+        {
+            const numerix_result *selected =
+                &report->attempts[best_index].result;
+            int current_has_residual = isfinite(current.residual);
+            int selected_has_residual = isfinite(selected->residual);
+            int prefer_current = 0;
+
+            if (current_has_residual != selected_has_residual)
+            {
+                prefer_current = current_has_residual;
+            }
+            else if (current_has_residual &&
+                     fabs(current.residual) != fabs(selected->residual))
+            {
+                prefer_current = fabs(current.residual) <
+                                 fabs(selected->residual);
+            }
+            else if (!current_has_residual &&
+                     isfinite(current.estimated_error) &&
+                     (!isfinite(selected->estimated_error) ||
+                      current.estimated_error != selected->estimated_error))
+            {
+                prefer_current = !isfinite(selected->estimated_error) ||
+                    current.estimated_error < selected->estimated_error;
+            }
+            else
+            {
+                prefer_current = current.iterations < selected->iterations;
+            }
+            if (prefer_current)
+            {
+                best_index = report->attempt_count - 1;
+                report->selected_attempt = best_index;
+                *best_result = current;
+            }
         }
     }
 

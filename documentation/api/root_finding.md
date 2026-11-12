@@ -11,7 +11,13 @@ is accepted. Otherwise bisection returns a midpoint with a maximum endpoint
 separation within tolerance; the other methods return a sampled endpoint whose
 entire bracket width meets tolerance. The Brent interior safeguards remain
 independent of GSL's implementation. Continuity is an input assumption; a sign
-change across a pole or jump is not proof of a root.
+change across a pole or jump is not proof of a root. Bisection checks the
+bracket's position bound before requesting another midpoint callback. If the
+current interval already meets position tolerance, it returns its midpoint
+estimate without spending an unnecessary evaluation. In that case the
+function residual was not evaluated and `result.residual` is `NAN`; the finite
+`estimated_error` records the bracket-based position bound. High-level root
+selection accepts that result when its position estimate meets tolerance.
 
 Newton and secant use local step/contraction evidence, not small residuals.
 Tiny nonzero function/derivative magnitudes alone are not a failure: Newton

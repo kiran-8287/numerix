@@ -3,10 +3,13 @@
 #define _POSIX_C_SOURCE 200809L
 #endif
 #include "comparison.h"
+#include "measurement.h"
 
 #include <errno.h>
 #include <float.h>
+#include <inttypes.h>
 #include <math.h>
+#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,6 +31,10 @@
 
 #define MAX_SAMPLES 101U
 #define PI 3.14159265358979323846264338327950288
+#define DEFAULT_RANDOMIZATION_SEED UINT64_C(20261112)
+
+static const char *category_names[] = {"root", "linear", "differentiation",
+    "integration", "interpolation", "optimization", "ode", "capability"};
 
 typedef enum category {
     ROOT, LINEAR, DIFFERENTIATION, INTEGRATION, INTERPOLATION, OPTIMIZATION, ODE,
@@ -73,6 +80,12 @@ typedef struct workload {
     const char *method;
     const char *phase;
     const char *comparison;
+    const char *configuration_id;
+    const char *pair_id;
+    const char *actual_order;
+    size_t pair_index;
+    int paired;
+    uint64_t seed;
     int gsl;
     numerix_options options;
     size_t evaluations;
@@ -105,6 +118,13 @@ static size_t sample_count = 21U;
 static int memory_only;
 static const char *case_filter;
 static const char *library_filter;
+static const char *run_identifier;
+static const char *output_directory;
+static uint64_t randomization_seed = DEFAULT_RANDOMIZATION_SEED;
+static size_t paired_case_index;
+static FILE *raw_timing_output;
+static FILE *accuracy_output;
+static FILE *workload_output;
 
 static double seconds_now(void)
 {
@@ -145,28 +165,85 @@ static double scalar_value(const problem *p, double x)
                     return (x - 1.0) * (x - 2.0) * (x - 4.0);
                 case 5:
                     return x - 1e-9;
+                case 7:
+                    return sin(5.0 * x) - 0.5;
+                case 8:
+                    return exp(x) - 2.0;
+                case 9:
+                    return x * x * x - 1000.0;
+                case 10:
+                    return x - p->reference;
+                case 11:
+                    return exp(10.0 * x) - 2.0;
+                case 12:
+                    return x - 1e-12;
+                case 13:
+                    return sin(100.0 * x);
+                case 14:
+                    return (x - 0.4) * (x - 0.4);
                 default:
                     return x * x + 1.0;
             }
         case DIFFERENTIATION:
+            switch (p->variant) {
+                case 0:
+                    return p->scale * x * x * x * x;
+                case 1:
+                    return p->scale * sin(x);
+                case 2:
+                    return p->scale * exp(x);
+                case 3:
+                    return p->scale / (1.0 + 100.0 * x * x);
+                case 4:
+                    return p->scale * sqrt(x);
+                case 5:
+                    return p->scale * sin(40.0 * x);
+                default:
+                    return p->scale * sin(x);
+            }
         case INTEGRATION:
             switch (p->variant) {
                 case 0:
-                    return x * x * x * x;
+                    return p->scale * x * x * x * x;
                 case 1:
-                    return sin(x);
+                    return p->scale * sin(x);
                 case 2:
-                    return exp(x);
+                    return p->scale * exp(x);
                 case 3:
-                    return 1.0 / (1.0 + 100.0 * x * x);
+                    return p->scale / (1.0 + 100.0 * x * x);
                 case 4:
-                    return sqrt(x);
+                    return p->scale * sqrt(x);
+                case 5:
+                    return p->scale * sin(40.0 * x);
+                case 6:
+                    return p->scale * exp(-x * x);
+                case 7: {
+                    double offset = x - 0.5;
+                    return p->scale * exp(-1000.0 * offset * offset);
+                }
+                case 8: {
+                    double offset = x - 0.5;
+                    return p->scale / (1.0 + 10000.0 * offset * offset);
+                }
+                case 9:
+                    return p->scale * sin(100.0 * x);
+                case 10:
+                    return p->scale * exp(-x);
+                case 11:
+                    return p->scale * x * x * x * x * x * x * x * x;
                 default:
-                    return sin(40.0 * x);
+                    return p->scale * x * x * x * x;
             }
         case OPTIMIZATION:
             if (p->variant == 1) {
                 return exp(x) - x;
+            }
+            if (p->variant == 2) {
+                double distance = x - p->reference;
+                return p->scale * distance * distance * distance * distance;
+            }
+            if (p->variant == 3) {
+                return p->scale * fabs(x - p->reference);
             }
             return p->scale * (x - p->reference) * (x - p->reference);
         case CAPABILITY:
@@ -211,6 +288,26 @@ static double counted_derivative(double x, void *data)
     const problem *p = w->problem;
 
     ++w->derivatives;
+    if (p->category == DIFFERENTIATION) {
+        switch (p->variant) {
+            case 0:
+                return p->scale * 4.0 * x * x * x;
+            case 1:
+                return p->scale * cos(x);
+            case 2:
+                return p->scale * exp(x);
+            case 3: {
+                double denominator = 1.0 + 100.0 * x * x;
+                return p->scale * -200.0 * x / (denominator * denominator);
+            }
+            case 4:
+                return p->scale * 0.5 / sqrt(x);
+            case 5:
+                return p->scale * 40.0 * cos(40.0 * x);
+            default:
+                return p->scale * cos(x);
+        }
+    }
     switch (p->variant) {
         case 1:
             return -sin(x) - 1.0;
@@ -223,6 +320,21 @@ static double counted_derivative(double x, void *data)
                    (x - 1.0) * (x - 2.0);
         case 5:
             return 1.0;
+        case 7:
+            return 5.0 * cos(5.0 * x);
+        case 8:
+            return exp(x);
+        case 9:
+            return 3.0 * x * x;
+        case 10:
+        case 12:
+            return 1.0;
+        case 11:
+            return 10.0 * exp(10.0 * x);
+        case 13:
+            return 100.0 * cos(100.0 * x);
+        case 14:
+            return 2.0 * (x - 0.4);
         default:
             return 2.0 * x;
     }
@@ -302,6 +414,8 @@ static int prepare_inputs(workload *w)
 
                 if (p->variant == 1) {
                     element = p->scale / (double)(row + column + 1U);
+                } else if (p->variant == 2) {
+                    element = p->scale * (row == column ? 1.0 : 1.0 - p->step);
                 } else {
                     element = p->scale * (row == column ? 2.0 :
                               0.25 / (double)(row + column + 1U));
@@ -320,12 +434,17 @@ static int prepare_inputs(workload *w)
         for (row = 0; row < p->size; ++row) {
             double fraction = (double)row / (double)(p->size - 1U);
 
-            if (p->variant == 1) {
+            if (p->variant == 1 || p->variant == 4) {
                 fraction *= fraction;
             }
             w->nodes[row] = fraction;
-            w->values[row] = p->scale * (fraction * fraction * fraction -
-                                       2.0 * fraction + 1.0);
+            if (p->variant >= 3) {
+                w->values[row] = p->scale * (fraction * fraction * fraction * fraction -
+                                             fraction * fraction + 0.5 * fraction + 1.0);
+            } else {
+                w->values[row] = p->scale * (fraction * fraction * fraction -
+                                             2.0 * fraction + 1.0);
+            }
         }
     }
     return 1;
@@ -996,20 +1115,104 @@ static void assess_accuracy(workload *w, observation *o)
     if (p->category == LINEAR) {
         threshold = 1e-8;
     } else if (p->category == DIFFERENTIATION) {
-        threshold = 1e-7 * fmax(1.0, fabs(p->reference));
+        threshold = fmax(p->absolute_tolerance, 1e-7 * fabs(p->reference));
     } else if (p->category == ODE) {
-        threshold = strcmp(w->method, "euler") == 0 ? 0.02 :
-                    strcmp(w->method, "heun") == 0 ? 1e-4 : 1e-7;
+        double method_tolerance = strcmp(w->method, "euler") == 0 ? 0.02 :
+                                  strcmp(w->method, "heun") == 0 ? 1e-4 : 1e-7;
+        threshold = method_tolerance * fmax(1.0, fabs(p->reference));
     }
-    o->accuracy_pass = isfinite(o->absolute_error) && o->absolute_error <= threshold;
+    o->accuracy_pass = isfinite(o->absolute_error) && o->absolute_error <= threshold &&
+        (p->category != ODE ||
+         (isfinite(o->trajectory_error) && o->trajectory_error <= threshold));
 }
 
-static int compare_double(const void *left, const void *right)
+static const char *reference_method(category problem_category)
 {
-    double a = *(const double *)left;
-    double b = *(const double *)right;
+    switch (problem_category) {
+        case ROOT:
+            return "known_analytic_root_or_declared_case_value";
+        case LINEAR:
+            return "constructed_system_with_declared_solution";
+        case DIFFERENTIATION:
+            return "analytic_derivative";
+        case INTEGRATION:
+            return "analytic_antiderivative_or_declared_case_value";
+        case INTERPOLATION:
+            return "analytic_polynomial_or_linear_segment";
+        case OPTIMIZATION:
+            return "known_minimizer_or_declared_case_value";
+        case ODE:
+            return "closed_form_trajectory";
+        case CAPABILITY:
+            return "analytic_or_declared_capability_result";
+    }
+    return "unknown_reference_method";
+}
 
-    return (a > b) - (a < b);
+static const char *benchmark_mode(const char *comparison_label)
+{
+    if (strcmp(comparison_label, "api_equivalent") == 0) {
+        return "same_algorithm";
+    }
+    if (strcmp(comparison_label, "numerix_only") == 0) {
+        return "capability_only";
+    }
+    if (strcmp(comparison_label, "ill_conditioned_unranked") == 0) {
+        return "excluded_unranked_case";
+    }
+    return "best_available";
+}
+
+static uint64_t workload_configuration_hash(const workload *w)
+{
+    numerix_benchmark_configuration configuration;
+
+    memset(&configuration, 0, sizeof(configuration));
+    configuration.category = category_names[w->problem->category];
+    configuration.case_id = w->problem->name;
+    configuration.method = w->method;
+    configuration.phase = w->phase;
+    configuration.comparison_mode = benchmark_mode(w->comparison);
+    configuration.reference_method =
+        reference_method(w->problem->category);
+    configuration.variant = w->problem->variant;
+    configuration.difficulty = w->problem->difficulty;
+    configuration.size = w->problem->size;
+    configuration.lower = w->problem->lower;
+    configuration.upper = w->problem->upper;
+    configuration.initial = w->problem->initial;
+    configuration.step = w->problem->step;
+    configuration.scale = w->problem->scale;
+    configuration.absolute_tolerance = w->problem->absolute_tolerance;
+    configuration.relative_tolerance = w->problem->relative_tolerance;
+    configuration.expected_value = w->problem->reference;
+    return numerix_benchmark_configuration_id(&configuration);
+}
+
+static void write_workload_manifest(const workload *w)
+{
+    numerix_benchmark_precision precision;
+
+    if (workload_output == NULL) {
+        return;
+    }
+    numerix_benchmark_get_precision(&precision);
+    fprintf(workload_output,
+        "2,%s,%s,%s,%s,%s,%d,%d,%zu,%s,%s,%s,%s,%s,%s,"
+        "%.17g,%.17g,%.17g,%.17g,%.17g,%.17g,%.17g,%.17g,"
+        "%u,%d,%d,%d,%" PRIu64 ",%zu\n",
+        run_identifier, w->configuration_id, w->paired ? w->pair_id : "",
+        category_names[w->problem->category], w->problem->name,
+        w->problem->variant, w->problem->difficulty, w->problem->size,
+        w->method, w->phase, w->gsl ? "GSL" : "NUMERIX",
+        benchmark_mode(w->comparison), w->comparison,
+        reference_method(w->problem->category), w->problem->lower,
+        w->problem->upper, w->problem->initial, w->problem->step,
+        w->problem->scale, w->problem->absolute_tolerance,
+        w->problem->relative_tolerance, w->problem->reference,
+        precision.storage_bits, precision.significand_bits,
+        precision.min_exponent, precision.max_exponent,
+        w->seed, w->pair_index);
 }
 
 static double time_batch(workload *w, size_t batch)
@@ -1024,31 +1227,77 @@ static double time_batch(workload *w, size_t batch)
     return seconds_now() - start;
 }
 
+static void make_accuracy_record_id(const workload *w, size_t probe_index,
+                                    char *identifier, size_t capacity)
+{
+    (void)snprintf(identifier, capacity, "%s:%s:%s:%zu",
+        run_identifier, w->configuration_id, w->gsl ? "GSL" : "NUMERIX",
+        probe_index);
+}
+
+static void write_accuracy_record(const workload *w, size_t probe_index,
+                                  const observation *o,
+                                  const char *record_identifier)
+{
+    if (accuracy_output == NULL) {
+        return;
+    }
+    fprintf(accuracy_output,
+        "2,%s,%s,%s,%s,%s,%zu,untimed_result_probe,%d,%d,"
+        "%.17g,%.17g,%.17g,%.17g,%.17g,%.17g,%zu,%zu,%zu\n",
+        run_identifier, w->configuration_id, w->paired ? w->pair_id : "",
+        record_identifier, w->gsl ? "GSL" : "NUMERIX", probe_index,
+        o->status, o->accuracy_pass, o->value, w->problem->reference,
+        o->absolute_error, o->relative_error, o->residual, o->estimated_error,
+        o->evaluations, o->derivatives, o->iterations);
+}
+
+static void write_raw_timing_record(const workload *w, size_t sample_index,
+                                    double elapsed_seconds, double elapsed_ns,
+                                    size_t batch, const observation *o,
+                                    const char *accuracy_record_id)
+{
+    numerix_benchmark_precision precision;
+
+    if (raw_timing_output == NULL) {
+        return;
+    }
+    numerix_benchmark_get_precision(&precision);
+    fprintf(raw_timing_output,
+        "2,%s,%s,%s,%s,%s,%s,%s,%s,%zu,%zu,%s,%" PRIu64 ","
+        "%.17g,%.17g,%zu,nanoseconds_per_operation,%d,%d,%u,%d,%d,%d,%s\n",
+        run_identifier, w->configuration_id, w->paired ? w->pair_id : "",
+        w->gsl ? "GSL" : "NUMERIX",
+        category_names[w->problem->category], w->problem->name,
+        w->method, w->phase, sample_index, w->pair_index,
+        w->actual_order, w->seed, elapsed_ns, elapsed_seconds * 1e9, batch,
+        o->status, o->accuracy_pass, precision.storage_bits,
+        precision.significand_bits, precision.min_exponent,
+        precision.max_exponent, accuracy_record_id);
+}
+
 static void emit_workload(workload *w)
 {
-    static const char *categories[] = {"root", "linear", "differentiation", "integration",
-        "interpolation", "optimization", "ode", "capability"};
     double samples[MAX_SAMPLES] = {0.0};
-    double mean = NAN;
-    double standard_deviation = NAN;
-    double minimum = NAN;
-    double median = NAN;
-    double percentile = NAN;
+    numerix_benchmark_statistics statistics = {
+        NAN, NAN, NAN, NAN, NAN, NAN, 0U, 0U
+    };
     size_t batch = 1U;
     size_t index;
-    size_t successes = 0;
-    size_t accuracy_successes = 0;
-    size_t trials = 0;
+    size_t successes = 0U;
+    size_t accuracy_successes = 0U;
     observation o;
     benchmark_memory memory = {0};
     int memory_available = 0;
-    size_t setup_live_bytes = 0;
+    size_t setup_live_bytes = 0U;
     const char *library = w->gsl ? "GSL" : "NUMERIX";
+    numerix_benchmark_precision precision;
 
     if ((case_filter != NULL && strcmp(case_filter, w->problem->name) != 0) ||
         (library_filter != NULL && strcmp(library_filter, library) != 0)) {
         return;
     }
+    write_workload_manifest(w);
     if (!prepare_inputs(w)) {
         fputs("benchmark input allocation failed\n", stderr);
         exit(2);
@@ -1065,36 +1314,41 @@ static void emit_workload(workload *w)
 #ifdef NUMERIX_BENCH_ALLOCATIONS
         setup_live_bytes = benchmark_memory_snapshot().live_bytes;
 #endif
-        operation(w, &o, 1);
-        assess_accuracy(w, &o);
         if (!memory_only) {
-            /* Warm-up and powers-of-two batching until >=2 ms per sample. */
+            /* One warm-up; calibration uses powers of two until a batch is >=2 ms. */
+            operation(w, &o, 0);
             while (time_batch(w, batch) < 0.002 && batch < 1048576U) {
                 batch *= 2U;
             }
             for (index = 0; index < sample_count; ++index) {
-                samples[index] = time_batch(w, batch) * 1e9 / (double)batch;
+                double elapsed_seconds = time_batch(w, batch);
+                double elapsed_ns = elapsed_seconds * 1e9 / (double)batch;
+                char accuracy_identifier[256];
+
+                if (!isfinite(elapsed_seconds) || elapsed_seconds <= 0.0 ||
+                    !isfinite(elapsed_ns) || elapsed_ns <= 0.0) {
+                    fputs("benchmark timer produced an invalid sample\n", stderr);
+                    exit(2);
+                }
+                samples[index] = elapsed_ns;
                 operation(w, &o, 1);
                 assess_accuracy(w, &o);
                 successes += o.status == 0 ? 1U : 0U;
                 accuracy_successes += o.accuracy_pass == 1 ? 1U : 0U;
+                make_accuracy_record_id(w, index, accuracy_identifier,
+                                        sizeof(accuracy_identifier));
+                write_accuracy_record(w, index, &o, accuracy_identifier);
+                write_raw_timing_record(w, index, elapsed_seconds, elapsed_ns,
+                                        batch, &o, accuracy_identifier);
             }
-            trials = sample_count;
-            mean = 0.0;
-            for (index = 0; index < sample_count; ++index) {
-                mean += samples[index] / (double)sample_count;
+            if (!numerix_benchmark_calculate_statistics(samples, sample_count,
+                                                         batch, &statistics)) {
+                fputs("benchmark summary calculation failed\n", stderr);
+                exit(2);
             }
-            standard_deviation = 0.0;
-            for (index = 0; index < sample_count; ++index) {
-                double difference = samples[index] - mean;
-
-                standard_deviation += difference * difference;
-            }
-            standard_deviation = sqrt(standard_deviation / (double)(sample_count - 1U));
-            qsort(samples, sample_count, sizeof(double), compare_double);
-            minimum = samples[0];
-            median = samples[sample_count / 2U];
-            percentile = samples[(size_t)ceil(0.95 * (double)sample_count) - 1U];
+        } else {
+            operation(w, &o, 1);
+            assess_accuracy(w, &o);
         }
     }
     destroy_library(w);
@@ -1105,18 +1359,31 @@ static void emit_workload(workload *w)
         exit(2);
     }
 #endif
-    printf("%s,%s,%d,%zu,%s,%s,%s,%s,%d,%d,%zu,%zu,%zu,%zu,"
-           "%.9g,%.9g,%.9g,%.9g,%.9g,%.17g,%.17g,%.17g,%.17g,%.17g,"
-           "%.17g,%.17g,%.17g,%zu,%zu,%zu,%d,%.17g,%.17g,%.17g,"
-           "%d,%zu,%zu,%zu,%zu,%zu,%zu,%zu\n",
-           categories[w->problem->category], w->problem->name, w->problem->difficulty,
-           w->problem->size, w->method, w->phase, library, w->comparison,
-           o.status, o.accuracy_pass, trials, successes, accuracy_successes, batch,
-           minimum, median, mean, standard_deviation, percentile,
-           o.value, w->problem->reference, o.absolute_error, o.relative_error,
-           o.residual, o.estimated_error, o.backward_error, o.trajectory_error,
-           o.evaluations, o.derivatives, o.iterations, (int)(sizeof(double) * 8U),
-           w->problem->absolute_tolerance, w->problem->relative_tolerance, o.objective,
+    numerix_benchmark_get_precision(&precision);
+    printf("2,%s,%s,%s,%s,%s,%d,%d,%zu,%s,%s,%s,%s,%s,%s,%s,%zu,%" PRIu64 ","
+           "%d,%d,%zu,%zu,%zu,%zu,%zu,"
+           "%.17g,%.17g,%.17g,%.17g,%.17g,%.17g,"
+           "%.17g,%.17g,%.17g,%.17g,%.17g,%.17g,%.17g,%.17g,"
+           "%zu,%zu,%zu,%u,%d,%d,%d,nanoseconds_per_operation,"
+           "%.17g,%d,%zu,%zu,%zu,%zu,%zu,%zu,%zu\n",
+           run_identifier == NULL ? "standalone" : run_identifier,
+           w->configuration_id, w->paired ? w->pair_id : "",
+           category_names[w->problem->category], w->problem->name,
+           w->problem->variant, w->problem->difficulty, w->problem->size,
+           w->method, w->phase, library, benchmark_mode(w->comparison),
+           w->comparison,
+           reference_method(w->problem->category),
+           w->actual_order, w->pair_index, w->seed, o.status, o.accuracy_pass,
+           memory_only ? 0U : sample_count,
+           memory_only ? 0U : sample_count, successes, accuracy_successes,
+           memory_only ? 0U : statistics.batch_size,
+           statistics.minimum, statistics.median, statistics.mean,
+           statistics.sample_standard_deviation, statistics.percentile_95,
+           statistics.maximum, o.value, w->problem->reference,
+           o.absolute_error, o.relative_error, o.residual, o.estimated_error,
+           o.backward_error, o.trajectory_error, o.evaluations, o.derivatives,
+           o.iterations, precision.storage_bits, precision.significand_bits,
+           precision.min_exponent, precision.max_exponent, o.objective,
            memory_available, memory.allocations, memory.allocated_bytes,
            memory.peak_bytes, memory.live_bytes, setup_live_bytes,
            o.direct_result_bytes, o.direct_workspace_peak_bytes);
@@ -1130,19 +1397,50 @@ static void run_case(const problem *p, const char *method, const char *phase,
     workload w;
     int library;
     int library_count = 1;
+    size_t pair_index = paired_case_index;
+    int numerix_first = numerix_benchmark_numerix_runs_first(
+        randomization_seed, pair_index);
+    uint64_t identifier;
+    char configuration_id[32];
+    const char *actual_order = include_gsl ? "GSL_UNAVAILABLE" : "UNPAIRED";
 
 #ifdef NUMERIX_HAVE_GSL
     library_count += include_gsl;
+    if (include_gsl) {
+        actual_order = library_filter == NULL ?
+            (numerix_first ? "NUMERIX_FIRST" : "GSL_FIRST") :
+            "UNPAIRED_LIBRARY_FILTER";
+    }
 #else
     (void)include_gsl;
 #endif
+    if (include_gsl) {
+        ++paired_case_index;
+    }
+    memset(&w, 0, sizeof(w));
+    w.problem = p;
+    w.method = method;
+    w.phase = phase;
+    w.comparison = comparison;
+    identifier = workload_configuration_hash(&w);
+    (void)snprintf(configuration_id, sizeof(configuration_id),
+                   "cfg-%016" PRIx64, identifier);
     for (library = 0; library < library_count; ++library) {
+        int gsl_library = library_count == 1 ? 0 :
+            (numerix_first ? library : 1 - library);
+
         memset(&w, 0, sizeof(w));
         w.problem = p;
         w.method = method;
         w.phase = phase;
         w.comparison = comparison;
-        w.gsl = library;
+        w.gsl = gsl_library;
+        w.configuration_id = configuration_id;
+        w.pair_id = include_gsl ? configuration_id : "";
+        w.actual_order = actual_order;
+        w.pair_index = pair_index;
+        w.paired = include_gsl;
+        w.seed = randomization_seed;
         emit_workload(&w);
     }
 }
@@ -1161,31 +1459,74 @@ static void run_suite(void)
         {ROOT, "large_scale", 3, 4, 0, 2, 1, 1.4142135623730950488, 0, 1e14, 1e-10, 1e-10, 0},
         {ROOT, "multiple_bracket", 4, 2, 1.5, 2.5, 1.8, 2, 0, 1, 1e-10, 1e-10, 0},
         {ROOT, "near_endpoint", 5, 3, 0, 1, 0.5, 1e-9, 0, 1, 1e-12, 0, 0},
-        {ROOT, "no_bracket", 6, 3, -1, 1, 0, NAN, 0, 1, 1e-10, 1e-10, 0}
+        {ROOT, "no_bracket", 6, 3, -1, 1, 0, NAN, 0, 1, 1e-10, 1e-10, 0},
+        {ROOT, "sine_root", 7, 2, 0, 0.3, 0.15, PI / 30.0, 0, 1, 1e-10, 1e-10, 0},
+        {ROOT, "exponential_root", 8, 2, 0, 1, 0.5, 0.6931471805599453, 0, 1, 1e-10, 1e-10, 0},
+        {ROOT, "cubic_scaled_root", 9, 2, 0, 20, 8, 10, 0, 1, 1e-9, 1e-10, 0},
+        {ROOT, "large_coordinate_root", 10, 3, 1e8, 1e8 + 1, 1e8 + 0.25,
+         1e8 + 0.5, 0, 1, 1e-5, 1e-12, 0},
+        {ROOT, "steep_exponential_root", 11, 3, 0, 0.2, 0.1,
+         0.06931471805599453, 0, 1, 1e-10, 1e-10, 0},
+        {ROOT, "tiny_root", 12, 3, 0, 1, 0.25, 1e-12, 0, 1,
+         1e-14, 1e-12, 0},
+        {ROOT, "oscillatory_root", 13, 3, 0.02, 0.05, 0.04,
+         PI / 100.0, 0, 1, 1e-10, 1e-10, 0},
+        {ROOT, "tangent_root", 14, 4, 0, 1, 0.7, 0.4, 0, 1,
+         1e-10, 1e-10, 0}
     };
 
     for (index = 0; index < sizeof(roots) / sizeof(roots[0]); ++index) {
-        run_case(&roots[index], "bisection", "execute", "equivalent_family", 1);
+        run_case(&roots[index], "bisection", "execute", "api_equivalent", 1);
         run_case(&roots[index], "brent", "execute", "different_safeguards", 1);
         if (roots[index].variant != 6) {
-            run_case(&roots[index], "newton", "execute", "equivalent_family", 1);
+            run_case(&roots[index], "newton", "execute", "api_equivalent", 1);
         }
     }
-    for (dimension = 8U; dimension <= 128U; dimension *= dimension == 8U ? 4U : 2U) {
+    {
+        const size_t dimensions[] = {8U, 16U, 32U, 64U, 128U, 256U};
         const double scales[] = {1.0, 1e-12, 1e12};
         const char *names[] = {"dense_well", "dense_small", "dense_large"};
 
-        for (index = 0; index < 3U; ++index) {
-            p = (problem){LINEAR, names[index], 0, dimension == 128U ? 4 : 1,
-                          0, 0, 0, 1, 0, scales[index], 1e-10, 1e-10, dimension};
-            run_case(&p, "pivoted_lu", "factor", "api_equivalent", 1);
-            run_case(&p, "pivoted_lu", "solve", "api_equivalent", 1);
-            run_case(&p, "pivoted_lu", "total", "api_equivalent", 1);
+        for (dimension = 0; dimension < sizeof(dimensions) / sizeof(dimensions[0]);
+             ++dimension) {
+            for (index = 0; index < 3U; ++index) {
+                p = (problem){LINEAR, names[index], 0,
+                              dimensions[dimension] >= 128U ? 4 : 1,
+                              0, 0, 0, 1, 0, scales[index], 1e-10, 1e-10,
+                              dimensions[dimension]};
+                run_case(&p, "pivoted_lu", "factor", "api_equivalent", 1);
+                run_case(&p, "pivoted_lu", "solve", "api_equivalent", 1);
+                run_case(&p, "pivoted_lu", "total", "api_equivalent", 1);
+            }
+            p = (problem){LINEAR, "hilbert", 1, 4, 0, 0, 0, 1, 0, 1,
+                          1e-10, 1e-10, dimensions[dimension]};
+            /* Ill-conditioned factor/solve outcomes are retained and unranked. */
+            run_case(&p, "pivoted_lu", "factor", "ill_conditioned_unranked", 1);
+            run_case(&p, "pivoted_lu", "total", "ill_conditioned_unranked", 1);
         }
-        p = (problem){LINEAR, "hilbert", 1, 4, 0, 0, 0, 1, 0, 1, 1e-10, 1e-10, dimension};
-        /* Rejected NUMERIX factorization is retained; solve setup cannot succeed. */
-        run_case(&p, "pivoted_lu", "factor", "ill_conditioned_unranked", 1);
-        run_case(&p, "pivoted_lu", "total", "ill_conditioned_unranked", 1);
+    }
+    {
+        const size_t dimensions[] = {16U, 64U, 128U};
+        const double diagonal_gaps[] = {1e-2, 1e-4};
+        size_t size_index;
+        size_t gap_index;
+
+        for (size_index = 0; size_index < sizeof(dimensions) / sizeof(dimensions[0]);
+             ++size_index) {
+            for (gap_index = 0; gap_index < sizeof(diagonal_gaps) / sizeof(diagonal_gaps[0]);
+                 ++gap_index) {
+                char name[64];
+
+                (void)snprintf(name, sizeof(name), "near_rank_n%zu_gap_%g",
+                               dimensions[size_index], diagonal_gaps[gap_index]);
+                p = (problem){LINEAR, name, 2, 3, 0, 0, 0, 1,
+                              diagonal_gaps[gap_index], 1, 1e-10, 1e-10,
+                              dimensions[size_index]};
+                run_case(&p, "pivoted_lu", "factor", "api_equivalent", 1);
+                run_case(&p, "pivoted_lu", "solve", "api_equivalent", 1);
+                run_case(&p, "pivoted_lu", "total", "api_equivalent", 1);
+            }
+        }
     }
     for (variant = 0; variant < 4; ++variant) {
         const char *names[] = {"quartic_derivative", "sine_derivative", "exp_derivative",
@@ -1194,9 +1535,54 @@ static void run_suite(void)
                                 -140.0 / (50.0 * 50.0)};
 
         p = (problem){DIFFERENTIATION, names[variant], variant, 2, 0, 0, 0.7,
-                      references[variant], 1e-3, 1, 1e-10, 1e-10, 0};
+                      references[variant], 1e-3, 1, 1e-14, 1e-10, 0};
         run_case(&p, "richardson_vs_adaptive", "execute", "different_algorithm", 1);
     }
+    {
+        const char *names[] = {"quartic_derivative", "sine_derivative", "exp_derivative",
+                               "rational_derivative"};
+        const double points[] = {0.01, 5.0};
+        size_t point_index;
+
+        for (point_index = 0; point_index < sizeof(points) / sizeof(points[0]);
+             ++point_index) {
+            for (variant = 0; variant < 4; ++variant) {
+                char name[80];
+                double x = points[point_index];
+                double reference;
+                double step = point_index == 0U ? 1e-4 : 1e-3;
+
+                switch (variant) {
+                    case 0: reference = 4.0 * x * x * x; break;
+                    case 1: reference = cos(x); break;
+                    case 2: reference = exp(x); break;
+                    default: {
+                        double denominator = 1.0 + 100.0 * x * x;
+                        reference = -200.0 * x / (denominator * denominator);
+                        break;
+                    }
+                }
+                (void)snprintf(name, sizeof(name), "%s_x_%g", names[variant], x);
+                p = (problem){DIFFERENTIATION, name, variant, 2, 0, 0, x,
+                              reference, step, 1, 1e-14, 1e-10, 0};
+                run_case(&p, "richardson_vs_adaptive", "execute",
+                         "different_algorithm", 1);
+            }
+        }
+    }
+    for (index = 0; index < 2U; ++index) {
+        double scale = index == 0U ? 1e-12 : 1e12;
+        char name[64];
+
+        (void)snprintf(name, sizeof(name), "scaled_sine_derivative_%s",
+                       index == 0U ? "tiny" : "large");
+        p = (problem){DIFFERENTIATION, name, 6, 3, 0, 0, 0.7,
+                      scale * cos(0.7), 1e-3, scale, 1e-20, 1e-10, 0};
+        run_case(&p, "richardson_vs_adaptive", "execute", "different_algorithm", 1);
+    }
+    p = (problem){DIFFERENTIATION, "sqrt_derivative_near_zero", 4, 4, 0, 0,
+                  1e-4, 50.0, 1e-7, 1, 1e-10, 1e-10, 0};
+    run_case(&p, "richardson_vs_adaptive", "execute", "different_algorithm", 1);
     for (variant = 0; variant < 6; ++variant) {
         const char *names[] = {"quartic_integral", "sine_integral", "exp_integral",
                                "curved_integral", "endpoint_sqrt", "oscillatory"};
@@ -1210,6 +1596,51 @@ static void run_suite(void)
         run_case(&p, "trapezoid", "execute", "numerix_only", 0);
         run_case(&p, "simpson", "execute", "numerix_only", 0);
     }
+    {
+        const char *names[] = {"gaussian_integral", "narrow_gaussian_integral",
+                               "narrow_rational_integral", "high_frequency_integral",
+                               "exponential_tail_integral", "eighth_power_integral"};
+        double references[] = {
+            sqrt(PI) * erf(2.0),
+            sqrt(PI / 1000.0) * erf(sqrt(250.0)),
+            atan(50.0) / 50.0,
+            (1.0 - cos(100.0)) / 100.0,
+            1.0 - exp(-10.0),
+            1.0 / 9.0
+        };
+        double lower[] = {-2.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+        double upper[] = {2.0, 1.0, 1.0, 1.0, 10.0, 1.0};
+
+        for (variant = 0; variant < 6; ++variant) {
+            p = (problem){INTEGRATION, names[variant], variant + 6,
+                          variant == 1 || variant == 2 ? 4 : 3,
+                          lower[variant], upper[variant], 0, references[variant],
+                          0, 1, 1e-10, 1e-10, 1024U};
+            run_case(&p, "adaptive_simpson_vs_qag21", "execute",
+                     "different_algorithm", 1);
+            run_case(&p, "trapezoid", "execute", "numerix_only", 0);
+            run_case(&p, "simpson", "execute", "numerix_only", 0);
+        }
+    }
+    {
+        const double scales[] = {1e-12, 1e12, 1e-12, 1e12};
+        const int variants[] = {0, 0, 1, 1};
+        const char *names[] = {"quartic_integral_tiny_scale", "quartic_integral_large_scale",
+                               "sine_integral_tiny_scale", "sine_integral_large_scale"};
+
+        for (index = 0; index < sizeof(scales) / sizeof(scales[0]); ++index) {
+            double reference = variants[index] == 0 ? scales[index] / 5.0 :
+                               2.0 * scales[index];
+
+            p = (problem){INTEGRATION, names[index], variants[index], 4, 0,
+                          variants[index] == 0 ? 1.0 : PI, 0, reference, 0,
+                          scales[index], 1e-20, 1e-10, 1024U};
+            run_case(&p, "adaptive_simpson_vs_qag21", "execute",
+                     "different_algorithm", 1);
+            run_case(&p, "trapezoid", "execute", "numerix_only", 0);
+            run_case(&p, "simpson", "execute", "numerix_only", 0);
+        }
+    }
     for (variant = 0; variant < 3; ++variant) {
         const char *names[] = {"uniform_cubic", "nonuniform_cubic", "scaled_cubic"};
 
@@ -1220,6 +1651,46 @@ static void run_suite(void)
         run_case(&p, "newton", "construct", "equivalent_representation", 1);
         run_case(&p, "newton", "evaluate", "equivalent_representation", 1);
         run_case(&p, "lagrange", "evaluate", "different_representation", 1);
+    }
+    {
+        const size_t sizes[] = {4U, 16U};
+        const char *shapes[] = {"uniform", "nonuniform"};
+        size_t size_index;
+        size_t shape_index;
+
+        for (size_index = 0; size_index < sizeof(sizes) / sizeof(sizes[0]);
+             ++size_index) {
+            for (shape_index = 0; shape_index < sizeof(shapes) / sizeof(shapes[0]);
+                 ++shape_index) {
+                char name[80];
+                int shape_variant = shape_index == 0U ? 0 : 1;
+
+                (void)snprintf(name, sizeof(name), "%s_cubic_n%zu",
+                               shapes[shape_index], sizes[size_index]);
+                p = (problem){INTERPOLATION, name, shape_variant, 2, 0, 1,
+                              0.37, 0, 0, 1, 1e-10, 1e-10, sizes[size_index]};
+                p.reference = 0.37 * 0.37 * 0.37 - 2.0 * 0.37 + 1.0;
+                run_case(&p, "newton", "construct", "equivalent_representation", 1);
+                run_case(&p, "newton", "evaluate", "equivalent_representation", 1);
+                run_case(&p, "lagrange", "evaluate", "different_representation", 1);
+            }
+        }
+    }
+    {
+        const char *names[] = {"uniform_quartic_n8", "nonuniform_quartic_n8",
+                               "uniform_quartic_n16", "nonuniform_quartic_n16"};
+        const size_t sizes[] = {8U, 8U, 16U, 16U};
+        const int variants[] = {3, 4, 3, 4};
+
+        for (index = 0; index < sizeof(sizes) / sizeof(sizes[0]); ++index) {
+            p = (problem){INTERPOLATION, names[index], variants[index], 3,
+                          0, 1, 0.37, 0, 0, 1, 1e-10, 1e-10, sizes[index]};
+            p.reference = 0.37 * 0.37 * 0.37 * 0.37 - 0.37 * 0.37 +
+                          0.5 * 0.37 + 1.0;
+            run_case(&p, "newton", "construct", "equivalent_representation", 1);
+            run_case(&p, "newton", "evaluate", "equivalent_representation", 1);
+            run_case(&p, "lagrange", "evaluate", "different_representation", 1);
+        }
     }
     p = (problem){INTERPOLATION, "linear_segment", 0, 1, 0, 1, 0.37, 0.63,
                   0, 1, 1e-10, 1e-10, 2U};
@@ -1233,7 +1704,25 @@ static void run_suite(void)
                       variant == 3 ? 3 : 1, variant == 1 ? -1 : 0, 2,
                       variant == 2 ? 1.5 : 0.5, optimum[variant], 0,
                       variant == 3 ? 1e12 : 1, 1e-6, 0, 0};
-        run_case(&p, "golden_section", "execute", "equivalent_family", 1);
+        run_case(&p, "golden_section", "execute", "api_equivalent", 1);
+    }
+    {
+        const char *names[] = {"shallow_minimum", "steep_minimum", "wide_interval_minimum",
+                               "large_coordinate_minimum", "quartic_minimum", "cusp_minimum"};
+        const int variants[] = {0, 0, 0, 0, 2, 3};
+        const double lowers[] = {-1, 0, -10, 9000, -2, -1};
+        const double uppers[] = {1, 2, 10, 11000, 2, 1};
+        const double optima[] = {0.001, 0.75, -3, 10000, 0.3, 0.25};
+        const double scales[] = {1e-12, 1e12, 1, 1, 1, 1};
+
+        for (index = 0; index < sizeof(variants) / sizeof(variants[0]); ++index) {
+            p = (problem){OPTIMIZATION, names[index], variants[index], 3,
+                          lowers[index], uppers[index],
+                          (lowers[index] + uppers[index]) * 0.5, optima[index],
+                          0, scales[index], index == 3U ? 1e-3 : 1e-6,
+                          index == 3U ? 1e-12 : 0, 0};
+            run_case(&p, "golden_section", "execute", "api_equivalent", 1);
+        }
     }
     for (variant = 0; variant < 3; ++variant) {
         const char *names[] = {"exponential_growth", "exponential_decay", "harmonic"};
@@ -1241,9 +1730,52 @@ static void run_suite(void)
         p = (problem){ODE, names[variant], variant, 2, 0, 1, 0,
                       variant == 2 ? cos(1.0) : exp(variant == 1 ? -2.0 : 1.0),
                       0.01, variant == 1 ? -2.0 : 1.0, 1e-10, 1e-10, 100U};
-        run_case(&p, "rk4_vs_step_doubling", "execute", "different_work", 1);
+        run_case(&p, "fixed_step_rk4", "execute", "api_equivalent", 1);
         run_case(&p, "euler", "execute", "numerix_only", 0);
         run_case(&p, "heun", "execute", "numerix_only", 0);
+    }
+    {
+        const size_t step_counts[] = {10U, 500U};
+        size_t count_index;
+
+        for (count_index = 0; count_index < sizeof(step_counts) / sizeof(step_counts[0]);
+             ++count_index) {
+            for (variant = 0; variant < 3; ++variant) {
+                const char *base_names[] = {"exponential_growth", "exponential_decay",
+                                            "harmonic"};
+                char name[80];
+                double scale = variant == 1 ? -2.0 : 1.0;
+                size_t steps = step_counts[count_index];
+
+                (void)snprintf(name, sizeof(name), "%s_steps_%zu",
+                               base_names[variant], steps);
+                p = (problem){ODE, name, variant, 2, 0, 1, 0,
+                              variant == 2 ? cos(1.0) : exp(scale),
+                              1.0 / (double)steps, scale, 1e-10, 1e-10, steps};
+                run_case(&p, "fixed_step_rk4", "execute", "api_equivalent", 1);
+                run_case(&p, "euler", "execute", "numerix_only", 0);
+                run_case(&p, "heun", "execute", "numerix_only", 0);
+            }
+        }
+    }
+    {
+        const double rates[] = {5.0, -0.1, -5.0, -10.0, 10.0, -20.0};
+        size_t rate_index;
+
+        for (rate_index = 0; rate_index < sizeof(rates) / sizeof(rates[0]);
+             ++rate_index) {
+            char name[80];
+
+            (void)snprintf(name, sizeof(name), "exponential_rate_%s_%g",
+                           rates[rate_index] < 0.0 ? "negative" : "positive",
+                           fabs(rates[rate_index]));
+            p = (problem){ODE, name, 0, rate_index >= 4U ? 4 : 3,
+                          0, 1, 0, exp(rates[rate_index]), 0.01,
+                          rates[rate_index], 1e-10, 1e-10, 100U};
+            run_case(&p, "fixed_step_rk4", "execute", "api_equivalent", 1);
+            run_case(&p, "euler", "execute", "numerix_only", 0);
+            run_case(&p, "heun", "execute", "numerix_only", 0);
+        }
     }
     p = (problem){CAPABILITY, "expression_evaluation", 0, 1, 0, 0, 0,
                   sin(0.7) + 0.49, 0, 1, 1e-10, 1e-10, 0};
@@ -1271,13 +1803,119 @@ static void run_suite(void)
     }
 }
 
+static int valid_run_identifier(const char *identifier)
+{
+    size_t index;
+
+    if (identifier == NULL || identifier[0] == '\0') {
+        return 0;
+    }
+    for (index = 0; identifier[index] != '\0'; ++index) {
+        char value = identifier[index];
+
+        if (!((value >= 'a' && value <= 'z') ||
+              (value >= 'A' && value <= 'Z') ||
+              (value >= '0' && value <= '9') ||
+              value == '-' || value == '_' || value == '.')) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+static int open_measurement_outputs(void)
+{
+    char raw_path[4096];
+    char accuracy_path[4096];
+    char workload_path[4096];
+    int length;
+
+    if (output_directory == NULL) {
+        return 1;
+    }
+    if (!valid_run_identifier(run_identifier)) {
+        fputs("run ID must contain only letters, digits, '.', '_' or '-'\n", stderr);
+        return 0;
+    }
+    length = snprintf(raw_path, sizeof(raw_path), "%s/raw_timing.csv",
+                      output_directory);
+    if (length < 0 || (size_t)length >= sizeof(raw_path) ||
+        (raw_timing_output = fopen(raw_path, "wx")) == NULL) {
+        perror("cannot create raw_timing.csv");
+        return 0;
+    }
+    length = snprintf(accuracy_path, sizeof(accuracy_path), "%s/accuracy.csv",
+                      output_directory);
+    if (length < 0 || (size_t)length >= sizeof(accuracy_path) ||
+        (accuracy_output = fopen(accuracy_path, "wx")) == NULL) {
+        perror("cannot create accuracy.csv");
+        fclose(raw_timing_output);
+        raw_timing_output = NULL;
+        remove(raw_path);
+        return 0;
+    }
+    length = snprintf(workload_path, sizeof(workload_path), "%s/workloads.csv",
+                      output_directory);
+    if (length < 0 || (size_t)length >= sizeof(workload_path) ||
+        (workload_output = fopen(workload_path, "wx")) == NULL) {
+        perror("cannot create workloads.csv");
+        fclose(raw_timing_output);
+        fclose(accuracy_output);
+        raw_timing_output = NULL;
+        accuracy_output = NULL;
+        remove(raw_path);
+        remove(accuracy_path);
+        return 0;
+    }
+    fputs("schema_version,run_id,configuration_id,pair_id,library,category,case,"
+          "method,phase,sample_index,pair_index,execution_order,randomization_seed,"
+          "elapsed_ns_per_operation,batch_elapsed_ns,batch_size,timing_unit,status,"
+          "accuracy_pass,storage_bits,significand_bits,min_exponent,max_exponent,"
+          "accuracy_record_id\n", raw_timing_output);
+    fputs("schema_version,run_id,configuration_id,pair_id,accuracy_record_id,library,"
+          "probe_index,probe_kind,status,accuracy_pass,value,reference,absolute_error,"
+          "relative_error,residual,estimated_error,function_evaluations,"
+          "derivative_evaluations,iterations\n", accuracy_output);
+    fputs("schema_version,run_id,configuration_id,pair_id,category,case,variant,"
+          "difficulty,input_size,method,phase,library,comparison_mode,comparison_label,"
+          "reference_method,"
+          "lower,upper,initial,step,scale,absolute_tolerance,relative_tolerance,"
+          "expected_value,storage_bits,significand_bits,min_exponent,max_exponent,"
+          "randomization_seed,pair_index\n", workload_output);
+    return 1;
+}
+
+static int close_measurement_outputs(void)
+{
+    int failed = 0;
+    FILE *outputs[] = {raw_timing_output, accuracy_output, workload_output};
+    size_t index;
+
+    for (index = 0; index < sizeof(outputs) / sizeof(outputs[0]); ++index) {
+        if (outputs[index] != NULL) {
+            if (fflush(outputs[index]) != 0 || ferror(outputs[index])) {
+                failed = 1;
+            }
+            if (fclose(outputs[index]) != 0) {
+                failed = 1;
+            }
+        }
+    }
+    raw_timing_output = NULL;
+    accuracy_output = NULL;
+    workload_output = NULL;
+    return !failed;
+}
+
 int main(int argc, char **argv)
 {
     int index;
+    numerix_benchmark_precision precision;
 
 #ifdef NUMERIX_HAVE_GSL
     gsl_set_error_handler_off();
 #endif
+    (void)setlocale(LC_NUMERIC, "C");
     for (index = 1; index < argc; ++index) {
         if (strcmp(argv[index], "--samples") == 0 && index + 1 < argc) {
             char *end;
@@ -1297,18 +1935,38 @@ int main(int argc, char **argv)
             case_filter = argv[++index];
         } else if (strcmp(argv[index], "--library") == 0 && index + 1 < argc) {
             library_filter = argv[++index];
+        } else if (strcmp(argv[index], "--output-dir") == 0 && index + 1 < argc) {
+            output_directory = argv[++index];
+        } else if (strcmp(argv[index], "--run-id") == 0 && index + 1 < argc) {
+            run_identifier = argv[++index];
+        } else if (strcmp(argv[index], "--seed") == 0 && index + 1 < argc) {
+            char *end;
+            unsigned long long value;
+
+            errno = 0;
+            value = strtoull(argv[++index], &end, 10);
+            if (errno != 0 || *end != '\0') {
+                fputs("seed must be an unsigned 64-bit integer\n", stderr);
+                return 2;
+            }
+            randomization_seed = (uint64_t)value;
         } else if (strcmp(argv[index], "--versions") == 0) {
+            numerix_benchmark_get_precision(&precision);
             printf("NUMERIX=%s\n", NUMERIX_VERSION_STRING);
 #ifdef NUMERIX_HAVE_GSL
             printf("GSL=%s\n", gsl_version);
 #else
             puts("GSL=unavailable (NUMERIX-only build)");
 #endif
-            printf("double_mantissa_bits=%d\n", DBL_MANT_DIG);
+            printf("storage_bits=%u\n", precision.storage_bits);
+            printf("significand_bits=%d\n", precision.significand_bits);
+            printf("min_exponent=%d\n", precision.min_exponent);
+            printf("max_exponent=%d\n", precision.max_exponent);
             return 0;
         } else {
-            fprintf(stderr, "Usage: %s [--samples ODD] [--memory] [--case NAME] "
-                    "[--library NUMERIX|GSL] [--versions]\n", argv[0]);
+            fprintf(stderr, "Usage: %s [--samples ODD] [--seed N] [--case NAME] "
+                    "[--library NUMERIX|GSL] --output-dir DIR --run-id ID\n"
+                    "       %s --versions\n", argv[0], argv[0]);
             return 2;
         }
     }
@@ -1323,14 +1981,31 @@ int main(int argc, char **argv)
         return 2;
     }
 #endif
-    puts("category,case,difficulty,size,method,phase,library,comparison,status,"
-         "accuracy_pass,trials,successes,accuracy_successes,batch,min_ns,median_ns,"
-         "mean_ns,stddev_ns,p95_ns,value,reference,absolute_error,relative_error,"
-         "residual,estimated_error,backward_error,trajectory_error,function_evaluations,"
-         "derivative_evaluations,iterations,precision_bits,absolute_tolerance,"
-         "relative_tolerance,objective,memory_measured,allocations,allocated_bytes,"
-         "peak_live_bytes,live_bytes_after_destroy,setup_live_bytes,"
+    if (!memory_only && (output_directory == NULL ||
+                         !valid_run_identifier(run_identifier))) {
+        fputs("timed benchmark runs require --output-dir and a valid --run-id\n",
+              stderr);
+        return 2;
+    }
+    if (!open_measurement_outputs()) {
+        return 2;
+    }
+    puts("schema_version,run_id,configuration_id,pair_id,category,case,variant,"
+         "difficulty,input_size,method,phase,library,comparison_mode,comparison_label,"
+         "reference_method,"
+         "execution_order,pair_index,randomization_seed,status,accuracy_pass,raw_sample_count,"
+         "accuracy_probe_count,successful_probes,accurate_probes,batch_size,min_ns,"
+         "median_ns,mean_ns,sample_stddev_ns,p95_ns,max_ns,value,reference,"
+         "absolute_error,relative_error,residual,estimated_error,backward_error,"
+         "trajectory_error,function_evaluations,derivative_evaluations,iterations,"
+         "storage_bits,significand_bits,min_exponent,max_exponent,timing_unit,"
+         "objective,memory_requested_heap_measured,allocation_calls,"
+         "requested_heap_bytes,peak_live_requested_heap_bytes,"
+         "live_requested_heap_bytes_after_destroy,setup_live_requested_heap_bytes,"
          "direct_result_bytes,direct_workspace_peak_bytes");
     run_suite();
-    return ferror(stdout) ? 2 : 0;
+    if (ferror(stdout) || !close_measurement_outputs()) {
+        return 2;
+    }
+    return 0;
 }

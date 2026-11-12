@@ -72,8 +72,13 @@ static int solve_expression(const char *source, double lower, double upper,
         printf("Discovery: %s; %zu roots; %zu unresolved intervals\n",
                numerix_status_string(status), report.root_count, report.unresolved_count);
         for (index = 0; index < report.root_count; ++index) {
-            printf("  x = %.12g, residual = %.3e\n", report.roots[index].result.value,
-                   report.roots[index].result.residual);
+            printf("  x = %.12g", report.roots[index].result.value);
+            if (isfinite(report.roots[index].result.residual)) {
+                printf(", residual = %.3e", report.roots[index].result.residual);
+            } else {
+                printf(", residual unavailable");
+            }
+            printf("\n");
         }
         puts("Heuristic search: finding no roots does not prove that none exist.");
         numerix_root_search_report_destroy(&report);
@@ -92,8 +97,13 @@ static int solve_expression(const char *source, double lower, double upper,
         }
         if (status == NUMERIX_STATUS_SUCCESS) {
             printf("Selected: %s\n", numerix_algorithm_name(summary.final_algorithm));
-            printf("Root = %.12g; residual = %.3e; %zu iterations; %zu evaluations\n",
-                   summary.result.value, summary.result.residual, summary.iterations,
+            printf("Root = %.12g; ", summary.result.value);
+            if (isfinite(summary.result.residual)) {
+                printf("residual = %.3e; ", summary.result.residual);
+            } else {
+                printf("residual unavailable; ");
+            }
+            printf("%zu iterations; %zu evaluations\n", summary.iterations,
                    summary.function_evaluations);
             printf("Managed execution state = %d; elapsed = %.6g s\n",
                    (int)summary.state, summary.elapsed_seconds);
@@ -104,8 +114,13 @@ static int solve_expression(const char *source, double lower, double upper,
             status = numerix_diagnostics_analyze(&request, output, NULL,
                                                 &diagnostics, &error);
             if (status == NUMERIX_STATUS_SUCCESS) {
-                printf("Diagnostic residual = %.3e; reliability = %s\n",
-                       diagnostics.absolute_residual,
+                if (diagnostics.has_residual) {
+                    printf("Diagnostic residual = %.3e; ",
+                           diagnostics.absolute_residual);
+                } else {
+                    printf("Diagnostic residual unavailable; ");
+                }
+                printf("reliability = %s\n",
                        numerix_reliability_class_name(diagnostics.reliability));
                 numerix_diagnostics_report_destroy(&diagnostics);
             }

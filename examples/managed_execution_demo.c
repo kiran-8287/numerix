@@ -83,8 +83,16 @@ int main(void)
         return 1;
     }
 
-    printf("root %.12f, residual %.3e, %zu iterations, %zu evaluations\n",
-           summary.result.value, summary.result.residual,
+    printf("root %.12f, ", summary.result.value);
+    if (isfinite(summary.result.residual))
+    {
+        printf("residual %.3e, ", summary.result.residual);
+    }
+    else
+    {
+        printf("residual unavailable, ");
+    }
+    printf("%zu iterations, %zu evaluations\n",
            summary.iterations, summary.function_evaluations);
     numerix_managed_execution_destroy(execution);
     return fabs(summary.result.value - sqrt(2.0)) < 1e-6 ? 0 : 1;
