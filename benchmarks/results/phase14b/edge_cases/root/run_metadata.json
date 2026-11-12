@@ -1,0 +1,16 @@
+{
+  "schema_version": "phase14b-root-edge-v1",
+  "run_id": "phase14b-root-edges-20261112-v1",
+  "batches": 21,
+  "timed_repeats_per_batch": 1,
+  "warmups": 2,
+  "cases": 19,
+  "planned_library_method_runs": 17,
+  "accuracy_rows": 322,
+  "execution_failures": 0,
+  "limitations": [
+    "One-method callback budgets are enforced by NUMERIX; the GSL API has no equivalent per-call evaluation cap.",
+    "CMINPACK outputs are omitted on synthetic discontinuity and always-nonfinite callback fixtures because its adapter uses the frozen smooth model callback.",
+    "Invalid-expression compilation is a supporting expression API check, not a callback root-solver input; see the separate expression probe record."
+  ]
+}

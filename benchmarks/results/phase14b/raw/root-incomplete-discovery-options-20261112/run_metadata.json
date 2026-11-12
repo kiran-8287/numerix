@@ -1,0 +1,35 @@
+{
+  "schema_version": "phase14b-root-run-v1",
+  "run_id": "phase14b-root-20261112-v1",
+  "started_utc": "2026-11-12T03:19:56.559666+00:00",
+  "completed_utc": "2026-11-12T03:22:50.786704+00:00",
+  "git_head": "cbc3d27bb89451f66f938cfe245274f0dccb37b4",
+  "git_branch": "master",
+  "initial_commit": "cbc3d27bb89451f66f938cfe245274f0dccb37b4",
+  "platform": "Linux-5.15.0-326.222.4.el8uek.x86_64-x86_64-with-glibc2.28",
+  "python": "3.9.25 (main, Dec 19 2025, 15:38:47) \n[GCC 8.5.0 20210514 (Red Hat 8.5.0-28.0.1)]",
+  "compiler": "GCC-compatible C compiler; see execution log",
+  "batches": 31,
+  "warmups": 2,
+  "repeats_by_method": {
+    "discovery": 1,
+    "orchestration": 2,
+    "iterative": 4
+  },
+  "seed": 14112026,
+  "input_manifest_sha256": "9a93895682caf257a8aa61e9c47b796f8e22f2fe5510a8aaefded51877b3b3f1",
+  "workload_manifest_sha256": "1abacac47909aa0a12e7359d8aba86df71261b797c58f19bfe7a064c15041754",
+  "libraries_attempted": [
+    "CMINPACK",
+    "GSL",
+    "NUMERIX"
+  ],
+  "execution_failures": 0,
+  "limitations": [
+    "Root discovery comparison is heuristic and separately labeled.",
+    "The GSL discovery baseline uses a fixed 4096-panel sign-change scan and does not guarantee detection of tangencies.",
+    "Root solvers use a common 500-iteration cap in this phase-level adapter; this is lower than the Phase 14 runner's cap to bound difficult method/workload combinations.",
+    "Function/derivative counters are enabled only in the untimed probe; they are disabled for warmups and all timing batches.",
+    "CPU clock resolution can be zero for short batches; raw values are retained."
+  ]
+}

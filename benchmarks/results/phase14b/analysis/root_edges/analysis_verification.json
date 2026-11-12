@@ -1,0 +1,25 @@
+{
+  "accuracy_rows": 322,
+  "timing_rows": 6762,
+  "planned_method_case_pairs": 323,
+  "measured_pairs": 322,
+  "unmeasured_pairs": [
+    {
+      "run_id": "phase14b-root-edges-20261112-v1",
+      "problem_id": "P14-ROOT-EDGE-discontinuous_jump",
+      "edge_case": "discontinuous_jump",
+      "library": "CMINPACK",
+      "method": "newton",
+      "applicable": "0",
+      "applicability_reason": "CMINPACK callback path in this adapter does not support synthetic discontinuity/non-finite fixture",
+      "comparison_class": "best_available",
+      "comparison_detail": "best_available: MINPACK hybrid solver, not scalar Newton",
+      "expected_behavior": "Do not claim a root from a sign change across a jump.",
+      "measurement_status": "unsupported/not run"
+    }
+  ],
+  "unique_accuracy_keys": true,
+  "timing_batches_per_measured_pair": 21,
+  "expression_probe_passed": true,
+  "interpretation": "Correct rejection is not automatically a failure; see outcome_category and case expectations."
+}

@@ -1,0 +1,1 @@
+{"absolute_tolerance":1e-10,"family":"edge_case","input_parameters":{"_model":0,"_module":"root","initial":0.3,"lower":0.0,"root":0.0,"scale":1.0,"second_initial":0.6,"shape":1.0,"shift":1.0,"upper":1.0},"problem_id":"P14-ROOT-EDGE-lower_endpoint","reference_value":0.0,"relative_tolerance":1e-10}

@@ -1,0 +1,3 @@
+# Interrupted Phase 14B root pilot
+
+The first timing attempt used the Phase 14-era 10,000-iteration root limit and 16 repeats per batch. It was stopped during the second library/method execution after the Newton case mix proved too slow for a bounded pilot. No previous-phase files were changed. The completed GSL bisection output is retained here as an interrupted pilot and is excluded from the main root study. The follow-up run uses a common 500-iteration cap and lower repeats, while retaining 31 independent batches. See `execution_order.csv` for the original planned order; this pilot is not a complete run.

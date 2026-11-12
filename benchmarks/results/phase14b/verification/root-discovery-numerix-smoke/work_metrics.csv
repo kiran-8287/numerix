@@ -1,0 +1,4 @@
+schema_version,run_id,library,method,problem_id,metric,value,unit,status
+phase14b-root-v1,discovery-num-smoke,NUMERIX,multiple_root_discovery,P14-ROOT-01-01,iterations,29,count,measured
+phase14b-root-v1,discovery-num-smoke,NUMERIX,multiple_root_discovery,P14-ROOT-01-01,function_evaluations,1061,count,measured
+phase14b-root-v1,discovery-num-smoke,NUMERIX,multiple_root_discovery,P14-ROOT-01-01,derivative_evaluations,1,count,measured

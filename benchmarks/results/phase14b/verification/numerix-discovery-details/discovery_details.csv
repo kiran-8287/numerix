@@ -1,0 +1,2 @@
+schema_version,run_id,library,requested_method,problem_id,record_type,index,location,candidate_lower,candidate_upper,discovery_kind,verified,multiplicity_estimated,multiplicity,confidence,residual,unresolved_reason
+phase14b-root-detail-v1,num-details-smoke,NUMERIX,multiple_root_discovery,P14-ROOT-EDGE-lower_endpoint,root,0,0,0,0,none,1,0,0,0,0,

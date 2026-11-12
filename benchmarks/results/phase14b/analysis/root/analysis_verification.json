@@ -1,0 +1,17 @@
+{
+  "schema_version": "phase14b-root-analysis-v2",
+  "run_id": "phase14b-root-20261112-v3",
+  "accuracy_rows": 1700,
+  "raw_timing_rows": 52700,
+  "planned_method_library_pairs": 17,
+  "observed_method_library_pairs": 17,
+  "unobserved_pairs": [],
+  "accuracy_rows_unique": true,
+  "timing_rows_per_pair_problem": 31,
+  "raw_timing_checksum_sha256": "fe8375e16b77379c1a246d0f7b0ea71527869f8b7b55fc3bc1119d9e556b338f",
+  "accuracy_checksum_sha256": "7219e70fdd4b4d06c572cdb388ba8910acc7c34ffbfbdd6e15605a1601ee097e",
+  "workload_map_checksum_sha256": "02ee2cb457ae91fde030e24d15d2a82c1e1643d0b3e29d6697f7af87654df6bb",
+  "statistical_unit": "problem; each problem contributes the median of 31 batch measurements",
+  "time_to_accuracy": "not measured in this root run; thresholds were evaluated at one configured tolerance",
+  "memory": "not measured at method scope; Phase 14 process RSS is not reused as per-method allocation evidence"
+}

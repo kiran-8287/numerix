@@ -1,0 +1,18 @@
+library,method,attempted_edge_cases,applicable_edge_cases,successful_status,accuracy_passes,successful_and_accurate,failed_or_rejected,status_code_counts,correct_rejections_recorded
+CMINPACK,newton,18,18,17,16,16,1,"{""0"": 17, ""6"": 1}",see edge_outcomes.csv; expected-behavior adjudication is per case
+GSL,bisection,19,10,10,9,9,9,"{""0"": 10, ""10"": 1, ""2"": 6, ""6"": 2}",see edge_outcomes.csv; expected-behavior adjudication is per case
+GSL,brent,19,10,10,9,9,9,"{""0"": 10, ""10"": 1, ""2"": 6, ""6"": 2}",see edge_outcomes.csv; expected-behavior adjudication is per case
+GSL,multiple_root_discovery,19,18,18,14,14,1,"{""0"": 18, ""2"": 1}",see edge_outcomes.csv; expected-behavior adjudication is per case
+GSL,newton,19,19,15,15,15,4,"{""0"": 15, ""10"": 1, ""6"": 3}",see edge_outcomes.csv; expected-behavior adjudication is per case
+GSL,regula_falsi,19,10,10,9,9,9,"{""0"": 10, ""10"": 1, ""2"": 6, ""6"": 2}",see edge_outcomes.csv; expected-behavior adjudication is per case
+GSL,safeguarded_newton,19,10,10,9,9,9,"{""0"": 10, ""10"": 1, ""2"": 6, ""6"": 2}",see edge_outcomes.csv; expected-behavior adjudication is per case
+GSL,secant,19,18,16,15,15,3,"{""0"": 16, ""10"": 1, ""6"": 2}",see edge_outcomes.csv; expected-behavior adjudication is per case
+NUMERIX,auto_selection,19,18,15,13,13,4,"{""0"": 15, ""10"": 1, ""2"": 1, ""5"": 2}",see edge_outcomes.csv; expected-behavior adjudication is per case
+NUMERIX,bisection,19,10,9,8,8,10,"{""0"": 9, ""1"": 1, ""10"": 2, ""2"": 5, ""5"": 2}",see edge_outcomes.csv; expected-behavior adjudication is per case
+NUMERIX,brent,19,10,9,8,8,10,"{""0"": 9, ""1"": 1, ""10"": 2, ""2"": 5, ""5"": 2}",see edge_outcomes.csv; expected-behavior adjudication is per case
+NUMERIX,multiple_root_discovery,19,18,14,14,14,5,"{""0"": 14, ""10"": 3, ""2"": 1, ""9"": 1}",see edge_outcomes.csv; expected-behavior adjudication is per case
+NUMERIX,newton,19,19,15,15,15,4,"{""0"": 15, ""10"": 2, ""5"": 2}",see edge_outcomes.csv; expected-behavior adjudication is per case
+NUMERIX,portfolio,19,18,18,16,16,1,"{""0"": 18, ""10"": 1}",see edge_outcomes.csv; expected-behavior adjudication is per case
+NUMERIX,regula_falsi,19,10,9,8,8,10,"{""0"": 9, ""1"": 1, ""10"": 2, ""2"": 5, ""5"": 2}",see edge_outcomes.csv; expected-behavior adjudication is per case
+NUMERIX,safeguarded_newton,19,10,9,9,9,10,"{""0"": 9, ""1"": 1, ""10"": 1, ""2"": 5, ""5"": 3}",see edge_outcomes.csv; expected-behavior adjudication is per case
+NUMERIX,secant,19,18,15,13,13,4,"{""0"": 15, ""1"": 1, ""10"": 1, ""5"": 2}",see edge_outcomes.csv; expected-behavior adjudication is per case
