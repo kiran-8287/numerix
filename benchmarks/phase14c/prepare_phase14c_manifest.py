@@ -45,13 +45,17 @@ SPECIAL_INPUTS = {
 
 def rows(path: Path):
     with path.open(newline="", encoding="utf-8") as stream:
-        return list(csv.DictReader(stream))
+        result = list(csv.DictReader(stream))
+    malformed = [index + 2 for index, row in enumerate(result) if None in row]
+    if malformed:
+        raise SystemExit(f"Malformed CSV rows in {path}: line numbers {malformed}")
+    return result
 
 
 def write_csv(path: Path, fieldnames, items):
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as stream:
-        writer = csv.DictWriter(stream, fieldnames=fieldnames, extrasaction="ignore")
+        writer = csv.DictWriter(stream, fieldnames=fieldnames, extrasaction="ignore", lineterminator="\n")
         writer.writeheader()
         writer.writerows(items)
 

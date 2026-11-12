@@ -79,7 +79,7 @@
     const menu = document.querySelector(".mobile-menu");
     const overlay = document.querySelector(".menu-overlay");
     const closeButton = document.querySelector(".mobile-menu .close-button");
-    if (!button || !menu || !overlay) return;
+    if (!button || !menu || !overlay || !closeButton) return;
 
     function openMenu() {
       menu.classList.add("open");

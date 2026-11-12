@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NUMERIX Phase 14C Benchmark Evidence Report</title>
+<style>
+body{margin:0;background:#f4f6f8;color:#192433;font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:1120px;margin:36px auto;padding:48px 58px;background:#fff;border-radius:14px;box-shadow:0 8px 32px #152b4215}
+h1,h2,h3{line-height:1.22;color:#142b44}h1{font-size:2.25rem;border-bottom:2px solid #dbe4ed;padding-bottom:18px}h2{margin-top:2.2em;border-bottom:1px solid #e4eaf0;padding-bottom:8px}h3{margin-top:1.8em}
+blockquote{margin:20px 0;padding:14px 18px;border-left:5px solid #c2473d;background:#fff3f1;font-weight:650}
+table{width:100%;border-collapse:collapse;font-size:.9rem;display:block;overflow-x:auto}th,td{border:1px solid #dce3ea;padding:9px 11px;text-align:left;vertical-align:top}th{background:#edf2f7;color:#19334e}
+code{background:#f0f3f6;padding:2px 5px;border-radius:4px}a{color:#0f5ea8}img{max-width:100%;height:auto}li{margin:.28em 0}hr{border:0;border-top:1px solid #dce3ea;margin:28px 0}
+@media(max-width:760px){main{margin:0;padding:24px 18px;border-radius:0}h1{font-size:1.75rem}}
+</style></head><body><main><h1 id="numerix-phase-14c-benchmark-evidence-and-completion-report">NUMERIX Phase 14C — Benchmark Evidence and Completion Report</h1>
+<blockquote>
+<p><strong>Status: incomplete.</strong> The dependencies, public-method audit, module pilots, analysis tables, and required figure files are assembled. The requested 100-problem-per-module full study and method-specific memory comparison were not completed. The figures distinguish historical results and pilots from missing data; they are not a final seven-module ranking.</p>
+</blockquote>
+<h2 id="executive-summary">Executive summary</h2>
+<p>Phase 14C was requested to compare all applicable public numerical operations across seven modules, using 100 distinct problems and 20 families per module, and to report execution time, method-specific memory, and numerical accuracy. The current evidence package meets the audit and artifact requirements, but does <strong>not</strong> meet the full experimental coverage requirement.</p>
+<ul>
+<li>The current API audit contains <strong>50 grouped rows</strong>: root 9, linear algebra 21 (18 numerical operations and 3 lifecycle groups), differentiation 7, interpolation 4, integration 4, optimization 2, and ODE 3. It also lists 6 associated lifecycle/setup APIs separately. The previously omitted <code>numerix_lu_destroy</code> is included. Definitions were checked against <code>include/numerix.h</code> and <code>src/</code>.</li>
+<li>A candidate set of <strong>700 unique historical Phase 14 problems</strong> is checksum-verified: 100/module and 20 source families/module. The Phase 14C manifest has 5,000 method/problem planning rows. This is a candidate workload base, not 700 newly executed Phase 14C cases.</li>
+<li>Normalized figures use 52,824 raw timing observations and 1,696 accuracy records across sources. These totals include <strong>49,600 historical Phase 14B root timing rows</strong>; the remaining timing rows are small Phase 14C pilots. Optimization and ODE have no timing records.</li>
+<li>Exactly <strong>21 required figure types</strong> were generated, each in PNG and SVG (42 image files). All PNGs opened and verified, all SVGs parsed, and no extra graph type was generated. Every memory figure states “not measured.”</li>
+<li>Method-specific memory was not measured for any module. Historical process RSS was not reused as algorithm memory. A Linux/glibc allocator wrapper passed known-allocation, GSL 2.8 vector, and NUMERIX vector positive controls, but method-route visibility for OpenBLAS/LAPACK, NLopt, and SUNDIALS remains unverified.</li>
+<li>The runtime environment is Oracle Linux 8.10, glibc 2.28, GCC 8.5, and an Intel i7-13700. Pilot runs used isolated dependency prefixes. The selected OpenBLAS build reports bundled LAPACK 3.12.0; an older Phase 14 manifest says 3.12.1, so the Phase 14C pilot records the actual selected 3.12.0.</li>
+</ul>
+<h3 id="module-status">Module status</h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Primary competitor</th>
+<th style="text-align: right;">Inventory rows</th>
+<th style="text-align: right;">Candidate problems</th>
+<th>Pilot or historical evidence</th>
+<th>Accuracy</th>
+<th>Memory</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Root</td>
+<td>GSL 2.8</td>
+<td style="text-align: right;">9 (9 numerical, 0 lifecycle)</td>
+<td style="text-align: right;">100</td>
+<td>Historical Phase 14B data; seven paired routes, two NUMERIX-only routes; not new Phase 14C measurements.</td>
+<td>Historical</td>
+<td>Not measured</td>
+</tr>
+<tr>
+<td>Linear Algebra</td>
+<td>LAPACK 3.12.0 with OpenBLAS 0.3.34</td>
+<td style="text-align: right;">21 (18 numerical, 3 lifecycle)</td>
+<td style="text-align: right;">100</td>
+<td>Four of 18 numerical operations piloted; four inputs and eight routes.</td>
+<td>0/0 NUMERIX passes</td>
+<td>Not measured</td>
+</tr>
+<tr>
+<td>Differentiation</td>
+<td>GSL 2.8</td>
+<td style="text-align: right;">7 (7 numerical, 0 lifecycle)</td>
+<td style="text-align: right;">100</td>
+<td>Six scalar derivative methods piloted on three problems each.</td>
+<td>0/3 NUMERIX passes</td>
+<td>Not measured</td>
+</tr>
+<tr>
+<td>Interpolation</td>
+<td>GSL 2.8</td>
+<td style="text-align: right;">4 (4 numerical, 0 lifecycle)</td>
+<td style="text-align: right;">100</td>
+<td>Four methods piloted on three cases each; construction accuracy is N/A.</td>
+<td>0/3 NUMERIX passes</td>
+<td>Not measured</td>
+</tr>
+<tr>
+<td>Integration</td>
+<td>GSL 2.8</td>
+<td style="text-align: right;">4 (4 numerical, 0 lifecycle)</td>
+<td style="text-align: right;">100</td>
+<td>Three methods piloted on three problems each; setup and end-to-end routes retained.</td>
+<td>0/3 NUMERIX passes</td>
+<td>Not measured</td>
+</tr>
+<tr>
+<td>Optimization</td>
+<td>NLopt 2.10.1</td>
+<td style="text-align: right;">2 (2 numerical, 0 lifecycle)</td>
+<td style="text-align: right;">100</td>
+<td>Correctness-only pilot: one analytic case per method; no runtime data.</td>
+<td>1/1 NUMERIX passes</td>
+<td>Not measured</td>
+</tr>
+<tr>
+<td>Ode</td>
+<td>SUNDIALS 7.9.0 (ARKODE ERKStep)</td>
+<td style="text-align: right;">3 (3 numerical, 0 lifecycle)</td>
+<td style="text-align: right;">100</td>
+<td>Correctness-only pilot: one two-state system, 21 output points; no accuracy gate or runtime data.</td>
+<td>Not evaluated</td>
+<td>Not measured</td>
+</tr>
+</tbody>
+</table>
+<h3 id="figure-index">Figure index</h3>
+<p>Each cell links to both image formats. The memory figures state “not measured.”</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Runtime</th>
+<th>Memory</th>
+<th>Accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Root</td>
+<td><a href="../figures/root/root_runtime.png">PNG</a> · <a href="../figures/root/root_runtime.svg">SVG</a></td>
+<td><a href="../figures/root/root_memory.png">PNG</a> · <a href="../figures/root/root_memory.svg">SVG</a></td>
+<td><a href="../figures/root/root_accuracy.png">PNG</a> · <a href="../figures/root/root_accuracy.svg">SVG</a></td>
+</tr>
+<tr>
+<td>Linear Algebra</td>
+<td><a href="../figures/linear_algebra/linear_algebra_runtime.png">PNG</a> · <a href="../figures/linear_algebra/linear_algebra_runtime.svg">SVG</a></td>
+<td><a href="../figures/linear_algebra/linear_algebra_memory.png">PNG</a> · <a href="../figures/linear_algebra/linear_algebra_memory.svg">SVG</a></td>
+<td><a href="../figures/linear_algebra/linear_algebra_accuracy.png">PNG</a> · <a href="../figures/linear_algebra/linear_algebra_accuracy.svg">SVG</a></td>
+</tr>
+<tr>
+<td>Differentiation</td>
+<td><a href="../figures/differentiation/differentiation_runtime.png">PNG</a> · <a href="../figures/differentiation/differentiation_runtime.svg">SVG</a></td>
+<td><a href="../figures/differentiation/differentiation_memory.png">PNG</a> · <a href="../figures/differentiation/differentiation_memory.svg">SVG</a></td>
+<td><a href="../figures/differentiation/differentiation_accuracy.png">PNG</a> · <a href="../figures/differentiation/differentiation_accuracy.svg">SVG</a></td>
+</tr>
+<tr>
+<td>Interpolation</td>
+<td><a href="../figures/interpolation/interpolation_runtime.png">PNG</a> · <a href="../figures/interpolation/interpolation_runtime.svg">SVG</a></td>
+<td><a href="../figures/interpolation/interpolation_memory.png">PNG</a> · <a href="../figures/interpolation/interpolation_memory.svg">SVG</a></td>
+<td><a href="../figures/interpolation/interpolation_accuracy.png">PNG</a> · <a href="../figures/interpolation/interpolation_accuracy.svg">SVG</a></td>
+</tr>
+<tr>
+<td>Integration</td>
+<td><a href="../figures/integration/integration_runtime.png">PNG</a> · <a href="../figures/integration/integration_runtime.svg">SVG</a></td>
+<td><a href="../figures/integration/integration_memory.png">PNG</a> · <a href="../figures/integration/integration_memory.svg">SVG</a></td>
+<td><a href="../figures/integration/integration_accuracy.png">PNG</a> · <a href="../figures/integration/integration_accuracy.svg">SVG</a></td>
+</tr>
+<tr>
+<td>Optimization</td>
+<td><a href="../figures/optimization/optimization_runtime.png">PNG</a> · <a href="../figures/optimization/optimization_runtime.svg">SVG</a></td>
+<td><a href="../figures/optimization/optimization_memory.png">PNG</a> · <a href="../figures/optimization/optimization_memory.svg">SVG</a></td>
+<td><a href="../figures/optimization/optimization_accuracy.png">PNG</a> · <a href="../figures/optimization/optimization_accuracy.svg">SVG</a></td>
+</tr>
+<tr>
+<td>Ode</td>
+<td><a href="../figures/ode/ode_runtime.png">PNG</a> · <a href="../figures/ode/ode_runtime.svg">SVG</a></td>
+<td><a href="../figures/ode/ode_memory.png">PNG</a> · <a href="../figures/ode/ode_memory.svg">SVG</a></td>
+<td><a href="../figures/ode/ode_accuracy.png">PNG</a> · <a href="../figures/ode/ode_accuracy.svg">SVG</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="competitors-and-dependency-setup">Competitors and dependency setup</h2>
+<p>The fixed competitor mapping was preserved: GSL 2.8 for root finding, differentiation, interpolation, and integration; LAPACK with one-thread OpenBLAS 0.3.34 for linear algebra; NLopt 2.10.1 for optimization; and SUNDIALS 7.9.0 for ODE solving. GSL, OpenBLAS/LAPACK, and SUNDIALS were available in isolated user prefixes. NLopt 2.10.1 was built and installed alongside the existing 2.11.0 prefix at <code>~/.local/numerix-deps/prefix/phase14c/nlopt-2.10.1</code>; no system-wide package install was made. Markdown 3.7 was installed in the user Python environment to render the HTML report; Matplotlib 3.9.1 and Pillow 10.4.0 were already available.</p>
+<p>Exact prefixes, source hashes/commits, build versions, and the historical LAPACK metadata discrepancy are recorded in <a href="../manifests/library_versions.json"><code>library_versions.json</code></a> and <a href="../manifests/benchmark_environment.json"><code>benchmark_environment.json</code></a>.</p>
+<h2 id="method-inventory-and-workload-audit">Method inventory and workload audit</h2>
+<p>The definitive grouped method list is <a href="../manifests/method_coverage.csv"><code>method_coverage.csv</code></a>. Its comparison classes are: 20 direct, 23 best available, 2 NUMERIX-only, 2 not comparable, and 3 lifecycle-only. No row remains unclassified. Automatic root selection and solver portfolio have no invented GSL measurements. Piecewise differentiation/integration operations are preserved as not comparable to GSL boundary-aware APIs. A separate <a href="../manifests/auxiliary_lifecycle_coverage.csv"><code>auxiliary_lifecycle_coverage.csv</code></a> lists report, interpolant, piecewise-object, and ODE-solution cleanup/setup APIs.</p>
+<p>The 700 problem definitions and input sidecar were copied byte-for-byte into the Phase 14C manifest area after checking each input hash and unique ID. The manifest script checks current public symbols and implementation definitions, identifies the stale Phase 14B portfolio source field, and records candidate applicability as planned where no adapter has run. Full workload coverage is <strong>not claimed</strong>.</p>
+<h2 id="module-findings">Module findings</h2>
+<h3 id="root-finding-historical-phase-14b-evidence">Root finding — historical Phase 14B evidence</h3>
+<p>GSL 2.8 is the selected competitor. Phase 14B v3 has 100 problems per NUMERIX root method, 31 batches per timed route, and the full nine-entry NUMERIX root inventory. Seven public methods have GSL routes; automatic method selection and solver portfolio are NUMERIX-only. Multiple-root discovery uses a fixed GSL scan and remains heuristic, not an equivalent completeness guarantee. CMINPACK rows in the historical root source were excluded from the fixed GSL comparison.</p>
+<p>The paired ratio is <code>GSL per-call median / NUMERIX per-call median</code>; values above one favor NUMERIX. These are descriptive historical summaries, not hypothesis tests or Phase 14C results:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th style="text-align: right;">GSL / NUMERIX median time ratio</th>
+<th style="text-align: right;">Problem bootstrap 95% interval</th>
+<th style="text-align: right;">GSL accuracy passes</th>
+<th style="text-align: right;">NUMERIX accuracy passes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bisection</td>
+<td style="text-align: right;">1.081</td>
+<td style="text-align: right;">[1.069, 1.098]</td>
+<td style="text-align: right;">—/—</td>
+<td style="text-align: right;">94/100</td>
+</tr>
+<tr>
+<td>Regula Falsi</td>
+<td style="text-align: right;">1.025</td>
+<td style="text-align: right;">[0.991, 1.034]</td>
+<td style="text-align: right;">—/—</td>
+<td style="text-align: right;">95/100</td>
+</tr>
+<tr>
+<td>Secant</td>
+<td style="text-align: right;">1.065</td>
+<td style="text-align: right;">[1.056, 1.079]</td>
+<td style="text-align: right;">—/—</td>
+<td style="text-align: right;">100/100</td>
+</tr>
+<tr>
+<td>Newton-Raphson</td>
+<td style="text-align: right;">1.077</td>
+<td style="text-align: right;">[1.064, 1.094]</td>
+<td style="text-align: right;">—/—</td>
+<td style="text-align: right;">100/100</td>
+</tr>
+<tr>
+<td>Safeguarded Newton</td>
+<td style="text-align: right;">1.139</td>
+<td style="text-align: right;">[1.126, 1.166]</td>
+<td style="text-align: right;">—/—</td>
+<td style="text-align: right;">95/100</td>
+</tr>
+<tr>
+<td>Brent</td>
+<td style="text-align: right;">1.037</td>
+<td style="text-align: right;">[1.021, 1.058]</td>
+<td style="text-align: right;">—/—</td>
+<td style="text-align: right;">95/100</td>
+</tr>
+<tr>
+<td>Multiple-root discovery</td>
+<td style="text-align: right;">0.535</td>
+<td style="text-align: right;">[0.524, 0.798]</td>
+<td style="text-align: right;">—/—</td>
+<td style="text-align: right;">100/100</td>
+</tr>
+</tbody>
+</table>
+<p>Historical accuracy-pass counts (denominator includes the attempted method records) are:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th style="text-align: right;">NUMERIX</th>
+<th style="text-align: right;">GSL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bisection</td>
+<td style="text-align: right;">94/100</td>
+<td style="text-align: right;">—/—</td>
+</tr>
+<tr>
+<td>Regula Falsi</td>
+<td style="text-align: right;">95/100</td>
+<td style="text-align: right;">—/—</td>
+</tr>
+<tr>
+<td>Secant</td>
+<td style="text-align: right;">100/100</td>
+<td style="text-align: right;">—/—</td>
+</tr>
+<tr>
+<td>Newton-Raphson</td>
+<td style="text-align: right;">100/100</td>
+<td style="text-align: right;">—/—</td>
+</tr>
+<tr>
+<td>Safeguarded Newton</td>
+<td style="text-align: right;">95/100</td>
+<td style="text-align: right;">—/—</td>
+</tr>
+<tr>
+<td>Brent</td>
+<td style="text-align: right;">95/100</td>
+<td style="text-align: right;">—/—</td>
+</tr>
+<tr>
+<td>Multiple-root discovery</td>
+<td style="text-align: right;">100/100</td>
+<td style="text-align: right;">—/—</td>
+</tr>
+</tbody>
+</table>
+<p>Root memory is unavailable at method scope. Historical source and run hashes are retained in the manifests; the original Phase 14B files were not relabeled or rewritten.</p>
+<h3 id="linear-algebra">Linear algebra</h3>
+<p>The audited inventory has 18 numerical operations and three lifecycle groups. The accepted pilot run, <code>phase14c-la-pilot-20261112T055827Z</code>, covers matrix addition, matrix multiplication, LU factorization, and LU solve with four problem definitions, eight library routes, 31 batches per route, 8/8 accuracy passes, and 2/2 setup checks. The route-specific competitor/NUMERIX per-call ratios are 1.172 for matrix addition, 0.348 for matrix multiplication, 0.363 for LU factorization, and 1.768 for LU solve, each on <strong>one</strong> workload. These ratios only describe those four pilot inputs and cannot establish which library is generally faster. DGETRF end-to-end includes row-major/column-major conversion; LU solve uses each library's saved factors.</p>
+<p>The remaining 14 numerical operations were not piloted. The 8 pilot memory rows are explicitly unavailable. OpenBLAS ran with one thread. The runtime build actually used LAPACK 3.12.0 despite the old phase-level manifest's 3.12.1 value.</p>
+<h3 id="numerical-differentiation">Numerical differentiation</h3>
+<p>The three-problem GSL 2.8 pilot recorded 1,116 timing rows: 36 routes/problems/accuracy records with 31 timing batches per method/problem/library route. All 36 calls returned successful finite results; 30/36 met the strict configured accuracy target. Forward and backward NUMERIX difference records missed that pilot target (0/3 each), while GSL passed those six records. Central, five-point, Richardson, and second-derivative records passed in the pilot. The second-derivative competitor is a wrapper finite-difference baseline, not a native GSL second-derivative API. The piecewise central-difference method was audited but not measured and has no verified GSL equivalent.</p>
+<p>This result is useful for identifying step-size and accuracy issues in the adapter. Three problems do not support a module-wide speed or accuracy conclusion.</p>
+<h3 id="interpolation">Interpolation</h3>
+<p>The pilot covered linear interpolation, Lagrange evaluation, Newton construction, and Newton evaluation on three cases each. It retained 744 timing rows with 31 batches per route. All 18 numerical evaluation calls returned status success, but only 4/18 met the accuracy target: linear 0/6, Lagrange 2/6, Newton evaluation 2/6 across both libraries. The six setup records for Newton construction have no numerical-output accuracy result and are marked N/A. Construction and evaluation costs are separate routes. These three cases do not support a general ranking.</p>
+<h3 id="numerical-integration">Numerical integration</h3>
+<p>The pilot covered composite trapezoid, composite Simpson, and adaptive Simpson on three inputs each and retained steady/setup and end-to-end measurements separately. All 18 accuracy records had successful statuses; 14/18 met the configured gate. The fixed GSL route uses 65-point Gauss-Legendre, not a composite trapezoid/Simpson algorithm; adaptive Simpson versus QAG also uses different work policies. Those are best-available comparisons and cannot be read as identical-method speed contests. Piecewise trapezoidal integration was inventoried but not measured.</p>
+<h3 id="optimization">Optimization</h3>
+<p>NLopt 2.10.1 passed runtime version enforcement. The one-case correctness pilot generated four records, all passing the independent minimizer/objective gate. Golden-section versus DIRECT-L used a common 200-objective-call budget, but the NUMERIX API has no matching initial-point control. NLopt DIRECT-L returned native status 5 (<code>MAXEVAL_REACHED</code>), recorded as <code>limit_reached</code> and <code>converged=0</code> even though its candidate passed the accuracy gate. Gradient descent and L-BFGS both converged on the pilot case; objective and gradient call counts are kept separate. No timing or memory values were collected.</p>
+<h3 id="ode-solving">ODE solving</h3>
+<p>SUNDIALS 7.9.0 ARKODE ERKStep tableaus were checked against NUMERIX Euler, Heun, and classical RK4. One two-state analytic system was evaluated at all 21 output points. Relative max trajectory errors (scaled by the maximum analytic state on the grid) were about 8.95e-2 for Euler, 3.09e-3 for Heun, and 1.53e-6 for RK4; NUMERIX and SUNDIALS trajectories differed by at most 2.66e-15, 3.55e-15, and 7.11e-15 respectively. SUNDIALS reports one extra startup RHS evaluation (21/41/81 versus NUMERIX 20/40/80). The pilot did not define an accuracy threshold, so accuracy pass/fail is <code>not_evaluated</code>. No timing or memory values were collected.</p>
+<h2 id="memory-measurement-and-status">Memory measurement and status</h2>
+<p>The interposer tracks requested bytes through <code>malloc</code>, <code>calloc</code>, <code>realloc</code>, <code>aligned_alloc</code>, <code>memalign</code>, <code>posix_memalign</code>, and <code>free</code>. It uses a static pointer table and compiles under <code>-Wall -Wextra -Wpedantic -Werror</code>. The synthetic positive control reports 970 B peak / 1,090 B total requested with success/failure realloc and aligned-allocation controls; GSL 2.8 <code>gsl_vector_alloc(100)</code> reports 856 B; NUMERIX <code>vector_add</code> on 100 values reports 816 B. These are <strong>visibility controls</strong>, not algorithm memory results.</p>
+<p>Direct <code>mmap</code>, custom allocators, some libc allocation paths, and separately loaded <code>LD_PRELOAD</code> behavior are not validated. Positive controls through OpenBLAS/LAPACK, NLopt, and SUNDIALS are outstanding. Therefore all seven method-memory graphs state “not measured,” and every memory conclusion remains unavailable.</p>
+<h2 id="graphs-raw-data-and-reproducibility">Graphs, raw data, and reproducibility</h2>
+<p>Each module has exactly the three requested figures: runtime, method-specific memory, and numerical accuracy. Each figure is saved as PNG and SVG. The artifact generator is <a href="../../../../phase14c/generate_comparison_artifacts.py"><code>generate_comparison_artifacts.py</code></a>; the audit/workload manifest generator is <a href="../../../../phase14c/prepare_phase14c_manifest.py"><code>prepare_phase14c_manifest.py</code></a>. Raw pilot CSVs and run metadata are preserved by run ID under <code>../raw/</code>; historical root data remain in their original Phase 14B directory and are referenced by checksum.</p>
+<p>The separately filtered <a href="../../executed_methods/README.md">executed-method inventory and figures</a> include only routes with run records. They include historical root findings, bounded timing pilots, and correctness-only pilots with their evidence type labeled.</p>
+<p>Three combined all-module figures for <a href="../../executed_methods/combined/README.md">runtime, memory, and accuracy</a> provide the broad overview. Their captions identify unavailable data and the limits on cross-module comparisons.</p>
+<p>Processed per-method summaries and paired problem-level timing ratios are under <code>../analysis/&lt;module&gt;/</code>. The statistical unit is the problem; timing batches are first reduced to a within-problem median. Bootstrap intervals resample problem ratios, but three-problem and single-problem pilots are too small to support broad inference. All accuracy failures, not-applicable setup records, convergence/native statuses, and missing routes remain visible in the CSV summaries or figure annotations.</p>
+<p>Verification files:</p>
+<ul>
+<li><a href="../verification/benchmark_verification.json"><code>benchmark_verification.json</code></a> — raw-source counts and study limits.</li>
+<li><a href="../verification/graph_verification.json"><code>graph_verification.json</code></a> — exactly 21 figures, 21 verified PNGs, 21 valid SVGs.</li>
+<li><a href="../manifests/workload_intake_verification.json"><code>workload_intake_verification.json</code></a> — 700 candidate inputs and 5,000 method/problem planning rows.</li>
+<li><a href="../manifests/source_checksums.txt"><code>source_checksums.txt</code></a> — checksums for the source, raw, processed, and figure artifacts.</li>
+<li><a href="../../../../phase14c/methodology_audit.md"><code>methodology_audit.md</code></a> — independent fairness, statistics, provenance, and memory review.</li>
+</ul>
+<p>The existing presentation directory was not modified during Phase 14C. No dashboard was created, and no repository changes were committed or pushed.</p>
+<h2 id="what-remains-before-this-can-be-called-a-complete-benchmark">What remains before this can be called a complete benchmark</h2>
+<ol>
+<li>Run every applicable method on the frozen 100-problem/20-family set in every module, including all remaining linear-algebra routes and the NUMERIX-only piecewise inputs.</li>
+<li>Establish and record independent high-precision/analytic references, common accuracy targets, applicability, native status, and work counts for every attempted route. Define an ODE accuracy gate before classifying pass/fail.</li>
+<li>Validate allocator visibility through each actual GSL, OpenBLAS/LAPACK, NLopt, and SUNDIALS route; then collect isolated per-operation memory samples with symmetric input/output/workspace scopes. Keep an unavailable status whenever visibility fails.</li>
+<li>Reconcile full raw timing, accuracy, memory, and process status against the frozen method/workload manifest; record timer resolution and CPU affinity; regenerate figures and report from the final data.</li>
+</ol>
+<p>The current package is reproducible pilot evidence and a verified inventory. It does not answer the requested final all-module “which is faster, smaller, or more accurate” question.</p></main></body></html>

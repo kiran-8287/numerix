@@ -109,11 +109,16 @@ def method_key(module: str, public_api: str) -> str | None:
     if module == "linear_algebra":
         return symbol
     if module == "differentiation":
-        return symbol.removeprefix("numerix_diff_")
+        return {
+            "numerix_diff_central_five_point": "five_point",
+        }.get(symbol, symbol.removeprefix("numerix_diff_"))
     if module == "interpolation":
         return symbol.removeprefix("numerix_interp_")
     if module == "integration":
-        return symbol.removeprefix("numerix_integrate_")
+        return {
+            "numerix_integrate_trapezoid": "composite_trapezoid",
+            "numerix_integrate_simpson": "composite_simpson",
+        }.get(symbol, symbol.removeprefix("numerix_integrate_"))
     return symbol
 
 
@@ -430,7 +435,10 @@ def display_label(item: dict) -> str:
 def save_figure(fig, path_stem: Path) -> None:
     path_stem.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path_stem.with_suffix(".png"), dpi=200, bbox_inches="tight", facecolor="white")
-    fig.savefig(path_stem.with_suffix(".svg"), bbox_inches="tight", facecolor="white")
+    svg_path = path_stem.with_suffix(".svg")
+    fig.savefig(svg_path, bbox_inches="tight", facecolor="white")
+    svg_text = svg_path.read_text(encoding="utf-8")
+    svg_path.write_text("\n".join(line.rstrip() for line in svg_text.splitlines()) + "\n", encoding="utf-8")
     plt.close(fig)
 
 
@@ -459,7 +467,7 @@ def create_figures(time_rows: list[dict], accuracy_rows: list[dict]) -> None:
                 suffix = {"not_measured": "(not measured)", "end-to-end": "(end-to-end)", "steady/setup": "(steady/setup)", "solver call including library workspace": ""}.get(scope, f"({scope})")
                 label = f"{display_label(item)}\n{suffix}" if suffix else display_label(item)
                 route_categories.append((item, key, scope, label))
-        fig_width = max(12.5, min(22.0, 0.72 * max(1, len(route_categories))))
+        fig_width = max(12.5, min(22.0, 0.95 * max(1, len(route_categories))))
         fig, ax = plt.subplots(figsize=(fig_width, 7.5))
         x = list(range(len(route_categories)))
         width = 0.34
@@ -471,10 +479,6 @@ def create_figures(time_rows: list[dict], accuracy_rows: list[dict]) -> None:
                 values.append(statistics.median([r[1] for r in group]) * 1e6 if group else float("nan"))
                 runtime_exists |= bool(group)
             bars = ax.bar([v + offset for v in x], values, width=width, color=color, label="NUMERIX" if library == "NUMERIX" else comp_label)
-            for idx, (bar, (item, key, scope, _)) in enumerate(zip(bars, route_categories)):
-                group = time_groups.get((module, key, library, scope), [])
-                if group:
-                    ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() * 1.08, f"n={len(group)}", ha="center", va="bottom", fontsize=7, rotation=90)
         ax.set_xticks(x, [entry[3] for entry in route_categories], rotation=55, ha="right", fontsize=8)
         ax.set_ylabel("Median of per-problem median time (µs/call; log scale)")
         ax.set_xlabel("Public operation and equivalence class")
@@ -483,6 +487,23 @@ def create_figures(time_rows: list[dict], accuracy_rows: list[dict]) -> None:
         ax.legend(frameon=False)
         if runtime_exists:
             ax.set_yscale("log")
+            for idx, (item, key, scope, _) in enumerate(route_categories):
+                groups = [time_groups.get((module, key, library, scope), []) for library in ("NUMERIX", "COMPETITOR")]
+                if not any(groups):
+                    continue
+                counts = [len(group) for group in groups]
+                successes = []
+                for library in ("NUMERIX", "COMPETITOR"):
+                    attempts = [r for r in accuracy_groups.get((module, key, library), []) if r["accuracy_pass"] is not None]
+                    successes.append(f"{sum(r['converged'] is True for r in attempts)}/{len(attempts)}" if attempts else "—")
+                local_top = max((group and statistics.median([r[1] for r in group]) * 1e6 or 0.0) for group in groups)
+                ax.text(
+                    x[idx], local_top * 1.1,
+                    f"n N/C={counts[0]}/{counts[1]}\nok N/C={successes[0]},{successes[1]}",
+                    ha="center", va="bottom", fontsize=5.7,
+                )
+            lower, upper = ax.get_ylim()
+            ax.set_ylim(lower, upper * 1.5)
         else:
             ax.text(0.5, 0.55, "NOT MEASURED\nThis module's pilot collected correctness only.", transform=ax.transAxes, ha="center", va="center", fontsize=15, color="#6C7785", weight="bold")
         note = {
@@ -494,7 +515,8 @@ def create_figures(time_rows: list[dict], accuracy_rows: list[dict]) -> None:
             "optimization": "Correctness-only pilot; no execution-time samples.",
             "ode": "Correctness-only fixed-step tableau pilot; no execution-time samples.",
         }[module]
-        fig.text(0.01, 0.01, note + " n counts mathematical problems; raw batch counts are in the saved CSV.", ha="left", fontsize=8, color="#4D5968")
+        fig.text(0.01, 0.01, note + " Runtime labels show problem counts and status-success counts as NUMERIX/competitor; batch counts are in the saved CSV.", ha="left", fontsize=8, color="#4D5968")
+        fig.subplots_adjust(bottom=0.34, top=0.91)
         save_figure(fig, FIGURES / module / f"{module}_runtime")
 
         # Memory: no module has passed complete route-specific allocation
@@ -526,20 +548,22 @@ def create_figures(time_rows: list[dict], accuracy_rows: list[dict]) -> None:
                     key = method_key(module, item["public_api"])
                     errs = [r["normalized_error"] for r in accuracy_groups.get((module, key, library), []) if r.get("normalized_error") is not None]
                     values.append(max(1e-18, statistics.median(errs)) if errs else float("nan"))
-                bars = ax.bar([v+offset for v in x], values, width=width, color=color, label="NUMERIX" if library == "NUMERIX" else comp_label)
-                for bar, item in zip(bars, items):
-                    key = method_key(module, item["public_api"])
-                    rows = accuracy_groups.get((module, key, library), [])
-                    if rows:
-                        err = next((r["absolute_error"] for r in rows if r.get("absolute_error") is not None), None)
-                        if err is not None:
-                            ax.text(bar.get_x()+bar.get_width()/2, max(bar.get_height()*1.12, 1e-17), f"n={len(rows)}", ha="center", fontsize=8, rotation=90)
+                ax.bar([v+offset for v in x], values, width=width, color=color, label="NUMERIX" if library == "NUMERIX" else comp_label)
             ax.set_yscale("log")
+            for idx, item in enumerate(items):
+                key = method_key(module, item["public_api"])
+                num_rows = accuracy_groups.get((module, key, "NUMERIX"), [])
+                comp_rows = accuracy_groups.get((module, key, "COMPETITOR"), [])
+                n_num, n_comp = len(num_rows), len(comp_rows)
+                route_errors = [r["normalized_error"] for r in num_rows + comp_rows if r.get("normalized_error") is not None]
+                if route_errors:
+                    ax.text(x[idx], max(route_errors) * 1.15, f"n N/C={n_num}/{n_comp}", ha="center", va="bottom", fontsize=8)
+            low, high = ax.get_ylim()
+            ax.set_ylim(low, high * 1.5)
             ax.set_xticks(x, [f"{item['operation']} [D]" for item in items], rotation=30, ha="right")
             ax.set_ylabel("Median normalized max-trajectory error vs analytic solution (log scale)")
             ax.set_xlabel("Fixed-step method; direct tableau comparison (D)")
             ax.set_title("ODE — full 21-point trajectory error on one pilot system")
-            ax.text(0.02, 0.96, "No accuracy threshold was set in this pilot; pass/fail not evaluated.", transform=ax.transAxes, ha="left", va="top", fontsize=9)
         else:
             x = list(range(len(items)))
             width = 0.34
@@ -580,6 +604,7 @@ def create_figures(time_rows: list[dict], accuracy_rows: list[dict]) -> None:
             "ode": "Normalized trajectory error uses max analytic state as scale; exact method tableau verified; threshold not defined.",
         }[module]
         fig.text(0.01, 0.01, note, ha="left", fontsize=8, color="#4D5968")
+        fig.subplots_adjust(bottom=0.34, top=0.90)
         save_figure(fig, FIGURES / module / f"{module}_accuracy")
 
 

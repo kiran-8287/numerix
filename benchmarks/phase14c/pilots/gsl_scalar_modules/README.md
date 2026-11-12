@@ -49,8 +49,12 @@ not the same method as composite trapezoid or Simpson. The adaptive Simpson
 and GSL QAG work limits are not matched here. Treat the adapter smoke timings
 as method-call checks only; do not publish them as comparative findings.
 
-No graphs are created from this pilot. Graphs belong after a full, frozen,
-fairly budgeted dataset and memory instrumentation have passed verification.
+This pilot itself creates no graphs. The coordinator's consolidated Phase 14C
+artifact script produces the required module evidence/status figures from
+available records; pilot bars are labeled as such, missing methods remain
+visible, and unavailable memory is not plotted as zero. These figures do not
+turn the three-problem pilot into a full comparison or support a module-wide
+ranking.
 
 `superseded_pilot_runs.csv` records earlier harness iterations retained in the
 raw folders for provenance. Use only the corrected canonical run above for

@@ -165,9 +165,11 @@ Additional memory gates before reporting heap numbers:
   N_Vector, as well as NUMERIX. Check aligned allocation if those routes use
   it. The current evidence covers only synthetic calls, one GSL vector
   allocation, and one NUMERIX vector operation.
-- Exercise realloc success/failure/zero-size behavior and aligned allocation
-  hooks, and verify that every control pointer is accounted for and freed.
-  A failed/missed control makes that route unavailable; do not emit zero.
+- The synthetic control now covers successful and failed `realloc`,
+  `aligned_alloc`, `posix_memalign`, and `memalign`, with all allocated control
+  pointers freed. Zero-size `realloc` behavior and positive controls through
+  the OpenBLAS/LAPACK, NLopt, and SUNDIALS routes remain open. A failed/missed
+  dependency control makes that route unavailable; do not emit zero.
 - Use one isolated process/sample per operation, initialize harness/input and
   reusable state before `begin`, and keep memory capture separate from timed
   runs because the interposer's table/lock adds overhead. Report setup,

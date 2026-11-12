@@ -1,0 +1,22 @@
+{
+  "candidate_problem_count": 700,
+  "candidate_problems_per_module": {
+    "differentiation": 100,
+    "integration": 100,
+    "interpolation": 100,
+    "linear_algebra": 100,
+    "ode": 100,
+    "optimization": 100,
+    "root": 100
+  },
+  "exact_required_figure_count": true,
+  "full_phase14c_study_complete": false,
+  "html_nonempty": true,
+  "html_report": "benchmarks/results/phase14c/module_comparisons/reports/NUMERIX_module_comparison_report.html",
+  "markdown_nonempty": true,
+  "markdown_report": "benchmarks/results/phase14c/module_comparisons/reports/NUMERIX_module_comparison_report.md",
+  "method_inventory_count": 50,
+  "schema_version": "phase14c-report-verification-v1",
+  "source_checksum_entries": 387,
+  "unclassified_method_rows": 0
+}

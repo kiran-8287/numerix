@@ -1,0 +1,27 @@
+{
+  "accuracy_gate_route_count": 52,
+  "all_memory_status_not_measured": true,
+  "combined_png_count": 3,
+  "combined_svg_count": 3,
+  "figures": {
+    "accuracy": [
+      "combined/accuracy_all_modules.png",
+      "combined/accuracy_all_modules.svg"
+    ],
+    "memory": [
+      "combined/memory_all_modules.png",
+      "combined/memory_all_modules.svg"
+    ],
+    "runtime": [
+      "combined/runtime_all_modules.png",
+      "combined/runtime_all_modules.svg"
+    ]
+  },
+  "full_study_complete": false,
+  "memory_module_count": 7,
+  "ode_error_route_count": 6,
+  "optimization_ode_have_no_timing": true,
+  "root_is_historical": true,
+  "runtime_route_count": 56,
+  "schema_version": "phase14c-combined-module-figures-v1"
+}

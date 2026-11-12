@@ -1,7 +1,7 @@
 {
   "schema_version": "phase14c-library-manifest-v1",
   "recorded_utc_date": "2026-11-12",
-  "phase14c_measurement_status": "no full phase14c benchmark run completed yet",
+  "phase14c_measurement_status": "correctness and timing pilots exist; no full 700-problem phase14c study completed",
   "competitors": {
     "root": {
       "name": "GNU Scientific Library",

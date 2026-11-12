@@ -1,0 +1,89 @@
+{
+  "copied_raw_and_metadata_files": 29,
+  "copied_source_hashes_match": true,
+  "executed_method_route_scope_rows": 66,
+  "figure_png_count": 21,
+  "figure_svg_count": 21,
+  "figures_per_module": {
+    "differentiation": true,
+    "integration": true,
+    "interpolation": true,
+    "linear_algebra": true,
+    "ode": true,
+    "optimization": true,
+    "root": true
+  },
+  "full_phase14c_study_complete": false,
+  "historical_root_is_labeled": true,
+  "method_memory_statuses": [
+    "not measured at method scope"
+  ],
+  "output_directory": "benchmarks/results/phase14c/executed_methods",
+  "phase14c_pilots_are_labeled": true,
+  "schema_version": "phase14c-executed-methods-v1",
+  "unique_method_library_routes_by_module": {
+    "differentiation": 12,
+    "integration": 6,
+    "interpolation": 8,
+    "linear_algebra": 8,
+    "ode": 6,
+    "optimization": 4,
+    "root": 16
+  },
+  "unique_methods": {
+    "differentiation": [
+      "backward",
+      "central",
+      "five_point",
+      "forward",
+      "richardson",
+      "second"
+    ],
+    "integration": [
+      "adaptive_simpson",
+      "composite_simpson",
+      "composite_trapezoid"
+    ],
+    "interpolation": [
+      "lagrange",
+      "linear",
+      "newton_create",
+      "newton_evaluate"
+    ],
+    "linear_algebra": [
+      "numerix_lu_decompose",
+      "numerix_lu_solve",
+      "numerix_matrix_add",
+      "numerix_matrix_multiply"
+    ],
+    "ode": [
+      "numerix_ode_euler",
+      "numerix_ode_heun",
+      "numerix_ode_rk4"
+    ],
+    "optimization": [
+      "numerix_optimize_golden_section",
+      "numerix_optimize_gradient_descent"
+    ],
+    "root": [
+      "auto_selection",
+      "bisection",
+      "brent",
+      "multiple_root_discovery",
+      "newton",
+      "portfolio",
+      "regula_falsi",
+      "safeguarded_newton",
+      "secant"
+    ]
+  },
+  "unique_methods_by_module": {
+    "differentiation": 6,
+    "integration": 3,
+    "interpolation": 4,
+    "linear_algebra": 4,
+    "ode": 3,
+    "optimization": 2,
+    "root": 9
+  }
+}

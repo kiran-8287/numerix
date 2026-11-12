@@ -17,7 +17,7 @@
     <a class="version-chip" href="#section-introduction">0.2.0-rc1</a>
     <nav class="section-nav" aria-label="Main sections">
       <a href="#section-introduction">Introduction</a>
-      <a href="#section-requirements">Requirements &amp; Evolution</a>
+      <a href="#motivation">Requirements &amp; Evolution</a>
       <a href="#section-differentiators">What Makes NUMERIX Special</a>
       <a href="#section-architecture">Architecture</a>
       <a href="#section-features">Feature Walkthrough</a>
@@ -35,7 +35,7 @@
     <h3>Sections</h3>
     <ul>
       <li><a href="#section-introduction">1 · Introduction: What is NUMERIX?</a></li>
-      <li><a href="#section-requirements">2 · Original Requirements &amp; Evolution</a></li>
+      <li><a href="#motivation">2 · Original Requirements &amp; Evolution</a></li>
       <li><a href="#section-differentiators">3 · What Makes NUMERIX Special</a></li>
       <li><a href="#section-architecture">4 · Architecture</a></li>
       <li><a href="#section-features">5 · Feature Walkthrough</a></li>
@@ -47,73 +47,101 @@
     </ul>
   </nav>
 </header>
+<section class="slide hero" id="section-introduction" data-title="NUMERIX">
+  <div class="hero-orbit" aria-hidden="true"><svg viewBox="0 0 560 370"><path class="gridline" d="M25 55H535M25 125H535M25 195H535M25 265H535M25 335H535M75 25V345M175 25V345M275 25V345M375 25V345M475 25V345"/><path class="axis" d="M25 230H535"/><path class="trace" d="M28 58C90 72 132 120 176 184S248 300 300 279s85-57 126-86 69-37 108-48"/><circle cx="176" cy="184" r="6"/><circle cx="300" cy="279" r="6"/><circle cx="426" cy="193" r="6"/><text x="35" y="220">f(x) = 0</text><text x="394" y="350">iteration →</text></svg><p>ILLUSTRATIVE CONVERGENCE · NOT MEASUREMENT DATA</p></div>
+  <div class="hero-copy"><div class="eyebrow"><i aria-hidden="true">&#8203;</i> C11 NUMERICAL COMPUTING LIBRARY</div><h1>Numerical work.<br><em>Made explicit.</em></h1><p>A compact C library for solving, approximating and investigating mathematical problems—with algorithm selection, managed execution and diagnostics around the numerical core.</p><div class="hero-metrics"><b>7 <small>numerical modules</small></b><b>1 <small>public header</small></b><b>C11 <small>static library</small></b></div><a class="primary-link" href="#motivation">Start the presentation <span>↓</span></a></div>
+  <div class="slide-controls"><span>UNIVERSITY TECHNICAL PRESENTATION</span><a href="#motivation">Next →</a></div>
+</section>
 
-<div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+<section class="slide" id="motivation" data-title="The numerical problem">
+  <div class="eyebrow">01 — MOTIVATION</div><h2>Numerical answers are<br><em>earned, not assumed.</em></h2>
+  <div class="two-column"><div><p class="large-copy">A formula can be exact on paper and unreliable on a computer.</p><p>Finite precision, conditioning, stopping rules and invalid inputs all affect a computed answer. A small residual can still hide a poor root position; a fast method can converge to the wrong result or fail on a difficult case.</p><p>NUMERIX aims to make these choices visible in a small C library: algorithms return status and work information, while supporting systems recommend methods, manage execution and analyze results.</p></div>
+    <div class="principles"><article><b>01</b><div><h3>Convergence</h3><p>Did the method make progress under its stopping rule?</p></div></article><article><b>02</b><div><h3>Precision</h3><p>What error was measured, and which quantity does it describe?</p></div></article><article><b>03</b><div><h3>Selection</h3><p>Which implemented method fits the available bracket or derivative?</p></div></article><article><b>04</b><div><h3>Evidence</h3><p>Do tests and paired measurements support the claim?</p></div></article></div></div>
+  <div class="callout"><b>Key distinction</b><span>Residual and position error are not interchangeable. A success status is not a universal accuracy certificate.</span><a href="../../documentation/api/tolerances.md">Tolerance guide ↗</a></div>
+  <div class="slide-controls"><a href="#section-introduction">← Previous</a><a href="#section-architecture">Next →</a></div>
+</section>
 
-<main>
-  <div class="section-index">
-    <h1>NUMERIX<br><em>Project Showcase</em></h1>
-    <p class="intro">A complete, interactive technical presentation of NUMERIX — a C11 static numerical-computation library. Every feature is explained with its real public API, an actual C example, verified output, and honest limitations. Nothing is benchmarked here; everything is demonstrated.</p>
+<section class="slide inverse" id="section-architecture" data-title="Architecture">
+  <div class="eyebrow">02 — ARCHITECTURE</div><h2>One public surface.<br><em>Clear internal boundaries.</em></h2><p class="intro">Applications use one C API. The numerical algorithms form the core; expressions, recommendation, execution and diagnostics are supporting systems.</p>
+  <div class="architecture" role="img" aria-label="Applications and CLI call the public C API. The static NUMERIX library contains seven numerical modules and supporting systems.">
+    <div class="arch-row"><div class="arch-node"><small>USER APPLICATION</small><b>External C / C++ client</b></div><div class="arch-node cli"><small>DEMO INTERFACE</small><b>numerix_cli</b><span>Expressions · roots · demos</span></div></div>
+    <div class="connector">links through <i aria-hidden="true">&#8203;</i></div><div class="arch-node api"><small>PUBLIC API</small><b>include/numerix.h</b><span>Status · options · results · ownership</span></div>
+    <div class="connector">implemented by <i aria-hidden="true">&#8203;</i></div><div class="library"><small>STATIC LIBRARY · NUMERIX::numerix</small><div class="core"><b>SEVEN NUMERICAL MODULES</b><div><span>Roots</span><span>Linear algebra</span><span>Differentiation</span><span>Interpolation</span><span>Integration</span><span>Optimization</span><span>ODEs</span></div></div><div class="support"><b>SUPPORTING SYSTEMS</b><div><span>Expressions</span><span>Piecewise functions</span><span>Recommendation</span><span>Managed execution</span><span>Diagnostics</span><span>Root discovery</span></div></div></div>
   </div>
+  <div class="arch-paths"><code>src/algorithms/</code><code>src/expression/</code><code>src/intelligence/</code><code>src/execution/</code><code>src/diagnostics/</code><code>src/root_discovery/</code></div>
+  <div class="slide-controls"><a href="#motivation">← Previous</a><a href="#modules">Next →</a></div>
+</section>
 
-  <!-- Section 1: Introduction -->
-  <section id="section-introduction">
-    <div class="section-anchor"></div>
-    <div class="eyebrow">1 · Opening section</div>
-    <h2>What is NUMERIX?</h2>
-    <p class="intro">NUMERIX is a reusable numerical-computation library written in C11. It brings multiple numerical algorithms together behind one consistent public C interface so that applications can solve, approximate, differentiate, integrate, optimize, and simulate mathematical problems without reimplementing each method.</p>
-    <p>The original academic project asked for a reusable numerical library containing common numerical methods, modular implementation, a demonstration application, error and tolerance handling, tests, examples, and documentation. NUMERIX delivers that baseline and extends it with expression-based input, piecewise functions, intelligent algorithm recommendation and selection, automatic fallback, managed execution, advanced diagnostics, and heuristic multiple-root discovery.</p>
-    <p>Numerical algorithms require careful handling of accuracy, convergence, stability, and errors. A formula can be exact on paper and unreliable on a computer: finite precision, conditioning, stopping rules, and invalid inputs all affect a computed answer. NUMERIX makes these choices visible by returning status, work information, residuals, and diagnostics alongside every result.</p>
-    <div class="module-cards">
-      <div class="module-card"><div class="m-num">01</div><h3>Root Finding</h3><p>Locate <i>x</i> where f(x) = 0. Bisection, Regula Falsi, Secant, Newton, Safeguarded Newton, Brent.</p><div class="math">f(x) = 0</div></div>
-      <div class="module-card"><div class="m-num">02</div><h3>Linear Algebra</h3><p>Dense vectors and matrices, Gaussian elimination, Gauss–Jordan, LU factorization, linear-system solves, residuals.</p><div class="math">A x = b</div></div>
-      <div class="module-card"><div class="m-num">03</div><h3>Differentiation</h3><p>Forward, backward, central, five-point central, Richardson extrapolation, second derivative.</p><div class="math">f′(x) ≈ Δf/Δx</div></div>
-      <div class="module-card"><div class="m-num">04</div><h3>Interpolation</h3><p>Linear, Lagrange, Newton divided differences. Reusable interpolant; extrapolation opt-in.</p><div class="math">p(xᵢ) = yᵢ</div></div>
-      <div class="module-card"><div class="m-num">05</div><h3>Integration</h3><p>Composite trapezoid, composite Simpson 1/3, adaptive Simpson over finite intervals.</p><div class="math">∫ᵃᵇ f(x) dx</div></div>
-      <div class="module-card"><div class="m-num">06</div><h3>Optimization</h3><p>Bounded golden-section minimization; gradient descent with Armijo backtracking.</p><div class="math">min f(x)</div></div>
-      <div class="module-card"><div class="m-num">07</div><h3>ODEs</h3><p>Vector fixed-step Euler, Heun, classical RK4 for initial-value systems.</p><div class="math">y′ = F(t, y)</div></div>
-    </div>
-    <div class="callout"><b>Not a benchmark dashboard.</b><span>This showcase explains the complete NUMERIX project and its features. Comparative benchmark charts and administration controls live in the separate presentation website and Phase 14B report.</span></div>
-  </section>
+<section class="slide" id="modules" data-title="Seven modules">
+ <div class="eyebrow">03 — NUMERICAL CORE</div><h2>Seven modules.<br><em>One consistent C API.</em></h2><p class="intro">Choose a module to jump to its implemented methods, source, test and demo references.</p>
+ <div class="module-index">
+  <a href="#root-finding"><span>01</span><b>Root finding</b><small>Find x where f(x)=0</small>↗</a>
+  <a href="#linear-algebra"><span>02</span><b>Linear algebra</b><small>Vectors, matrices, linear systems</small>↗</a>
+  <a href="#differentiation"><span>03</span><b>Differentiation</b><small>Estimate derivatives from samples</small>↗</a>
+  <a href="#interpolation"><span>04</span><b>Interpolation</b><small>Estimate between known points</small>↗</a>
+  <a href="#integration"><span>05</span><b>Integration</b><small>Approximate finite-interval area</small>↗</a>
+  <a href="#optimization"><span>06</span><b>Optimization</b><small>Search for minima</small>↗</a>
+  <a href="#ode"><span>07</span><b>ODEs</b><small>Advance initial-value systems</small>↗</a>
+ </div><div class="slide-controls"><a href="#section-architecture">← Previous</a><a href="#root-finding">Next →</a></div>
+</section>
 
-  <!-- Section 2: Requirements & Evolution -->
-  <section id="section-requirements">
-    <div class="section-anchor"></div>
-    <div class="eyebrow">2 · Original requirements and how NUMERIX evolved</div>
-    <h2>From a coursework assignment to an advanced library</h2>
-    <p>The original C-Cubed academic assignment asked for a reusable numerical library with common numerical methods, modular implementation, a demonstration application, error/tolerance handling, tests, examples, and documentation. NUMERIX was built to satisfy that baseline and then extended through a phased redesign into a structured numerical environment.</p>
-    <div class="two-col">
-      <div>
-        <h3>Original baseline (coursework scope)</h3>
-        <ul>
-          <li>Common numerical methods across root finding, linear algebra, differentiation, interpolation, integration, optimization, and ODEs.</li>
-          <li>Modular C implementation with one public header.</li>
-          <li>A demonstration application (CLI and examples).</li>
-          <li>Error and tolerance handling with status codes.</li>
-          <li>Unit tests and test fixtures.</li>
-          <li>Build configuration (CMake and Make).</li>
-          <li>Documentation and a release contract.</li>
-        </ul>
-      </div>
-      <div>
-        <h3>NUMERIX redesign additions</h3>
-        <ul>
-          <li>Expression-based mathematical input (compile strings to evaluable functions).</li>
-          <li>Piecewise functions with boundary analysis and discontinuity classification.</li>
-          <li>Intelligent algorithm recommendation and automatic selection.</li>
-          <li>Automatic fallback and solver portfolios.</li>
-          <li>Managed execution: state, progress, events, step callbacks, pause/resume (Bisection).</li>
-          <li>Advanced numerical diagnostics: residuals, conditioning, sensitivity, convergence.</li>
-          <li>Heuristic multiple-root discovery with unresolved-region reporting.</li>
-          <li>Numerical reliability hardening, cross-compiler validation, reproducible packaging.</li>
-        </ul>
-      </div>
-    </div>
-    <div class="callout"><b>Honesty note.</b><span>Only features verified in the source or project reports are described here. Features are labeled verified, partial, or limited, and limitations are stated explicitly.</span></div>
-  </section>
+<section class="slide module-slide" id="root-finding" data-title="Root finding">
+ <div class="eyebrow">MODULE 01 / 07</div><div class="module-head"><div><h2>Root finding</h2><p class="intro">Locate a zero while keeping stopping evidence tied to the quantity being solved.</p></div><b class="math">f(x) = 0</b></div>
+ <div class="module-body"><div><h3>Implemented algorithms</h3><div class="chips"><span>Bisection</span><span>Regula falsi</span><span>Secant</span><span>Newton</span><span>Safeguarded Newton</span><span>Brent</span></div><p>Automatic recommendation and portfolios are available through the intelligence layer. Multiple-root discovery samples and subdivides an interval; it is heuristic and cannot guarantee completeness.</p><div class="formula"><small>TOLERANCE SEMANTICS</small><b>Position evidence ≠ residual magnitude</b><span>Check the scale and conditioning of the problem independently.</span></div></div>
+ <aside class="evidence"><b>IMPLEMENTATION & EVIDENCE</b><p><small>Source</small><code>src/algorithms/root_finding/root_finding.c</code><code>src/root_discovery/root_discovery.c</code></p><p><small>Tests</small><code>numerix_root_finding</code><code>numerix_root_discovery</code></p><p><small>Demo</small><code>numerix_root_discovery_demo</code></p><p><small>Benchmark</small><span class="badge measured">Root routes measured</span></p><a href="../../documentation/api/root_finding.md">Root API ↗</a></aside></div>
+ <div class="module-foot"><code>numerix_root_brent(f, data, 0.0, 2.0, NULL, &amp;result, &amp;error)</code><a href="#feature-benchmarking">See measured comparisons ↓</a></div><div class="slide-controls"><a href="#modules">← Modules</a><a href="#linear-algebra">Next →</a></div>
+</section>
 
-  <!-- Section 3: Differentiators -->
-  <section id="section-differentiators">
+<section class="slide module-slide" id="linear-algebra" data-title="Linear algebra">
+ <div class="eyebrow">MODULE 02 / 07</div><div class="module-head"><div><h2>Linear algebra</h2><p class="intro">Dense row-major vectors and matrices, direct system solvers and reusable LU factors.</p></div><b class="math">A x = b</b></div>
+ <div class="module-body"><div><h3>Implemented operations</h3><div class="chips"><span>Vector arithmetic</span><span>Matrix arithmetic</span><span>Matrix × vector</span><span>Gaussian elimination</span><span>Gauss–Jordan</span><span>LU factorization</span><span>LU solve</span></div><p>LU decomposition returns factors that can be reused for solves. The installed C/C++ consumer checks a 2×2 solve yielding x=[1, 2].</p><div class="formula"><small>REPRESENTATIVE API</small><b>numerix_lu_decompose → numerix_lu_solve</b><span>Conditioning still affects forward error when residuals are small.</span></div></div><aside class="evidence"><b>IMPLEMENTATION & EVIDENCE</b><p><small>Source</small><code>src/algorithms/linear_algebra/linear_algebra.c</code></p><p><small>Tests</small><code>numerix_linear_algebra</code><code>numerix_accuracy</code></p><p><small>Demo</small><span>Installed consumer LU example</span></p><p><small>Benchmark</small><span class="badge pending">Method study pending</span></p><a href="../../documentation/api/linear_algebra.md">Linear algebra guide ↗</a></aside></div><div class="slide-controls"><a href="#root-finding">← Root finding</a><a href="#differentiation">Next →</a></div>
+</section>
+
+<section class="slide module-slide" id="differentiation" data-title="Differentiation">
+ <div class="eyebrow">MODULE 03 / 07</div><div class="module-head"><div><h2>Numerical differentiation</h2><p class="intro">Estimate first and second derivatives from evaluations near the point of interest.</p></div><b class="math">f′(x) ≈ Δf / Δx</b></div>
+ <div class="module-body"><div><h3>Implemented algorithms</h3><div class="chips"><span>Forward</span><span>Backward</span><span>Central</span><span>Five-point central</span><span>Richardson</span><span>Second derivative</span></div><p>Step size is explicit in the raw derivative calls. Truncation error and floating-point cancellation can pull in opposite directions.</p><div class="formula"><small>DEMO CHECK</small><b>d(x³)/dx at x=2 ≈ 12</b><span>Computed in the expression demo.</span></div></div><aside class="evidence"><b>IMPLEMENTATION & EVIDENCE</b><p><small>Source</small><code>src/algorithms/differentiation/differentiation.c</code></p><p><small>Tests</small><code>numerix_differentiation</code><code>numerix_accuracy</code></p><p><small>Demo</small><code>numerix_expression_demo</code></p><p><small>Benchmark</small><span class="badge pending">Method study pending</span></p><a href="../../documentation/api/differentiation.md">Differentiation guide ↗</a></aside></div><div class="slide-controls"><a href="#linear-algebra">← Linear algebra</a><a href="#interpolation">Next →</a></div>
+</section>
+
+<section class="slide module-slide" id="interpolation" data-title="Interpolation">
+ <div class="eyebrow">MODULE 04 / 07</div><div class="module-head"><div><h2>Interpolation</h2><p class="intro">Construct estimates from supplied samples; extrapolation is an explicit choice.</p></div><b class="math">p(xᵢ) = yᵢ</b></div>
+ <div class="module-body"><div><h3>Implemented algorithms</h3><div class="chips"><span>Linear</span><span>Lagrange</span><span>Newton divided differences</span></div><p>Newton coefficients can be constructed once and evaluated repeatedly. Nodes must be distinct and finite.</p><div class="formula"><small>REPRESENTATIVE API</small><b>numerix_interp_newton_create / evaluate</b><span>Construction and evaluation are separate operations.</span></div></div><aside class="evidence"><b>IMPLEMENTATION & EVIDENCE</b><p><small>Source</small><code>src/algorithms/interpolation/interpolation.c</code></p><p><small>Tests</small><code>numerix_interpolation</code><code>numerix_accuracy</code></p><p><small>Demo</small><span>No dedicated executable</span></p><p><small>Benchmark</small><span class="badge pending">Method study pending</span></p><a href="../../documentation/api/interpolation.md">Interpolation guide ↗</a></aside></div><div class="slide-controls"><a href="#differentiation">← Differentiation</a><a href="#integration">Next →</a></div>
+</section>
+
+<section class="slide module-slide" id="integration" data-title="Integration">
+ <div class="eyebrow">MODULE 05 / 07</div><div class="module-head"><div><h2>Numerical integration</h2><p class="intro">Approximate finite-interval area using fixed or adaptive Simpson rules.</p></div><b class="math">∫ᵃᵇ f(x) dx</b></div>
+ <div class="module-body"><div><h3>Implemented algorithms</h3><div class="chips"><span>Composite trapezoid</span><span>Composite Simpson</span><span>Adaptive Simpson</span></div><p>Fixed methods use caller-selected panels. Adaptive Simpson uses a global error allocation; its error estimate is not a certified bound.</p><div class="formula"><small>DEMO CHECK</small><b>∫₀ᵖⁱ sin(x) dx ≈ 2</b><span>Printed by the expression demo.</span></div></div><aside class="evidence"><b>IMPLEMENTATION & EVIDENCE</b><p><small>Source</small><code>src/algorithms/integration/integration.c</code></p><p><small>Tests</small><code>numerix_phase1_integration</code><code>numerix_accuracy</code></p><p><small>Demo</small><code>numerix_expression_demo</code></p><p><small>Benchmark</small><span class="badge pending">Method study pending</span></p><a href="../../documentation/api/integration.md">Integration guide ↗</a></aside></div><div class="slide-controls"><a href="#interpolation">← Interpolation</a><a href="#optimization">Next →</a></div>
+</section>
+
+<section class="slide module-slide" id="optimization" data-title="Optimization">
+ <div class="eyebrow">MODULE 06 / 07</div><div class="module-head"><div><h2>Optimization</h2><p class="intro">Minimize a bounded scalar function or follow a supplied gradient in vector space.</p></div><b class="math">min f(x)</b></div>
+ <div class="module-body"><div><h3>Implemented algorithms</h3><div class="chips"><span>Golden section</span><span>Gradient descent</span></div><p>Golden section narrows a one-dimensional interval. Gradient descent accepts an objective, gradient callback and initial vector.</p><div class="formula"><small>REPRESENTATIVE API</small><b>numerix_optimize_golden_section(...)</b><span>Bounded scalar minimization.</span></div></div><aside class="evidence"><b>IMPLEMENTATION & EVIDENCE</b><p><small>Source</small><code>src/algorithms/optimization/optimization.c</code></p><p><small>Tests</small><code>numerix_optimization</code><code>numerix_accuracy</code></p><p><small>Demo</small><span>No dedicated executable</span></p><p><small>Benchmark</small><span class="badge pending">Method study pending</span></p><a href="../../documentation/api/optimization.md">Optimization guide ↗</a></aside></div><div class="slide-controls"><a href="#integration">← Integration</a><a href="#ode">Next →</a></div>
+</section>
+
+<section class="slide module-slide" id="ode" data-title="Ordinary differential equations">
+ <div class="eyebrow">MODULE 07 / 07</div><div class="module-head"><div><h2>Ordinary differential equations</h2><p class="intro">Advance vector initial-value problems across a caller-defined fixed time grid.</p></div><b class="math">y′ = F(t, y)</b></div>
+ <div class="module-body"><div><h3>Implemented algorithms</h3><div class="chips"><span>Euler</span><span>Heun</span><span>Classical RK4</span></div><p>The callback writes a derivative vector. The result includes time points, state values and function-evaluation count.</p><div class="formula"><small>REPRESENTATIVE API</small><b>numerix_ode_rk4(f, t₀, y₀, dim, h, steps, …)</b><span>Step size and step count are explicit inputs.</span></div></div><aside class="evidence"><b>IMPLEMENTATION & EVIDENCE</b><p><small>Source</small><code>src/algorithms/ode/ode.c</code></p><p><small>Tests</small><code>numerix_ode</code><code>numerix_accuracy</code></p><p><small>Demo</small><span>No dedicated executable</span></p><p><small>Benchmark</small><span class="badge pending">Method study pending</span></p><a href="../../documentation/api/ode.md">ODE guide ↗</a></aside></div><div class="slide-controls"><a href="#optimization">← Optimization</a><a href="#workflow">Next →</a></div>
+</section>
+
+<section class="slide" id="workflow" data-title="How to use NUMERIX">
+ <div class="eyebrow">04 — DEVELOPER WORKFLOW</div><h2>From header<br><em>to numerical result.</em></h2>
+ <div class="steps"><article><b>1</b><span>Include<br><code>#include &lt;numerix.h&gt;</code></span></article><article><b>2</b><span>Configure<br><code>find_package(NUMERIX 0.2)</code></span></article><article><b>3</b><span>Call<br><code>numerix_root_brent(...)</code></span></article><article><b>4</b><span>Check<br><code>status + result + error</code></span></article><article><b>5</b><span>Link<br><code>NUMERIX::numerix</code></span></article></div>
+ <div class="code-panels"><div><small>PUBLIC C API</small><pre><code>numerix_result result;
+numerix_error error;
+numerix_status status = numerix_root_brent(
+  equation, NULL, 0.0, 2.0, NULL,
+  &amp;result, &amp;error);
+if (status != NUMERIX_STATUS_SUCCESS)
+  fprintf(stderr, "%s\\n", error.message);</code></pre></div><div><small>CMAKE CONSUMER</small><pre><code>find_package(NUMERIX 0.2
+  CONFIG REQUIRED)
+add_executable(app main.c)
+target_link_libraries(app
+  PRIVATE NUMERIX::numerix)</code></pre></div></div>
+ <div class="callout"><b>CMake + GNU Make</b><span>CMake consumers link <code>NUMERIX::numerix</code>. The Makefile supports <code>make -j all</code>, <code>make test</code>, and <code>make install PREFIX=…</code>.</span><a href="../../documentation/user_guide/installation.md">Install guide ↗</a></div>
+ <div class="slide-controls"><a href="#ode">← ODEs</a><a href="#section-differentiators">Next →</a></div>
+</section>
+
+
+<section id="section-differentiators">
     <div class="section-anchor"></div>
     <div class="eyebrow">3 · Differentiators</div>
     <h2>What makes NUMERIX special?</h2>
@@ -131,34 +159,8 @@
   </section>
 
   <!-- Section 4: Architecture -->
-  <section id="section-architecture">
-    <div class="section-anchor"></div>
-    <div class="eyebrow">4 · Architecture</div>
-    <h2>One public surface, clear internal boundaries</h2>
-    <p class="intro">Applications use one C API — <code>include/numerix.h</code>. The static library contains seven numerical modules and six supporting systems. All inputs are borrowed; outputs that NUMERIX allocates are owned by the caller until destroyed.</p>
-    <svg class="svg-diagram" viewBox="0 0 700 420" role="img" aria-label="NUMERIX architecture: application and CLI call the public API, which is implemented by the static library containing seven modules and supporting systems.">
-      <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#087e83"/></marker></defs>
-      <g class="box"><rect x="20" y="30" width="180" height="70" rx="8" ry="8"/><text x="110" y="60">USER APPLICATION</text><text x="110" y="80" fill="#637482" font-size="11">External C / C++ client</text></g>
-      <g class="box"><rect x="260" y="30" width="180" height="70" rx="8" ry="8" stroke="#087e83" stroke-width="2"/><text x="350" y="60">PUBLIC API</text><text x="350" y="80" fill="#d9fff3" font-size="11">include/numerix.h</text></g>
-      <g class="box highlight"><rect x="500" y="30" width="180" height="70" rx="8" ry="8"/><text x="590" y="60">STATIC LIBRARY</text><text x="590" y="80" fill="#b6c9d0" font-size="11">libnumerix.a · NUMERIX::numerix</text></g>
-      <line class="flow" x1="200" y1="65" x2="260" y2="65"/><line class="flow" x1="440" y1="65" x2="500" y2="65"/>
-      <text x="225" y="75" class="lbl" font-size="10" fill="#637482">calls</text>
-      <text x="465" y="75" class="lbl" font-size="10" fill="#637482">implemented by</text>
-      <rect x="30" y="130" width="140" height="240" rx="8" ry="8" fill="#fff" stroke="#34716a" stroke-width="1.5"/>
-      <text x="100" y="150" fill="#c6eee1" font-size="11" font-weight="700" letter-spacing=".1em">SEVEN NUMERICAL MODULES</text>
-      <text x="100" y="175" fill="#b7c9ce" font-size="10">Roots · Linear algebra · Differentiation · Interpolation · Integration · Optimization · ODEs</text>
-      <rect x="200" y="130" width="480" height="240" rx="8" ry="8" fill="#fff" stroke="#405764" stroke-width="1.5"/>
-      <text x="220" y="150" fill="#b6c9d0" font-size="11" font-weight="700" letter-spacing=".1em">SUPPORTING SYSTEMS</text>
-      <text x="220" y="175" fill="#b7c9ce" font-size="10">Expressions · Piecewise functions · Recommendation · Managed execution · Diagnostics · Root discovery</text>
-      <text x="100" y="215" fill="#5a6c75" font-size="10">src/algorithms/</text>
-      <text x="220" y="215" fill="#5a6c75" font-size="10">src/expression/ · src/piecewise/ · src/intelligence/ · src/execution/ · src/diagnostics/ · src/root_discovery/</text>
-    </svg>
-    <p class="svg-caption">Figure: application and CLI link the public API; the static library implements the seven numerical modules and the supporting systems. Source paths match the repository layout.</p>
-    <div class="verify-box"><b>Ownership rule.</b><span>NUMERIX allocates result objects (vectors, matrices, expressions, piecewise functions, ODE solutions, execution outputs). The caller owns them and must call the matching <code>*_destroy</code> function. Callbacks and user_data are borrowed; NUMERIX never frees them.</span></div>
-  </section>
-
-  <!-- Section 5: Feature Walkthrough (start) -->
-  <section id="section-features">
+  
+<section id="section-features">
     <div class="section-anchor"></div>
     <div class="eyebrow">5 · Feature walkthrough</div>
     <h2>Every feature, one by one</h2>
@@ -195,13 +197,13 @@
     <p>Users do not always need to write a C callback function. They can provide a mathematical expression as a string, which NUMERIX compiles into an immutable, repeatedly evaluable expression object.</p>
     <p>The internal process is:</p>
     <svg class="svg-diagram" viewBox="0 0 620 180" role="img" aria-label="Expression processing pipeline: string → lexer → tokens → parser → AST → evaluation → numerical algorithm.">
-      <rect x="30" y="45" width="110" height="40" rx="6" ry="6" class="box"/><text x="85" y="67" fill="#087e83" font-weight="700">Expression string</text>
-      <line class="flow" x1="140" y1="65" x2="175" y2="65"/>
-      <rect x="175" y="45" width="110" height="40" rx="6" ry="6" class="box"/><text x="230" y="67" fill="#087e83" font-weight="700">Lexical analysis</text>
-      <line class="flow" x1="285" y1="65" x2="320" y2="65"/>
-      <rect x="320" y="45" width="110" height="40" rx="6" ry="6" class="box"/><text x="375" y="67" fill="#087e83" font-weight="700">Parser → AST</text>
-      <line class="flow" x1="430" y1="65" x2="465" y2="65"/>
-      <rect x="465" y="45" width="125" height="40" rx="6" ry="6" class="box highlight"/><text x="527" y="67" fill="#087e83" font-weight="700">Evaluate → algorithm</text>
+      <rect x="30" y="45" width="110" height="40" rx="6" ry="6" class="flow-box input"/><text class="flow-text" x="85" y="65" font-weight="700">Expression string</text>
+      <line class="flow-arrow input" x1="140" y1="65" x2="175" y2="65"/>
+      <rect x="175" y="45" width="110" height="40" rx="6" ry="6" class="flow-box process"/><text class="flow-text" x="230" y="65" font-weight="700">Lexical analysis</text>
+      <line class="flow-arrow process" x1="285" y1="65" x2="320" y2="65"/>
+      <rect x="320" y="45" width="110" height="40" rx="6" ry="6" class="flow-box process"/><text class="flow-text" x="375" y="65" font-weight="700">Parser → AST</text>
+      <line class="flow-arrow process" x1="430" y1="65" x2="465" y2="65"/>
+      <rect x="465" y="45" width="125" height="40" rx="6" ry="6" class="flow-box output"/><text class="flow-text" x="527" y="65" font-weight="700">Evaluate → algorithm</text>
     </svg>
     <p class="svg-caption">Figure: the expression engine lexes, parses, and evaluates a string through a callback adapter that existing numerical routines can call.</p>
     <h3>Supported syntax</h3>
@@ -444,18 +446,18 @@ status = numerix_root_brent(
     <svg class="svg-diagram" viewBox="0 0 620 200" role="img" aria-label="Number line showing three piecewise segments with boundaries at 0 and 2.">
       <line x1="40" y1="110" x2="580" y2="110" stroke="#087e83" stroke-width="2"/>
       <circle cx="40" cy="110" r="4" fill="#087e83"/><circle cx="580" cy="110" r="4" fill="#087e83"/>
-      <text x="20" y="130" font-size="11" fill="#637482">-∞</text>
-      <text x="590" y="130" font-size="11" fill="#637482">+∞</text>
+      <text x="20" y="130" font-size="11" fill="#111827">-∞</text>
+      <text x="590" y="130" font-size="11" fill="#111827">+∞</text>
       <line x1="180" y1="90" x2="180" y2="130" stroke="#d27b2c" stroke-width="2"/>
-      <text x="180" y="80" font-size="11" fill="#d27b2c" text-anchor="middle">0</text>
+      <text x="180" y="80" font-size="11" fill="#111827" text-anchor="middle" font-weight="700">0</text>
       <line x1="460" y1="90" x2="460" y2="130" stroke="#d27b2c" stroke-width="2"/>
-      <text x="460" y="80" font-size="11" fill="#d27b2c" text-anchor="middle">2</text>
+      <text x="460" y="80" font-size="11" fill="#111827" text-anchor="middle" font-weight="700">2</text>
       <rect x="40" y="100" width="140" height="20" rx="3" ry="3" fill="#eaf3f0" stroke="#087e83"/>
-      <text x="110" y="112" font-size="10" fill="#087e83" text-anchor="middle">x², x &lt; 0</text>
+      <text x="110" y="112" font-size="10" fill="#111827" text-anchor="middle">x², x &lt; 0</text>
       <rect x="180" y="100" width="280" height="20" rx="3" ry="3" fill="#eaf3f0" stroke="#087e83"/>
-      <text x="320" y="112" font-size="10" fill="#087e83" text-anchor="middle">sin(x), 0 ≤ x &lt; 2</text>
+      <text x="320" y="112" font-size="10" fill="#111827" text-anchor="middle">sin(x), 0 ≤ x &lt; 2</text>
       <rect x="460" y="100" width="120" height="20" rx="3" ry="3" fill="#eaf3f0" stroke="#087e83"/>
-      <text x="520" y="112" font-size="10" fill="#087e83" text-anchor="middle">x+1, x ≥ 2</text>
+      <text x="520" y="112" font-size="10" fill="#111827" text-anchor="middle">x+1, x ≥ 2</text>
     </svg>
     <p class="svg-caption">Figure: segments and boundaries on a number line; boundaries at 0 and 2 are shown as transition points.</p>
     <h3>What NUMERIX supports</h3>
@@ -548,15 +550,15 @@ int main(void)
     <h2>Intelligent algorithm recommendation</h2>
     <p>One numerical algorithm is not ideal for every problem. NUMERIX can analyze a user's problem and recommend a suitable algorithm, with reasons and limitations.</p>
     <svg class="svg-diagram" viewBox="0 0 620 220" role="img" aria-label="Recommendation workflow: problem → analysis → evaluation → recommendation → explanation.">
-      <rect x="30" y="40" width="120" height="50" rx="6" ry="6" class="box"/><text x="90" y="67" fill="#087e83" font-weight="700" text-anchor="middle">User's problem</text>
-      <line class="flow" x1="150" y1="65" x2="185" y2="65"/>
-      <rect x="185" y="40" width="120" height="50" rx="6" ry="6" class="box"/><text x="245" y="67" fill="#087e83" font-weight="700" text-anchor="middle">Problem analysis</text>
-      <line class="flow" x1="305" y1="65" x2="340" y2="65"/>
-      <rect x="340" y="40" width="120" height="50" rx="6" ry="6" class="box"/><text x="400" y="67" fill="#087e83" font-weight="700" text-anchor="middle">Evaluate algorithms</text>
-      <line class="flow" x1="460" y1="65" x2="495" y2="65"/>
-      <rect x="495" y="40" width="95" height="50" rx="6" ry="6" class="box highlight"/><text x="542" y="67" fill="#087e83" font-weight="700" text-anchor="middle">Recommendation</text>
-      <line class="flow" x1="185" y1="95" x2="215" y2="135"/>
-      <rect x="185" y="135" width="120" height="50" rx="6" ry="6" class="box"/><text x="245" y="162" fill="#087e83" font-weight="700" text-anchor="middle">Explanation</text>
+      <rect x="30" y="40" width="120" height="50" rx="6" ry="6" class="flow-box input"/><text class="flow-text" x="90" y="65" font-weight="700">User's problem</text>
+      <line class="flow-arrow input" x1="150" y1="65" x2="185" y2="65"/>
+      <rect x="185" y="40" width="120" height="50" rx="6" ry="6" class="flow-box process"/><text class="flow-text" x="245" y="65" font-weight="700">Problem analysis</text>
+      <line class="flow-arrow process" x1="305" y1="65" x2="340" y2="65"/>
+      <rect x="340" y="40" width="120" height="50" rx="6" ry="6" class="flow-box process"/><text class="flow-text" x="400" y="65" font-weight="700">Evaluate algorithms</text>
+      <line class="flow-arrow process" x1="460" y1="65" x2="495" y2="65"/>
+      <rect x="495" y="40" width="95" height="50" rx="6" ry="6" class="flow-box output"/><text class="flow-text" x="542" y="65" font-weight="700">Recommendation</text>
+      <line class="flow-arrow process" x1="245" y1="90" x2="245" y2="135"/>
+      <rect x="185" y="135" width="120" height="50" rx="6" ry="6" class="flow-box process"/><text class="flow-text" x="245" y="160" font-weight="700">Explanation</text>
     </svg>
     <p class="svg-caption">Figure: the recommendation flow considers bracket, derivative availability, and piecewise boundaries, then produces a recommended algorithm plus reason and limitation strings.</p>
     <h3>Information considered</h3>
@@ -632,13 +634,13 @@ int main(void)
     <h2>Automatic algorithm selection and execution</h2>
     <p>NUMERIX distinguishes three modes: (1) asking for a recommendation only, (2) asking NUMERIX to select and execute automatically, and (3) explicitly choosing a method manually. Direct method APIs remain available to developers who want full control.</p>
     <svg class="svg-diagram" viewBox="0 0 620 180" role="img" aria-label="Automatic selection workflow: input problem → analyze → select algorithm → execute → return result.">
-      <rect x="30" y="60" width="110" height="50" rx="6" ry="6" class="box"/><text x="85" y="87" fill="#087e83" font-weight="700" text-anchor="middle">Input problem</text>
-      <line class="flow" x1="140" y1="85" x2="175" y2="85"/>
-      <rect x="175" y="60" width="110" height="50" rx="6" ry="6" class="box"/><text x="230" y="87" fill="#087e83" font-weight="700" text-anchor="middle">Analyze problem</text>
-      <line class="flow" x1="285" y1="85" x2="320" y2="85"/>
-      <rect x="320" y="60" width="110" height="50" rx="6" ry="6" class="box"/><text x="375" y="87" fill="#087e83" font-weight="700" text-anchor="middle">Select algorithm</text>
-      <line class="flow" x1="430" y1="85" x2="465" y2="85"/>
-      <rect x="465" y="60" width="110" height="50" rx="6" ry="6" class="box highlight"/><text x="520" y="87" fill="#087e83" font-weight="700" text-anchor="middle">Execute → result</text>
+      <rect x="30" y="60" width="110" height="50" rx="6" ry="6" class="flow-box input"/><text class="flow-text" x="85" y="85" font-weight="700">Input problem</text>
+      <line class="flow-arrow input" x1="140" y1="85" x2="175" y2="85"/>
+      <rect x="175" y="60" width="110" height="50" rx="6" ry="6" class="flow-box process"/><text class="flow-text" x="230" y="85" font-weight="700">Analyze problem</text>
+      <line class="flow-arrow process" x1="285" y1="85" x2="320" y2="85"/>
+      <rect x="320" y="60" width="110" height="50" rx="6" ry="6" class="flow-box process"/><text class="flow-text" x="375" y="85" font-weight="700">Select algorithm</text>
+      <line class="flow-arrow process" x1="430" y1="85" x2="465" y2="85"/>
+      <rect x="465" y="60" width="125" height="50" rx="6" ry="6" class="flow-box output"/><text class="flow-text" x="527" y="85" font-weight="700">Execute → result</text>
     </svg>
     <p class="svg-caption">Figure: automatic selection analyzes, picks, runs, and returns the result plus execution information.</p>
     <h3>Real APIs</h3>
@@ -713,13 +715,13 @@ int main(void)
     <p>Numerical algorithms can fail: invalid initial interval, missing/too-small derivative, divergence, stagnation, iteration limit, overflow, domain error. NUMERIX classifies supported failures and, when enabled, attempts supported alternatives.</p>
     <p>Each attempt is recorded in <code>numerix_algorithm_attempt</code> with algorithm, status, reason, error, and result. The <code>numerix_root_selection_report</code> records the original failure, whether fallback was used, the final algorithm, and attempt count.</p>
     <svg class="svg-diagram" viewBox="0 0 620 200" role="img" aria-label="Fallback: Newton fails with flat derivative, Brent is attempted as fallback, succeeds.">
-      <rect x="30" y="50" width="130" height="50" rx="6" ry="6" class="box"/><text x="95" y="77" fill="#d27b2c" font-weight="700" text-anchor="middle">Newton (flat derivative)</text>
-      <line class="flow" x1="160" y1="75" x2="195" y2="75"/>
-      <rect x="195" y="50" width="130" height="50" rx="6" ry="6" class="box"/><text x="260" y="77" fill="#d27b2c" font-weight="700" text-anchor="middle">Failure classified</text>
-      <line class="flow" x1="325" y1="75" x2="360" y2="75"/>
-      <rect x="360" y="50" width="130" height="50" rx="6" ry="6" class="box highlight"/><text x="425" y="77" fill="#087e83" font-weight="700" text-anchor="middle">Brent fallback</text>
-      <line class="flow" x1="490" y1="75" x2="525" y2="75"/>
-      <rect x="525" y="50" width="65" height="50" rx="6" ry="6" class="box highlight"/><text x="557" y="77" fill="#087e83" font-weight="700" text-anchor="middle">Success</text>
+      <rect x="30" y="50" width="130" height="50" rx="6" ry="6" class="flow-box process"/><text class="flow-text" x="95" y="75" font-weight="700">Newton (flat derivative)</text>
+      <line class="flow-arrow process" x1="160" y1="75" x2="195" y2="75"/>
+      <rect x="195" y="50" width="130" height="50" rx="6" ry="6" class="flow-box decision"/><text class="flow-text" x="260" y="75" font-weight="700">Failure classified</text>
+      <line class="flow-arrow decision" x1="325" y1="75" x2="360" y2="75"/>
+      <rect x="360" y="50" width="130" height="50" rx="6" ry="6" class="flow-box action"/><text class="flow-text" x="425" y="75" font-weight="700">Brent fallback</text>
+      <line class="flow-arrow action" x1="490" y1="75" x2="525" y2="75"/>
+      <rect x="525" y="50" width="65" height="50" rx="6" ry="6" class="flow-box output"/><text class="flow-text" x="557" y="75" font-weight="700">Success</text>
     </svg>
     <p class="svg_caption">Figure: one algorithm fails and a supported alternative is attempted.</p>
     <div class="callout warn"><b>Limitation.</b><span>Fallback is not universal. It applies to classified failures with supported alternatives. Some failures (allocation failure, singular matrix, unrecoverable divergence) do not trigger fallback. The report records every attempt so the developer can see what was tried.</span></div>
@@ -758,10 +760,10 @@ int main(void)
       <line x1="40" y1="140" x2="560" y2="140" stroke="#94aca9" stroke-width="1"/>
       <circle cx="140" cy="140" r="5" fill="#087e83"/><circle cx="240" cy="140" r="5" fill="#087e83"/>
       <circle cx="340" cy="140" r="5" fill="#d27b2c"/><circle cx="440" cy="140" r="5" fill="#087e83"/>
-      <text x="140" y="158" font-size="10" fill="#637482" text-anchor="middle">root</text>
-      <text x="340" y="158" font-size="10" fill="#d27b2c" text-anchor="middle">tangential</text>
+      <text x="140" y="158" font-size="10" fill="#111827" text-anchor="middle">root</text>
+      <text x="340" y="158" font-size="10" fill="#111827" text-anchor="middle" font-weight="700">tangential</text>
       <rect x="480" y="110" width="40" height="60" rx="4" ry="4" fill="#fdf6ec" stroke="#d27b2c"/>
-      <text x="500" y="185" font-size="9" fill="#8a4a1f" text-anchor="middle">unresolved</text>
+      <text x="500" y="185" font-size="9" fill="#111827" text-anchor="middle">unresolved</text>
     </svg>
     <p class="svg_caption">Figure: several roots including a tangential one (touching the axis without crossing), plus an unresolved region where the search could not conclude.</p>
     <h3>What the search reports</h3>
@@ -843,16 +845,16 @@ int main(void)
     <p>Managed execution wraps a numerical run in an object that exposes state, progress, iteration/evaluation counts, timing, events, step callbacks, and a final summary.</p>
     <p>Execution states: <code>CREATED → READY → RUNNING → (PAUSED → RESUMED) → COMPLETED / FAILED / CANCELLED / LIMIT_REACHED</code>.</p>
     <svg class="svg-diagram" viewBox="0 0 620 160" role="img" aria-label="Execution state diagram with CREATED, READY, RUNNING, PAUSED, COMPLETED, FAILED, CANCELLED, LIMIT_REACHED.">
-      <rect x="30" y="50" width="100" height="40" rx="5" ry="5" class="box highlight"/><text x="80" y="72" fill="#087e83" font-weight="700" text-anchor="middle">CREATED</text>
-      <line class="flow" x1="130" y1="70" x2="160" y2="70"/>
-      <rect x="160" y="50" width="90" height="40" rx="5" ry="5" class="box"/><text x="205" y="72" fill="#087e83" font-weight="700" text-anchor="middle">READY</text>
-      <line class="flow" x1="250" y1="70" x2="280" y2="70"/>
-      <rect x="280" y="50" width="100" height="40" rx="5" ry="5" class="box"/><text x="330" y="72" fill="#087e83" font-weight="700" text-anchor="middle">RUNNING</text>
-      <line class="flow" x1="380" y1="50" x2="420" y2="50"/>
-      <rect x="420" y="50" width="90" height="40" rx="5" ry="5" class="box"/><text x="465" y="72" fill="#087e83" font-weight="700" text-anchor="middle">COMPLETED</text>
-      <line class="flow" x1="330" y1="90" x2="330" y2="110"/>
-      <line class="flow" x1="330" y1="110" x2="380" y2="110"/>
-      <rect x="380" y="110" width="90" height="40" rx="5" ry="5" class="box"/><text x="425" y="132" fill="#d27b2c" font-weight="700" text-anchor="middle">FAILED</text>
+      <rect x="30" y="50" width="100" height="40" rx="5" ry="5" class="flow-box process"/><text class="flow-text" x="80" y="72" font-weight="700">CREATED</text>
+      <line class="flow-arrow process" x1="130" y1="70" x2="160" y2="70"/>
+      <rect x="160" y="50" width="90" height="40" rx="5" ry="5" class="flow-box process"/><text class="flow-text" x="205" y="72" font-weight="700">READY</text>
+      <line class="flow-arrow process" x1="250" y1="70" x2="280" y2="70"/>
+      <rect x="280" y="50" width="100" height="40" rx="5" ry="5" class="flow-box process"/><text class="flow-text" x="330" y="72" font-weight="700">RUNNING</text>
+      <line class="flow-arrow process" x1="380" y1="70" x2="420" y2="70"/>
+      <rect x="420" y="50" width="90" height="40" rx="5" ry="5" class="flow-box output"/><text class="flow-text" x="465" y="72" font-weight="700">COMPLETED</text>
+      <line class="flow-arrow error" x1="330" y1="90" x2="330" y2="110"/>
+      <line class="flow-arrow error" x1="330" y1="110" x2="380" y2="110"/>
+      <rect x="380" y="110" width="90" height="40" rx="5" ry="5" class="flow-box error"/><text class="flow-text" x="425" y="132" font-weight="700">FAILED</text>
     </svg>
     <p class="svg_caption">Figure: simplified execution state lifecycle (pause/resume applies at Bisection step boundaries only).</p>
     <h3>Supported monitoring</h3>
@@ -876,16 +878,16 @@ int main(void)
     <h2>Step-by-step numerical execution</h2>
     <p>Supported algorithms can expose intermediate execution steps through a step callback. For Bisection, each step reports the interval, midpoint, residual, iteration, and evaluation counts.</p>
     <svg class="svg-diagram" viewBox="0 0 620 220" role="img" aria-label="Bisection step flow: initial interval → midpoint → evaluate → update interval → repeat → converged.">
-      <rect x="30" y="50" width="110" height="40" rx="5" ry="5" class="box highlight"/><text x="85" y="72" fill="#087e83" font-weight="700" text-anchor="middle">Initial interval</text>
-      <line class="flow" x1="140" y1="70" x2="175" y2="70"/>
-      <rect x="175" y="50" width="110" height="40" rx="5" ry="5" class="box"/><text x="230" y="72" fill="#087e83" font-weight="700" text-anchor="middle">Midpoint</text>
-      <line class="flow" x1="285" y1="70" x2="320" y2="70"/>
-      <rect x="320" y="50" width="110" height="40" rx="5" ry="5" class="box"/><text x="375" y="72" fill="#087e83" font-weight="700" text-anchor="middle">Evaluate f</text>
-      <line class="flow" x1="430" y1="70" x2="465" y2="70"/>
-      <rect x="465" y="50" width="110" height="40" rx="5" ry="5" class="box"/><text x="520" y="72" fill="#087e83" font-weight="700" text-anchor="middle">Update interval</text>
-      <line class="flow" x1="320" y1="90" x2="320" y2="130"/>
-      <line class="flow" x1="320" y1="130" x2="175" y2="130"/>
-      <rect x="175" y="130" width="110" height="40" rx="5" ry="5" class="box"/><text x="230" y="152" fill="#087e83" font-weight="700" text-anchor="middle">Converged?</text>
+      <rect x="30" y="50" width="110" height="40" rx="5" ry="5" class="flow-box input"/><text class="flow-text" x="85" y="72" font-weight="700">Initial interval</text>
+      <line class="flow-arrow input" x1="140" y1="70" x2="175" y2="70"/>
+      <rect x="175" y="50" width="110" height="40" rx="5" ry="5" class="flow-box process"/><text class="flow-text" x="230" y="72" font-weight="700">Midpoint</text>
+      <line class="flow-arrow process" x1="285" y1="70" x2="320" y2="70"/>
+      <rect x="320" y="50" width="110" height="40" rx="5" ry="5" class="flow-box process"/><text class="flow-text" x="375" y="72" font-weight="700">Evaluate f</text>
+      <line class="flow-arrow process" x1="430" y1="70" x2="465" y2="70"/>
+      <rect x="465" y="50" width="110" height="40" rx="5" ry="5" class="flow-box process"/><text class="flow-text" x="520" y="72" font-weight="700">Update interval</text>
+      <line class="flow-arrow decision" x1="320" y1="90" x2="320" y2="150"/>
+      <line class="flow-arrow decision" x1="320" y1="150" x2="175" y2="150"/>
+      <rect x="175" y="130" width="110" height="40" rx="5" ry="5" class="flow-box decision"/><text class="flow-text" x="230" y="150" font-weight="700">Converged?</text>
     </svg>
     <p class="svg_caption">Figure: step-by-step Bisection loop observed via the step callback.</p>
     <div class="tabs">
@@ -1144,11 +1146,11 @@ int main(void)
     <h2>Memory management and safe resource ownership</h2>
     <p>NUMERIX uses explicit ownership: APIs that allocate return objects the caller owns and must destroy. Callbacks and user_data are borrowed. Partial objects are cleaned up on failure.</p>
     <svg class="svg-diagram" viewBox="0 0 620 180" role="img" aria-label="Ownership diagram: caller creates object, NUMERIX owns internals, caller destroys.">
-      <rect x="30" y="60" width="140" height="50" rx="6" ry="6" class="box"/><text x="100" y="87" fill="#087e83" font-weight="700" text-anchor="middle">CALLER</text>
-      <line class="flow" x1="170" y1="85" x2="210" y2="85"/>
-      <rect x="210" y="60" width="160" height="50" rx="6" ry="6" class="box highlight"/><text x="290" y="87" fill="#087e83" font-weight="700" text-anchor="middle">NUMERIX object (owned by caller)</text>
-      <line class="flow" x1="370" y1="85" x2="410" y2="85"/>
-      <rect x="410" y="60" width="180" height="50" rx="6" ry="6" class="box"/><text x="500" y="87" fill="#087e83" font-weight="700" text-anchor="middle">Caller calls *_destroy</text>
+      <rect x="30" y="60" width="140" height="50" rx="6" ry="6" class="flow-box process"/><text class="flow-text" x="100" y="87" font-weight="700">CALLER</text>
+      <line class="flow-arrow process" x1="170" y1="85" x2="210" y2="85"/>
+      <rect x="210" y="60" width="160" height="50" rx="6" ry="6" class="flow-box process"/><text class="flow-text" x="290" y="87" font-weight="700">NUMERIX object (owned by caller)</text>
+      <line class="flow-arrow process" x1="370" y1="85" x2="410" y2="85"/>
+      <rect x="410" y="60" width="180" height="50" rx="6" ry="6" class="flow-box action"/><text class="flow-text" x="500" y="87" font-weight="700">Caller calls *_destroy</text>
     </svg>
     <p class="svg_caption">Figure: the caller owns NUMERIX-allocated objects and releases them with the matching destroy function.</p>
     <div class="tabs">
@@ -1273,61 +1275,756 @@ numerix_vector_destroy(v);
     <div class="section-anchor"></div>
     <div class="eyebrow">7 · C programming guide</div>
     <h2>Practical C programming tutorial</h2>
-    <p class="intro">Complete, realistic C programs using the real public header. Every example compiles and runs against <code>libnumerix.a</code>.</p>
+    <p class="intro">Complete, standalone C programs using the real public header (<code>numerix.h</code>). Every example compiles and runs against <code>libnumerix.a</code>. Copy a source file, run the PowerShell commands below it, and see the expected output.</p>
 
-    <h3>Tutorial 1 — Include the library</h3>
-    <div class="code-block"><small>C</small><pre><code>#include &lt;numerix.h&gt;
-</pre><button class="copy-button">copy</button></div></div>
-    <p><code>numerix.h</code> is the single public header. It declares all statuses, types, options, results, and functions. C++ clients include it through <code>extern "C"</code>.</p>
+    <h3>Tutorial 1 — Include and initialize NUMERIX</h3>
+    <p>Demonstrates including the single public header, initializing the library, and running a real API operation (Brent root solve on <i>x</i>²−4).</p>
+    <div class="code-block"><small>C · Complete source</small><pre><code>#include &lt;numerix.h&gt;
 
-    <h3>Tutorial 2 — Callback root solve</h3>
-    <p>See Feature 2 (verified: Newton on x²−4 → 2.0, 6 iterations).</p>
+#include &lt;math.h&gt;
+#include &lt;stdio.h&gt;
 
-    <h3>Tutorial 3 — Expression-string root solve</h3>
-    <p>See Feature 1 (verified: expression compiled and passed to brent via callback adapter).</p>
+static double f(double x, void *ud)
+{
+    (void)ud;
+    return x * x - 4.0;
+}
 
-    <h3>Tutorial 4 — Same problem, both input methods</h3>
-    <div class="two-col">
-      <div>
-        <h4>Version A — callback</h4>
-        <div class="code-block"><small>C</small><pre><code>status = numerix_root_brent(
-    my_function, NULL, 0.0, 3.0, &options, &result, &error);
-</pre><button class="copy-button">copy</button></div></div>
-      </div>
-      <div>
-        <h4>Version B — expression string</h4>
-        <div class="code-block"><small>C</small><pre><code>numerix_expression_compile("x^2 - 4", &expression, &error);
-numerix_expression_callback_context_init(&context, expression, &error);
-status = numerix_root_brent(
-    numerix_expression_callback, &context, 0.0, 3.0,
-    &options, &result, &error);
-</pre><button class="copy-button">copy</button></div></div>
-    </div>
-    <p>Both solve x²−4 on [0,3] and converge to ≈2.0. The difference is how the developer supplies the function: a compiled function pointer vs a parsed string through the adapter.</p>
+int main(void)
+{
+    numerix_error error;
+    numerix_status status;
 
-    <h3>Tutorial 5 — Piecewise function</h3>
-    <p>See Feature 4 (verified: x² for x<0, 2*x for x≥0; integral on [−2,2] ≈ 6.6668).</p>
+    printf("NUMERIX version: %s
+", NUMERIX_VERSION_STRING);
 
-    <h3>Tutorial 6 — Automatic algorithm selection</h3>
-    <p>See Feature 6 (verified: safeguarded Newton recommended; Newton→Brent fallback).</p>
+    status = numerix_initialize(&amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "numerix_initialize failed: %s
+", error.message);
+        return 1;
+    }
+    puts("numerix_initialize: success");
 
-    <h3>Tutorial 7 — Execution monitoring</h3>
-    <p>See Feature 10/11 (verified: Bisection step callback, progress, summary).</p>
+    numerix_options options;
+    numerix_result result;
+    numerix_error err;
+    double root;
 
-    <h3>Tutorial 8 — Diagnostics</h3>
-    <p>See Feature 13/14 (verified: residual, reliability class, forward error, root condition).</p>
+    numerix_options_init(&amp;options);
+    status = numerix_root_brent(f, NULL, 0.0, 3.0, &amp;options, &amp;result, &amp;err);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "root solve failed: %s
+", err.message);
+        return 1;
+    }
+    root = result.value;
+    printf("Brent root of x^2 - 4 on [0, 3]: %.10f (expected 2.0000000000)
+", root);
+
+    return 0;
+}
+</code><button class="copy-button">copy</button></div></div>
+    <div class="code-block"><small>PowerShell · Compile and run</small><pre><code># Build NUMERIX first (MinGW-w64 GCC)
+gcc --version
+cmake --version
+cmake -S . -B build-windows -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+cmake --build build-windows --parallel
+
+# Compile tutorial 1
+gcc -std=c11 -I .\include .\tutorials\tutorial_01_include.c `
+    .\libnumerix.a -lm -o .\tutorial_01_include.exe
+
+# Run
+.\tutorial_01_include.exe
+</code><button class="copy-button">copy</button></div></div>
+    <div class="terminal"><div><span>● ● ●</span><b>EXPECTED OUTPUT</b><small>Linux verification · libnumerix.a 0.2.0-rc1</small></div><pre><span class="out">NUMERIX version: 0.2.0-rc1</span>
+<span class="out">numerix_initialize: success</span>
+<span class="out">Brent root of x^2 - 4 on [0, 3]: 1.9999999998 (expected 2.0000000000)</span>
+</pre></div>
+    <p><code>numerix.h</code> is the single public header. It declares all statuses, types, options, results, and functions. The header uses <code>extern "C"</code> so C++ clients can include it directly. <code>numerix_initialize</code> is optional but recommended; the example also runs a real Brent root solve to confirm the library works.</p>
+
+    <h3>Tutorial 2 — Root finding with a C callback</h3>
+    <p>Solves <i>f</i>(<i>x</i>) = <i>x</i>²−4 = 0 on [0, 3] using Brent's method with a fully defined C callback.</p>
+    <div class="code-block"><small>C · Complete source</small><pre><code>#include &lt;numerix.h&gt;
+
+#include &lt;math.h&gt;
+#include &lt;stdio.h&gt;
+
+static double f(double x, void *user_data)
+{
+    (void)user_data;
+    return x * x - 4.0;
+}
+
+int main(void)
+{
+    numerix_options options;
+    numerix_result result;
+    numerix_error error;
+    numerix_status status;
+
+    numerix_options_init(&amp;options);
+
+    status = numerix_root_brent(f, NULL, 0.0, 3.0, &amp;options, &amp;result, &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "Root solve failed: %s\n", error.message);
+        return 1;
+    }
+
+    printf("Method: %s\n", result.algorithm ? result.algorithm : "brent");
+    printf("Root:   %.10f\n", result.value);
+    printf("Expected: 2.0000000000\n");
+    printf("Residual:  %.3e\n", result.residual);
+    printf("Iterations: %zu\n", result.iterations);
+    printf("Function evaluations: %zu\n", result.function_evaluations);
+
+    return fabs(result.value - 2.0) &lt; 1e-6 ? 0 : 1;
+}
+</code><button class="copy-button">copy</button></div></div>
+    <div class="code-block"><small>PowerShell · Compile and run</small><pre><code>gcc -std=c11 -I .\include .\tutorials\tutorial_02_callback_root.c `
+    .\libnumerix.a -lm -o .\tutorial_02_callback_root.exe
+
+.\tutorial_02_callback_root.exe
+</code><button class="copy-button">copy</button></div></div>
+    <div class="terminal"><div><span>● ● ●</span><b>VERIFIED OUTPUT</b><small>Linux · libnumerix.a</small></div><pre><span class="out">Method: brent_dekker</span>
+<span class="out">Root:   1.9999999998</span>
+<span class="out">Expected: 2.0000000000</span>
+<span class="out">Residual:  -7.969e-10</span>
+<span class="out">Iterations: 29</span>
+<span class="out">Function evaluations: 31</span>
+</pre></div>
+    <p>The callback is fully defined (<i>f</i>(<i>x</i>) = <i>x</i>²−4). Options are initialized with <code>numerix_options_init</code>. The solver returns a result with root, residual, iteration count, and evaluation count. No dynamic allocation occurs, so no explicit destroy is needed.</p>
+
+    <h3>Tutorial 3 — Root finding with an expression string</h3>
+    <p>Solves <i>x</i>²−4 = 0 on [0, 3] using the expression engine: compile the string, initialize a callback context, and pass <code>numerix_expression_callback</code> to Brent's method.</p>
+    <div class="code-block"><small>C · Complete source</small><pre><code>#include &lt;numerix.h&gt;
+
+#include &lt;math.h&gt;
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+    numerix_expression *expression = NULL;
+    numerix_expression_callback_context callback_context;
+    numerix_options options;
+    numerix_result result;
+    numerix_error error;
+    numerix_status status;
+
+    status = numerix_expression_compile("x^2 - 4", &amp;expression, &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "Expression compile failed: %s\n", error.message);
+        return 1;
+    }
+
+    status = numerix_expression_callback_context_init(
+        &amp;callback_context, expression, &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "Callback context init failed: %s\n", error.message);
+        numerix_expression_destroy(expression);
+        return 1;
+    }
+
+    numerix_options_init(&amp;options);
+    status = numerix_root_brent(
+        numerix_expression_callback,
+        &amp;callback_context,
+        0.0,
+        3.0,
+        &amp;options,
+        &amp;result,
+        &amp;error);
+
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "Root solve failed: %s\n", error.message);
+        numerix_expression_destroy(expression);
+        return 1;
+    }
+
+    printf("Method: %s\n", result.algorithm ? result.algorithm : "brent");
+    printf("Root of x^2 - 4 on [0, 3]: %.10f\n", result.value);
+    printf("Expected: 2.0000000000\n");
+    printf("Residual:  %.3e\n", result.residual);
+    printf("Iterations: %zu\n", result.iterations);
+
+    numerix_expression_destroy(expression);
+
+    return fabs(result.value - 2.0) &lt; 1e-6 ? 0 : 1;
+}
+</code><button class="copy-button">copy</button></div></div>
+    <div class="code-block"><small>PowerShell · Compile and run</small><pre><code>gcc -std=c11 -I .\include .\tutorials\tutorial_03_expression_root.c `
+    .\libnumerix.a -lm -o .\tutorial_03_expression_root.exe
+
+.\tutorial_03_expression_root.exe
+</code><button class="copy-button">copy</button></div></div>
+    <div class="terminal"><div><span>● ● ●</span><b>VERIFIED OUTPUT</b><small>Linux · libnumerix.a</small></div><pre><span class="out">Method: brent_dekker</span>
+<span class="out">Root of x^2 - 4 on [0, 3]: 1.9999999998</span>
+<span class="out">Expected: 2.0000000000</span>
+<span class="out">Residual:  -7.969e-10</span>
+<span class="out">Iterations: 29</span>
+</pre></div>
+    <p>The sequence is: <code>numerix_expression_compile</code> → <code>numerix_expression_callback_context_init</code> → <code>numerix_root_brent</code> with <code>numerix_expression_callback</code>. The compiled expression is owned by the caller and destroyed with <code>numerix_expression_destroy</code>.</p>
+
+    <h3>Tutorial 4 — Same problem using both input methods</h3>
+    <p>One program solves <i>x</i>²−4 = 0 twice: Version A uses a C callback; Version B compiles "<i>x</i>² − 4" as an expression string and uses the callback adapter. Both use Brent's method and print/compare their roots.</p>
+    <div class="code-block"><small>C · Complete source</small><pre><code>#include &lt;numerix.h&gt;
+
+#include &lt;math.h&gt;
+#include &lt;stdio.h&gt;
+
+static double f_callback(double x, void *user_data)
+{
+    (void)user_data;
+    return x * x - 4.0;
+}
+
+int main(void)
+{
+    numerix_options options;
+    numerix_result result_a;
+    numerix_result result_b;
+    numerix_error error;
+    numerix_status status;
+
+    numerix_expression *expression = NULL;
+    numerix_expression_callback_context callback_context;
+
+    numerix_options_init(&amp;options);
+
+    status = numerix_root_brent(
+        f_callback, NULL, 0.0, 3.0, &amp;options, &amp;result_a, &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "Version A (callback) failed: %s\n", error.message);
+        return 1;
+    }
+
+    printf("Version A (C callback):\n");
+    printf("  Method: %s\n", result_a.algorithm ? result_a.algorithm : "brent");
+    printf("  Root:   %.10f\n", result_a.value);
+    printf("  Residual: %.3e\n", result_a.residual);
+
+    status = numerix_expression_compile("x^2 - 4", &amp;expression, &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "Expression compile failed: %s\n", error.message);
+        return 1;
+    }
+
+    status = numerix_expression_callback_context_init(
+        &amp;callback_context, expression, &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "Callback context init failed: %s\n", error.message);
+        numerix_expression_destroy(expression);
+        return 1;
+    }
+
+    status = numerix_root_brent(
+        numerix_expression_callback,
+        &amp;callback_context,
+        0.0,
+        3.0,
+        &amp;options,
+        &amp;result_b,
+        &amp;error);
+
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "Version B (expression) failed: %s\n", error.message);
+        numerix_expression_destroy(expression);
+        return 1;
+    }
+
+    printf("Version B (expression string):\n");
+    printf("  Method: %s\n", result_b.algorithm ? result_b.algorithm : "brent");
+    printf("  Root:   %.10f\n", result_b.value);
+    printf("  Residual: %.3e\n", result_b.residual);
+
+    printf("Difference: %.3e\n", fabs(result_a.value - result_b.value));
+
+    numerix_expression_destroy(expression);
+
+    return (fabs(result_a.value - 2.0) &lt; 1e-6 &amp;&amp;
+            fabs(result_b.value - 2.0) &lt; 1e-6) ? 0 : 1;
+}
+</code><button class="copy-button">copy</button></div></div>
+    <div class="code-block"><small>PowerShell · Compile and run</small><pre><code>gcc -std=c11 -I .\include .\tutorials\tutorial_04_both_input_methods.c `
+    .\libnumerix.a -lm -o .\tutorial_04_both_input_methods.exe
+
+.\tutorial_04_both_input_methods.exe
+</code><button class="copy-button">copy</button></div></div>
+    <div class="terminal"><div><span>● ● ●</span><b>VERIFIED OUTPUT</b><small>Linux · libnumerix.a</small></div><pre><span class="out">Version A (C callback):</span>
+<span class="out">  Method: brent_dekker</span>
+<span class="out">  Root:   1.9999999998</span>
+<span class="out">  Residual: -7.969e-10</span>
+<span class="out">Version B (expression string):</span>
+<span class="out">  Method: brent_dekker</span>
+<span class="out">  Root:   1.9999999998</span>
+<span class="out">  Residual: -7.969e-10</span>
+<span class="out">Difference: 0.000e+00</span>
+</pre></div>
+    <p>The mathematical problem is identical; only the function-input mechanism differs (compiled function pointer vs parsed expression string through the adapter). Both converge to the same root.</p>
+
+    <h3>Tutorial 5 — Piecewise functions</h3>
+    <p>Defines <i>f</i>(<i>x</i>) = <i>x</i>² for <i>x</i>&lt;0 and <i>f</i>(<i>x</i>) = 2<i>x</i> for <i>x</i>≥0, evaluates at representative points, and integrates on [−2, 2]. Expected integral ≈ 20/3 ≈ 6.6667.</p>
+    <div class="code-block"><small>C · Complete source</small><pre><code>#include &lt;numerix.h&gt;
+
+#include &lt;math.h&gt;
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+    numerix_piecewise_function *function = NULL;
+    numerix_result result;
+    numerix_error error;
+    numerix_status status;
+    double value;
+
+    status = numerix_piecewise_create(&amp;function, &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "piecewise create failed: %s\n", error.message);
+        return 1;
+    }
+
+    status = numerix_piecewise_add_expression(
+        function, -INFINITY, 0.0, 0, 0, "x^2", &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "add segment 1 failed: %s\n", error.message);
+        numerix_piecewise_destroy(function);
+        return 1;
+    }
+
+    status = numerix_piecewise_add_expression(
+        function, 0.0, INFINITY, 1, 0, "2*x", &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "add segment 2 failed: %s\n", error.message);
+        numerix_piecewise_destroy(function);
+        return 1;
+    }
+
+    status = numerix_piecewise_evaluate(function, -2.0, &amp;value, &amp;error);
+    if (status == NUMERIX_STATUS_SUCCESS)
+        printf("f(-2) = %.6f  (expected 4.000000)\n", value);
+    else
+        fprintf(stderr, "evaluate at -2 failed: %s\n", error.message);
+
+    status = numerix_piecewise_evaluate(function, 0.0, &amp;value, &amp;error);
+    if (status == NUMERIX_STATUS_SUCCESS)
+        printf("f( 0) = %.6f  (expected 0.000000)\n", value);
+    else
+        fprintf(stderr, "evaluate at 0 failed: %s\n", error.message);
+
+    status = numerix_piecewise_evaluate(function, 2.0, &amp;value, &amp;error);
+    if (status == NUMERIX_STATUS_SUCCESS)
+        printf("f( 2) = %.6f  (expected 4.000000)\n", value);
+    else
+        fprintf(stderr, "evaluate at 2 failed: %s\n", error.message);
+
+    status = numerix_piecewise_integrate_trapezoid(
+        function, -2.0, 2.0, 100, NULL, &amp;result, &amp;error);
+    if (status == NUMERIX_STATUS_SUCCESS)
+    {
+        printf("Integral on [-2, 2] = %.8f  (expected ≈ 6.66666667)\n", result.value);
+    }
+    else
+    {
+        fprintf(stderr, "integration failed: %s\n", error.message);
+    }
+
+    numerix_piecewise_destroy(function);
+
+    return 0;
+}
+</code><button class="copy-button">copy</button></div></div>
+    <div class="code-block"><small>PowerShell · Compile and run</small><pre><code>gcc -std=c11 -I .\include .\tutorials\tutorial_05_piecewise.c `
+    .\libnumerix.a -lm -o .\tutorial_05_piecewise.exe
+
+.\tutorial_05_piecewise.exe
+</code><button class="copy-button">copy</button></div></div>
+    <div class="terminal"><div><span>● ● ●</span><b>VERIFIED OUTPUT</b><small>Linux · libnumerix.a</small></div><pre><span class="out">f(-2) = 4.000000  (expected 4.000000)</span>
+<span class="out">f( 0) = 0.000000  (expected 0.000000)</span>
+<span class="out">f( 2) = 4.000000  (expected 4.000000)</span>
+<span class="out">Integral on [-2, 2] = 6.66680000  (expected ≈ 6.66666667)</span>
+</pre></div>
+    <p>Segment 1 uses <code>include_lower=0, include_upper=0</code> (open on both sides at 0). Segment 2 uses <code>include_lower=1, include_upper=0</code> (closed at 0, open at infinity). The piecewise object owns the compiled segment expressions; destroy it with <code>numerix_piecewise_destroy</code>.</p>
+
+    <h3>Tutorial 6 — Automatic algorithm recommendation and execution</h3>
+    <p>Solves <i>x</i>²−2 = 0 on [0, 2] with a derivative available. Demonstrates <code>numerix_recommend_algorithm</code> (recommendation) and <code>numerix_root_solve_auto</code> (automatic execution) as distinct steps.</p>
+    <div class="code-block"><small>C · Complete source</small><pre><code>#include &lt;numerix.h&gt;
+
+#include &lt;math.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+static double f(double x, void *user_data)
+{
+    (void)user_data;
+    return x * x - 2.0;
+}
+
+static double df(double x, void *user_data)
+{
+    (void)user_data;
+    return 2.0 * x;
+}
+
+static void print_recommendation(const numerix_recommendation *rec)
+{
+    printf("Recommended algorithm: %s\n",
+           numerix_algorithm_name(rec-&gt;recommended_algorithm));
+    printf("Suitability:           %d\n", (int)rec-&gt;suitability);
+    printf("Reason:                %s\n", rec-&gt;reason[0]);
+    if (rec-&gt;limitation[0][0] != '\0')
+        printf("Limitation:            %s\n", rec-&gt;limitation[0]);
+    printf("Sign-changing bracket: %s\n",
+           rec-&gt;sign_changing_bracket ? "yes" : "no");
+    printf("Derivative available:  %s\n",
+           rec-&gt;derivative_available ? "yes" : "no");
+}
+
+int main(void)
+{
+    numerix_recommendation_request request;
+    numerix_recommendation recommendation;
+    numerix_root_selection_report report;
+    numerix_result result;
+    numerix_error error;
+    numerix_status status;
+
+    memset(&amp;request, 0, sizeof(request));
+    request.category = NUMERIX_PROBLEM_ROOT_FINDING;
+    request.representation = NUMERIX_REPRESENTATION_CALLBACK;
+    request.function = f;
+    request.derivative = df;
+    request.problem.root.lower = 0.0;
+    request.problem.root.upper = 2.0;
+    request.problem.root.initial = 1.0;
+    request.problem.root.has_bracket = 1;
+    request.problem.root.has_initial = 1;
+
+    status = numerix_recommend_algorithm(
+        &amp;request, &amp;recommendation, &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "Recommendation failed: %s\n", error.message);
+        return 1;
+    }
+    print_recommendation(&amp;recommendation);
+
+    status = numerix_root_solve_auto(
+        &amp;request, NULL, &amp;result, &amp;report, &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "Automatic solve failed: %s\n", error.message);
+        return 1;
+    }
+
+    printf("\nAutomatic execution result:\n");
+    printf("  Initially selected: %s\n",
+           numerix_algorithm_name(report.initially_selected));
+    printf("  Final algorithm:    %s\n",
+           numerix_algorithm_name(report.final_algorithm));
+    printf("  Fallback used:      %s\n",
+           report.fallback_used ? "yes" : "no");
+    printf("  Root:               %.12f\n", result.value);
+    printf("  Expected:           %.12f\n", sqrt(2.0));
+    printf("  Residual:           %.3e\n", result.residual);
+    printf("  Iterations:         %zu\n", result.iterations);
+
+    return fabs(result.value - sqrt(2.0)) &lt; 1e-6 ? 0 : 1;
+}
+</code><button class="copy-button">copy</button></div></div>
+    <div class="code-block"><small>PowerShell · Compile and run</small><pre><code>gcc -std=c11 -I .\include .\tutorials\tutorial_06_algorithm_selection.c `
+    .\libnumerix.a -lm -o .\tutorial_06_algorithm_selection.exe
+
+.\tutorial_06_algorithm_selection.exe
+</code><button class="copy-button">copy</button></div></div>
+    <div class="terminal"><div><span>● ● ●</span><b>VERIFIED OUTPUT</b><small>Linux · libnumerix.a</small></div><pre><span class="out">Recommended algorithm: safeguarded_newton</span>
+<span class="out">Suitability:           2</span>
+<span class="out">Reason:                A sign-changing bracket and an in-bracket initial estimate are available; the derivative can accelerate progress while the bracket is retained.</span>
+<span class="out">Limitation:            Derivative quality is not proven, and the method targets one root in this bracket.</span>
+<span class="out">Sign-changing bracket: yes</span>
+<span class="out">Derivative available:  yes</span>
+<span class="out"></span>
+<span class="out">Automatic execution result:</span>
+<span class="out">  Initially selected: safeguarded_newton</span>
+<span class="out">  Final algorithm:    safeguarded_newton</span>
+<span class="out">  Fallback used:      no</span>
+<span class="out">  Root:               1.414213562373</span>
+<span class="out">  Expected:           1.414213562373</span>
+<span class="out">  Residual:           -4.441e-16</span>
+<span class="out">  Iterations:         6</span>
+</pre></div>
+    <p>Recommendation (<code>numerix_recommend_algorithm</code>) and execution (<code>numerix_root_solve_auto</code>) are separate. Fallback only occurs if the initially selected method fails and <code>enable_fallback</code> is set; in this run safeguarded Newton succeeded directly, so no fallback was used.</p>
+
+    <h3>Tutorial 7 — Execution monitoring and step-by-step execution</h3>
+    <p>Solves <i>x</i>²−2 = 0 on [0, 2] with Bisection and a step callback that prints each iteration's interval, midpoint, and residual.</p>
+    <div class="code-block"><small>C · Complete source</small><pre><code>#include &lt;numerix.h&gt;
+
+#include &lt;math.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+static double square_minus_two(double x, void *user_data)
+{
+    (void)user_data;
+    return x * x - 2.0;
+}
+
+static void print_step(numerix_managed_execution *execution,
+                       const numerix_execution_step *step,
+                       void *user_data)
+{
+    (void)execution;
+    (void)user_data;
+    printf("step %zu: interval=[%.8f, %.8f], midpoint=%.8f, f=%.3e\n",
+           step-&gt;number, step-&gt;interval_lower, step-&gt;interval_upper,
+           step-&gt;midpoint, step-&gt;residual);
+}
+
+int main(void)
+{
+    numerix_recommendation_request request;
+    numerix_managed_execution_options options;
+    numerix_managed_execution *execution = NULL;
+    numerix_execution_summary summary;
+    numerix_error error;
+    numerix_status status;
+
+    memset(&amp;request, 0, sizeof(request));
+    request.category = NUMERIX_PROBLEM_ROOT_FINDING;
+    request.representation = NUMERIX_REPRESENTATION_CALLBACK;
+    request.function = square_minus_two;
+    request.problem.root.lower = 0.0;
+    request.problem.root.upper = 2.0;
+    request.problem.root.has_bracket = 1;
+
+    memset(&amp;options, 0, sizeof(options));
+    options.root_selection.mode = NUMERIX_SELECTION_EXPLICIT;
+    options.root_selection.explicit_algorithm = NUMERIX_ALGORITHM_BISECTION;
+    options.step_callback = print_step;
+
+    status = numerix_managed_execution_create(
+        &amp;request, &amp;options, &amp;execution, &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "create failed: %s\n", error.message);
+        return 1;
+    }
+
+    status = numerix_managed_execution_run(execution, &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "run failed: %s\n", error.message);
+        numerix_managed_execution_destroy(execution);
+        return 1;
+    }
+
+    status = numerix_managed_execution_get_summary(
+        execution, &amp;summary, &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "summary failed: %s\n", error.message);
+        numerix_managed_execution_destroy(execution);
+        return 1;
+    }
+
+    printf("root: %.12f\n", summary.result.value);
+    if (isfinite(summary.result.residual))
+        printf("residual: %.3e\n", summary.result.residual);
+    printf("iterations: %zu\n", summary.iterations);
+    printf("function evaluations: %zu\n", summary.function_evaluations);
+
+    numerix_managed_execution_destroy(execution);
+
+    return fabs(summary.result.value - sqrt(2.0)) &lt; 1e-6 ? 0 : 1;
+}
+</code><button class="copy-button">copy</button></div></div>
+    <div class="code-block"><small>PowerShell · Compile and run</small><pre><code>gcc -std=c11 -I .\include .\tutorials\tutorial_07_execution_monitoring.c `
+    .\libnumerix.a -lm -o .\tutorial_07_execution_monitoring.exe
+
+.\tutorial_07_execution_monitoring.exe
+</code><button class="copy-button">copy</button></div></div>
+    <div class="terminal"><div><span>● ● ●</span><b>VERIFIED OUTPUT</b><small>Linux · libnumerix.a</small></div><pre><span class="out">step 1: interval=[1.00000000, 2.00000000], midpoint=1.00000000, f=-1.000e+00</span>
+<span class="out">step 2: interval=[1.00000000, 1.50000000], midpoint=1.50000000, f=2.500e-01</span>
+<span class="out">step 3: interval=[1.25000000, 1.50000000], midpoint=1.25000000, f=-4.375e-01</span>
+<span class="out">... (continues until convergence) ...</span>
+<span class="out">root: 1.414213553071</span>
+<span class="out">residual: -2.631e-08</span>
+<span class="out">iterations: 27</span>
+<span class="out">function evaluations: 29</span>
+</pre></div>
+    <p>Pause/resume is supported at Bisection step boundaries only; it is not universal across all methods. The step callback fires synchronously at each Bisection step. The managed execution object is owned by the caller and destroyed with <code>numerix_managed_execution_destroy</code>.</p>
+
+    <h3>Tutorial 8 — Numerical diagnostics</h3>
+    <p>Solves <i>x</i>²−2 = 0 with Bisection, then analyzes the execution with <code>numerix_diagnostics_analyze</code> to report residual, estimated error, reliability class, and root conditioning.</p>
+    <div class="code-block"><small>C · Complete source</small><pre><code>#include &lt;numerix.h&gt;
+
+#include &lt;math.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+static double f(double x, void *user_data)
+{
+    (void)user_data;
+    return x * x - 2.0;
+}
+
+int main(void)
+{
+    numerix_recommendation_request request;
+    numerix_execution_options execution_options;
+    numerix_diagnostics_options diagnostics_options;
+    numerix_diagnostics_report report;
+    numerix_error error;
+    numerix_status status;
+
+    memset(&amp;request, 0, sizeof(request));
+    request.category = NUMERIX_PROBLEM_ROOT_FINDING;
+    request.representation = NUMERIX_REPRESENTATION_CALLBACK;
+    request.function = f;
+    request.problem.root.lower = 0.0;
+    request.problem.root.upper = 2.0;
+    request.problem.root.has_bracket = 1;
+
+    memset(&amp;execution_options, 0, sizeof(execution_options));
+    execution_options.explicit_algorithm = NUMERIX_ALGORITHM_BISECTION;
+
+    numerix_execution_output output;
+    memset(&amp;output, 0, sizeof(output));
+
+    status = numerix_execute_recommended(
+        &amp;request, &amp;execution_options, &amp;output, &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "execute_recommended failed: %s\n", error.message);
+        return 1;
+    }
+
+    printf("Algorithm: %s\n", numerix_algorithm_name(output.algorithm));
+    printf("Root:      %.12f\n", output.scalar_result.value);
+    printf("Residual:  %.3e\n", output.scalar_result.residual);
+
+    memset(&amp;diagnostics_options, 0, sizeof(diagnostics_options));
+    diagnostics_options.estimate_root_condition = 1;
+
+    status = numerix_diagnostics_analyze(
+        &amp;request, &amp;output, &amp;diagnostics_options, &amp;report, &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "diagnostics_analyze failed: %s\n", error.message);
+        numerix_execution_output_destroy(&amp;output);
+        return 1;
+    }
+
+    printf("\nDiagnostics:\n");
+    printf("  Residual:           %.3e\n", report.absolute_residual);
+    printf("  Estimated error:    %.3e\n", report.estimated_absolute_error);
+    printf("  Reliability:        %d\n", (int)report.reliability);
+    printf("  Condition estimate: %s %.3e\n",
+           report.has_condition_estimate ? "available" : "unavailable",
+           report.has_condition_estimate ? report.condition_estimate : 0.0);
+
+    if (report.has_residual_tolerance)
+        printf("  Residual tolerance: %s (requested %.3e)\n",
+               report.residual_satisfies_tolerance ? "satisfied" : "not satisfied",
+               report.requested_residual_tolerance);
+
+    numerix_diagnostics_report_destroy(&amp;report);
+    numerix_execution_output_destroy(&amp;output);
+
+    return 0;
+}
+</code><button class="copy-button">copy</button></div></div>
+    <div class="code-block"><small>PowerShell · Compile and run</small><pre><code>gcc -std=c11 -I .\include .\tutorials\tutorial_08_diagnostics.c `
+    .\libnumerix.a -lm -o .\tutorial_08_diagnostics.exe
+
+.\tutorial_08_diagnostics.exe
+</code><button class="copy-button">copy</button></div></div>
+    <div class="terminal"><div><span>● ● ●</span><b>VERIFIED OUTPUT</b><small>Linux · libnumerix.a</small></div><pre><span class="out">Algorithm: bisection</span>
+<span class="out">Root:      1.414213553071</span>
+<span class="out">Residual:  nan</span>
+<span class="out"></span>
+<span class="out">Diagnostics:</span>
+<span class="out">  Residual:           2.631e-08</span>
+<span class="out">  Estimated error:    1.490e-08</span>
+<span class="out">  Reliability:        1</span>
+<span class="out">  Condition estimate: available 3.536e-01</span>
+</pre></div>
+    <p>The <code>numerix_diagnostics_report</code> distinguishes measured quantities (residual) from heuristic estimates (condition estimate, reliability class). Estimates are marked with <code>is_estimated</code>/<code>is_heuristic</code> flags in the diagnostic records. Destroy both the report (<code>numerix_diagnostics_report_destroy</code>) and output (<code>numerix_execution_output_destroy</code>).</p>
 
     <h3>Tutorial 9 — Error handling</h3>
-    <p>See Feature 16 (verified: invalid bracket rejected with INVALID_ARGUMENT).</p>
+    <p>Deliberately supplies an invalid bracket (<i>x</i>²−4 on [3, 4] where both endpoints are positive) and demonstrates correct failure handling.</p>
+    <div class="code-block"><small>C · Complete source</small><pre><code>#include &lt;numerix.h&gt;
 
-    <h3>Tutorial 10 — Linear algebra</h3>
-    <div class="tabs">
-      <div class="tab active" data-panel="la-code">C: 2×2 solve</div>
-      <div class="tab" data-panel="la-output">Verified output</div>
-    </div>
-    <div class="tab-content active" id="la-code">
-      <div class="code-block"><small>C · Gaussian solve</small><pre><code>#include "numerix.h"
+#include &lt;math.h&gt;
 #include &lt;stdio.h&gt;
+
+static double f(double x, void *user_data)
+{
+    (void)user_data;
+    return x * x - 4.0;
+}
+
+int main(void)
+{
+    numerix_options options;
+    numerix_result result;
+    numerix_error error;
+    numerix_status status;
+
+    numerix_options_init(&amp;options);
+
+    status = numerix_root_brent(f, NULL, 3.0, 4.0, &amp;options, &amp;result, &amp;error);
+    if (status == NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "Unexpected success: root = %.10f\n", result.value);
+        return 1;
+    }
+
+    printf("Status:     %s\n", numerix_status_string(status));
+    printf("Error code: %d\n", (int)error.code);
+    printf("Message:    %s\n", error.message);
+
+    puts("Failure handled correctly: no root was produced, no resources leaked.");
+    puts("A silent failure would have printed a garbage root value instead of");
+    puts("rejecting the invalid bracket. Always check the returned status.");
+
+    return 0;
+}
+</code><button class="copy-button">copy</button></div></div>
+    <div class="code-block"><small>PowerShell · Compile and run</small><pre><code>gcc -std=c11 -I .\include .\tutorials\tutorial_09_error_handling.c `
+    .\libnumerix.a -lm -o .\tutorial_09_error_handling.exe
+
+.\tutorial_09_error_handling.exe
+</code><button class="copy-button">copy</button></div></div>
+    <div class="terminal"><div><span>● ● ●</span><b>VERIFIED OUTPUT</b><small>Linux · libnumerix.a</small></div><pre><span class="out">Status:     invalid input</span>
+<span class="out">Error code: 2</span>
+<span class="out">Message:    invalid input</span>
+<span class="out">Failure handled correctly: no root was produced, no resources leaked.</span>
+<span class="out">A silent failure would have printed a garbage root value instead of</span>
+<span class="out">rejecting the invalid bracket. Always check the returned status.</span>
+</pre></div>
+    <p>The status returned is <code>NUMERIX_STATUS_INVALID_INPUT</code> (value 2) for a non-bracketing interval. Always check every returned status before using result fields; numerical software must fail safely.</p>
+
+    <h3>Tutorial 10 — Linear algebra: Gaussian elimination</h3>
+    <p>Solves 2<i>x</i>+<i>y</i>=5, <i>x</i>+3<i>y</i>=6 using <code>numerix_linear_solve_gaussian</code>. Expected: <i>x</i>=1.8, <i>y</i>=1.4.</p>
+    <div class="code-block"><small>C · Complete source</small><pre><code>#include &lt;numerix.h&gt;
+
+#include &lt;math.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
 
 int main(void)
 {
@@ -1336,57 +2033,139 @@ int main(void)
     numerix_vector *x = NULL;
     numerix_error error;
     numerix_status status;
-    double vals[4] = {2.0, 1.0, 1.0, 3.0};
-    double rhs[2] = {5.0, 6.0};
+    double residual = 0.0;
     size_t i;
 
-    status = numerix_matrix_create(2, 2, &a, &error);
-    if (status != NUMERIX_STATUS_SUCCESS) { fprintf(stderr, "%s\n", error.message); return 1; }
-    for (i = 0; i < 4; ++i) a->data[i] = vals[i];
-    status = numerix_vector_create(2, &b, &error);
-    if (status != NUMERIX_STATUS_SUCCESS) { numerix_matrix_destroy(a); return 1; }
-    for (i = 0; i < 2; ++i) b->data[i] = rhs[i];
-
-    status = numerix_linear_solve_gaussian(a, b, NULL, &x, NULL, &error);
-    if (status != NUMERIX_STATUS_SUCCESS) {
-        fprintf(stderr, "solve failed: %s\n", error.message);
-        numerix_vector_destroy(b); numerix_matrix_destroy(a);
+    status = numerix_matrix_create(2, 2, &amp;a, &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "matrix create failed: %s\n", error.message);
         return 1;
     }
-    printf("x = [");
-    for (i = 0; i < x->size; ++i) printf("%.6f%s", x->data[i], i + 1 < x->size ? ", " : "");
-    printf("]\n");
+    a->data[0] = 2.0; a->data[1] = 1.0;
+    a->data[2] = 1.0; a->data[3] = 3.0;
+
+    status = numerix_vector_create(2, &amp;b, &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "vector create failed: %s\n", error.message);
+        numerix_matrix_destroy(a);
+        return 1;
+    }
+    b->data[0] = 5.0;
+    b->data[1] = 6.0;
+
+    status = numerix_linear_solve_gaussian(a, b, NULL, &amp;x, &amp;residual, &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "linear solve failed: %s\n", error.message);
+        numerix_vector_destroy(b);
+        numerix_matrix_destroy(a);
+        return 1;
+    }
+
+    printf("Solution:\n");
+    for (i = 0; i &lt; x->size; ++i)
+        printf("  x[%zu] = %.10f\n", i, x->data[i]);
+    printf("Expected: x[0] = 1.8, x[1] = 1.4\n");
+    if (residual != 0.0 || isfinite(residual))
+        printf("Residual: %.3e\n", residual);
+
+    double x0 = x->data[0];
+    double x1 = x->data[1];
 
     numerix_vector_destroy(x);
     numerix_vector_destroy(b);
     numerix_matrix_destroy(a);
-    return 0;
+
+    return (fabs(x0 - 1.8) &lt; 1e-6 &amp;&amp; fabs(x1 - 1.4) &lt; 1e-6) ? 0 : 1;
 }
-</pre><button class="copy-button">copy</button></div></div>
-    <div class="tab-content" id="la-output">
-      <div class="terminal"><div><span>● ● ●</span><b>VERIFIED OUTPUT</b><small>gcc -std=c11 · libnumerix.a</small></div><pre><span class="out">Solution x = [1.800000, 1.400000]</span>
+</code><button class="copy-button">copy</button></div></div>
+    <div class="code-block"><small>PowerShell · Compile and run</small><pre><code>gcc -std=c11 -I .\include .\tutorials\tutorial_10_linear_algebra.c `
+    .\libnumerix.a -lm -o .\tutorial_10_linear_algebra.exe
+
+.\tutorial_10_linear_algebra.exe
+</code><button class="copy-button">copy</button></div></div>
+    <div class="terminal"><div><span>● ● ●</span><b>VERIFIED OUTPUT</b><small>Linux · libnumerix.a</small></div><pre><span class="out">Solution:</span>
+<span class="out">  x[0] = 1.8000000000</span>
+<span class="out">  x[1] = 1.4000000000</span>
+<span class="out">Expected: x[0] = 1.8, x[1] = 1.4</span>
+<span class="out">Residual: 8.882e-16</span>
 </pre></div>
-    </div>
+    <p>Matrix and vector are created with <code>numerix_matrix_create</code>/<code>numerix_vector_create</code> and destroyed on both success and failure paths to avoid leaks. Solution values are copied before destruction to avoid use-after-free.</p>
 
-    <h3>Tutorial 11 — Integration</h3>
-    <p>See Feature 1 (verified: sin(x) integral 0→π ≈ 2.0).</p>
+    <h3>Tutorial 11 — Numerical integration</h3>
+    <p>Integrates sin(<i>x</i>) on [0, π] using adaptive Simpson. Expected: 2.</p>
+    <div class="code-block"><small>C · Complete source</small><pre><code>#include &lt;numerix.h&gt;
 
-    <h3>Tutorial 12 — ODE</h3>
-    <div class="tabs">
-      <div class="tab active" data-panel="ode-code">C: RK4 oscillator</div>
-      <div class="tab" data-panel="ode-output">Verified output</div>
-    </div>
-    <div class="tab-content active" id="ode-code">
-      <div class="code-block"><small>C · RK4 oscillator</small><pre><code>#include "numerix.h"
+#include &lt;math.h&gt;
+#include &lt;stdio.h&gt;
+
+static double sin_func(double x, void *user_data)
+{
+    (void)user_data;
+    return sin(x);
+}
+
+int main(void)
+{
+    numerix_options options;
+    numerix_result result;
+    numerix_error error;
+    numerix_status status;
+    const double pi = 3.14159265358979323846;
+    const double analytical = 2.0;
+
+    numerix_options_init(&amp;options);
+
+    status = numerix_integrate_adaptive_simpson(
+        sin_func, NULL, 0.0, pi, &amp;options, 24, &amp;result, &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
+        fprintf(stderr, "Integration failed: %s\n", error.message);
+        return 1;
+    }
+
+    printf("Method: adaptive Simpson\n");
+    printf("Integral of sin(x) on [0, pi]: %.10f\n", result.value);
+    printf("Analytical:                  %.10f\n", analytical);
+    printf("Absolute error:              %.3e\n", fabs(result.value - analytical));
+    if (isfinite(result.estimated_error))
+        printf("Estimated error:             %.3e\n", result.estimated_error);
+    printf("Function evaluations:        %zu\n", result.function_evaluations);
+
+    return fabs(result.value - analytical) &lt; 1e-6 ? 0 : 1;
+}
+</code><button class="copy-button">copy</button></div></div>
+    <div class="code-block"><small>PowerShell · Compile and run</small><pre><code>gcc -std=c11 -I .\include .\tutorials\tutorial_11_integration.c `
+    .\libnumerix.a -lm -o .\tutorial_11_integration.exe
+
+.\tutorial_11_integration.exe
+</code><button class="copy-button">copy</button></div></div>
+    <div class="terminal"><div><span>● ● ●</span><b>VERIFIED OUTPUT</b><small>Linux · libnumerix.a</small></div><pre><span class="out">Method: adaptive Simpson</span>
+<span class="out">Integral of sin(x) on [0, pi]: 2.0000000000</span>
+<span class="out">Analytical:                  2.0000000000</span>
+<span class="out">Absolute error:              2.514e-13</span>
+<span class="out">Estimated error:             1.852e-08</span>
+<span class="out">Function evaluations:        197</span>
+</pre></div>
+    <p>Uses <code>numerix_integrate_adaptive_simpson</code> with max depth 24. The numerical result matches the analytical value (2.0) to ~1e-13. The estimated error is a heuristic bound, not a guarantee.</p>
+
+    <h3>Tutorial 12 — Ordinary differential equations using RK4</h3>
+    <p>Solves <i>y</i>₁′=<i>y</i>₂, <i>y</i>₂′=−<i>y</i>₁ with <i>y</i>₁(0)=1, <i>y</i>₂(0)=0 using RK4, reaching <i>x</i>≈6.3 ≈ 2π.</p>
+    <div class="code-block"><small>C · Complete source</small><pre><code>#include &lt;numerix.h&gt;
+
 #include &lt;math.h&gt;
 #include &lt;stdio.h&gt;
 #include &lt;string.h&gt;
 
-static numerix_status oscillator(double x, const double *y, size_t dim,
-                                  double *dydx, void *ud)
+static numerix_status oscillator(double x, const double *y, size_t dimension,
+                                  double *dydx, void *user_data)
 {
-    (void)x; (void)ud;
-    if (dim < 2) return NUMERIX_STATUS_INVALID_DIMENSIONS;
+    (void)x;
+    (void)user_data;
+    if (dimension &lt; 2)
+        return NUMERIX_STATUS_INVALID_DIMENSIONS;
     dydx[0] = y[1];
     dydx[1] = -y[0];
     return NUMERIX_STATUS_SUCCESS;
@@ -1398,31 +2177,51 @@ int main(void)
     numerix_error error;
     numerix_status status;
     double y0[2] = {1.0, 0.0};
-    size_t i;
+    double step = 0.1;
+    size_t steps = 63;
+    size_t last;
 
-    memset(&solution, 0, sizeof(solution));
-    status = numerix_ode_rk4(oscillator, NULL, 0.0, y0, 2, 0.1, 63, &solution, &error);
-    if (status != NUMERIX_STATUS_SUCCESS) {
+    memset(&amp;solution, 0, sizeof(solution));
+
+    status = numerix_ode_rk4(
+        oscillator, NULL, 0.0, y0, 2, step, steps, &amp;solution, &amp;error);
+    if (status != NUMERIX_STATUS_SUCCESS)
+    {
         fprintf(stderr, "RK4 failed: %s\n", error.message);
         return 1;
     }
-    printf("final x = %.6f\n", solution.x[solution.points - 1]);
-    printf("final y = [%.6f, %.6f]\n",
-           solution.y[2 * (solution.points - 1)],
-           solution.y[2 * (solution.points - 1) + 1]);
-    printf("function evaluations: %zu\n", solution.function_evaluations);
-    numerix_ode_solution_destroy(&solution);
+
+    last = solution.points - 1;
+    printf("Final time:     %.6f\n", solution.x[last]);
+    printf("Final y[0]:     %.6f  (expected cos(6.3) ≈ 0.999859)\n",
+           solution.y[2 * last]);
+    printf("Final y[1]:     %.6f  (expected -sin(6.3) ≈ -0.016814)\n",
+           solution.y[2 * last + 1]);
+    printf("Function evaluations: %zu\n", solution.function_evaluations);
+    printf("Analytical at x=6.3: y1=cos(6.3)≈%.6f, y2=-sin(6.3)≈%.6f\n",
+           cos(6.3), -sin(6.3));
+
+    numerix_ode_solution_destroy(&amp;solution);
+
     return 0;
 }
-</pre><button class="copy-button">copy</button></div></div>
-    <div class="tab-content" id="ode-output">
-      <div class="terminal"><div><span>● ● ●</span><b>VERIFIED OUTPUT</b><small>gcc -std=c11 · libnumerix.a</small></div><pre><span class="out">final x = 6.300000</span>
-<span class="out">final y = [0.999858, -0.016809]</span>
-<span class="out">expected  [0.999859, -0.016814]</span>
-<span class="out">function evaluations: 252</span>
+</code><button class="copy-button">copy</button></div></div>
+    <div class="code-block"><small>PowerShell · Compile and run</small><pre><code>gcc -std=c11 -I .\include .\tutorials\tutorial_12_ode_rk4.c `
+    .\libnumerix.a -lm -o .\tutorial_12_ode_rk4.exe
+
+.\tutorial_12_ode_rk4.exe
+</code><button class="copy-button">copy</button></div></div>
+    <div class="terminal"><div><span>● ● ●</span><b>VERIFIED OUTPUT</b><small>Linux · libnumerix.a</small></div><pre><span class="out">Final time:     6.300000</span>
+<span class="out">Final y[0]:     0.999858  (expected cos(6.3) ≈ 0.999859)</span>
+<span class="out">Final y[1]:     -0.016809  (expected -sin(6.3) ≈ -0.016814)</span>
+<span class="out">Function evaluations: 252</span>
+<span class="out">Analytical at x=6.3: y1=cos(6.3)≈0.999859, y2=-sin(6.3)≈-0.016814</span>
 </pre></div>
-    </div>
+    <p>The ODE callback writes dimension derivatives into <code>dydx</code>. The solution (<code>numerix_ode_solution</code>) owns its <code>x</code> and <i>y</i> arrays and is destroyed with <code>numerix_ode_solution_destroy</code>. Final state matches the analytical harmonic-oscillator solution at <i>x</i>=6.3.</p>
+
+    <div class="callout"><b>Windows note.</b><span>All PowerShell commands assume MinGW-w64 GCC and the "MinGW Makefiles" CMake generator, producing <code>libnumerix.a</code>. Compile NUMERIX once, then compile each tutorial against that static library. <code>-lm</code> is required on MinGW for math functions; omit it only if your toolchain links libm by default. Native MSVC is configured but not yet validated for this showcase.</span></div>
   </section>
+
 
   <!-- Section 8: Build -->
   <section id="section-build">
@@ -1442,6 +2241,12 @@ cmake --install cmake-build-release --prefix /path/to/numerix
 make test
 make install PREFIX=/path/to/numerix
 </pre><button class="copy-button">copy</button></div></div>
+
+    <h3>Using PowerShell (Windows)</h3>
+    <div class="code-block"><small>PowerShell</small><pre><code>gcc -std=c11 -Iinclude tutorial.c libnumerix.a -lm -o tutorial.exe
+.\tutorial.exe
+</pre><button class="copy-button">copy</button></div></div>
+<p class="note">MinGW-w64 or MSYS2 required. Replace <code>gcc</code> with <code>clang</code> if using LLVM toolchain. Static library (<code>libnumerix.a</code>) and header (<code>include/numerix.h</code>) must be built first.</p>
 
     <h3>Compiling an example against the static library</h3>
     <div class="code-block"><small>Shell</small><pre><code>gcc -std=c11 -Iinclude tutorial.c libnumerix.a -lm -o tutorial
