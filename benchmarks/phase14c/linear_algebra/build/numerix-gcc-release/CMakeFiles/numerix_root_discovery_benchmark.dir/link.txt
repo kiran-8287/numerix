@@ -1,0 +1,1 @@
+/usr/bin/gcc -Werror -O3 -DNDEBUG CMakeFiles/numerix_root_discovery_benchmark.dir/benchmarks/root_discovery_benchmark.c.o -o numerix_root_discovery_benchmark  libnumerix.a -lm 

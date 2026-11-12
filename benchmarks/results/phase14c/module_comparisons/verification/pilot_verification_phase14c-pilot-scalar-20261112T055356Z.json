@@ -1,0 +1,64 @@
+{
+  "run_id": "phase14c-pilot-scalar-20261112T055356Z",
+  "scope": "pilot_only_not_final_verification",
+  "modules": {
+    "differentiation": {
+      "timing_rows": 1116,
+      "expected_timing_rows": 1116,
+      "accuracy_rows": 36,
+      "expected_accuracy_rows": 36,
+      "memory_rows": 36,
+      "expected_memory_rows": 36,
+      "timing_route_groups": 36,
+      "all_route_groups_have_31_batches": true,
+      "all_times_finite_positive_and_work_nonnegative": true,
+      "memory_explicitly_unavailable_not_zero": true,
+      "accuracy_status_and_finite_fields_consistent": true,
+      "exact_versions_consistent": true
+    },
+    "interpolation": {
+      "timing_rows": 744,
+      "expected_timing_rows": 744,
+      "accuracy_rows": 24,
+      "expected_accuracy_rows": 24,
+      "memory_rows": 24,
+      "expected_memory_rows": 24,
+      "timing_route_groups": 24,
+      "all_route_groups_have_31_batches": true,
+      "all_times_finite_positive_and_work_nonnegative": true,
+      "memory_explicitly_unavailable_not_zero": true,
+      "accuracy_status_and_finite_fields_consistent": true,
+      "exact_versions_consistent": true
+    },
+    "integration": {
+      "timing_rows": 1116,
+      "expected_timing_rows": 1116,
+      "accuracy_rows": 18,
+      "expected_accuracy_rows": 18,
+      "memory_rows": 36,
+      "expected_memory_rows": 36,
+      "timing_route_groups": 36,
+      "all_route_groups_have_31_batches": true,
+      "all_times_finite_positive_and_work_nonnegative": true,
+      "memory_explicitly_unavailable_not_zero": true,
+      "accuracy_status_and_finite_fields_consistent": true,
+      "exact_versions_consistent": true
+    }
+  },
+  "errors": [],
+  "manifest_unique_problem_ids": true,
+  "manifest_problems_by_module": {
+    "differentiation": 3,
+    "interpolation": 3,
+    "integration": 3
+  },
+  "isolated_gsl_2_8_linkage": true,
+  "passed_pilot_schema_checks": true,
+  "limitations": [
+    "three problems per module only; the 100-problem/20-family target is unmet",
+    "allocator instrumentation was not implemented or validated; all memory values are unavailable",
+    "adaptive Simpson and QAG work limits are not matched in this pilot",
+    "fixed composite integration versus Gauss-Legendre is best-available, not direct",
+    "not a final performance comparison; do not generalize pilot output"
+  ]
+}

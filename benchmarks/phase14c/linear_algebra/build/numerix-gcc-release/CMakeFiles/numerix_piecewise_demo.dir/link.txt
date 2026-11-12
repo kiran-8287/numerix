@@ -1,0 +1,1 @@
+/usr/bin/gcc -Werror -O3 -DNDEBUG CMakeFiles/numerix_piecewise_demo.dir/examples/piecewise_demo.c.o -o numerix_piecewise_demo  libnumerix.a -lm 

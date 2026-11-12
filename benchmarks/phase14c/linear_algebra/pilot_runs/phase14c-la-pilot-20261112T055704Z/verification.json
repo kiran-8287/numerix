@@ -1,0 +1,30 @@
+{
+  "pilot_only": true,
+  "passed": true,
+  "errors": [],
+  "manifest_problems": 4,
+  "timing_rows": 248,
+  "timing_routes": 8,
+  "timing_batches_per_route": [
+    31
+  ],
+  "accuracy_rows": 8,
+  "accuracy_pass_rows": 8,
+  "setup_rows": 2,
+  "setup_pass_rows": 2,
+  "memory_rows": 8,
+  "memory_measurement_status": "unavailable",
+  "api_inventory": {
+    "inventory_path": "benchmarks/phase14c/linear_algebra/linear_algebra_method_inventory.csv",
+    "public_header": "include/numerix.h",
+    "inventory_rows": 20,
+    "numerical_rows": 18,
+    "lifecycle_rows": 2,
+    "api_symbols_checked": 22,
+    "missing_public_declarations": [],
+    "passed": true
+  },
+  "run_id": "phase14c-la-pilot-20261112T055704Z",
+  "workload_manifest_sha256": "f10a923fd8bfd80f253de3a1a9dafe119b65db12a1ee03d60e97d31d88f693e9",
+  "input_problem_count": 4
+}

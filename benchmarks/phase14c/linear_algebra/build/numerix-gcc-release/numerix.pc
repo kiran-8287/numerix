@@ -1,0 +1,10 @@
+prefix=${pcfiledir}/../../
+libdir=${prefix}/lib64
+includedir=${prefix}/include
+
+Name: NUMERIX
+Description: C11 numerical algorithms, execution and diagnostics
+Version: 0.2.0-rc1
+Libs: -L${libdir} -lnumerix
+Libs.private: -lm
+Cflags: -I${includedir}

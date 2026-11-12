@@ -1,0 +1,1 @@
+/usr/bin/gcc -Werror -O3 -DNDEBUG CMakeFiles/numerix_expression_demo.dir/examples/expression_demo.c.o -o numerix_expression_demo  libnumerix.a -lm 

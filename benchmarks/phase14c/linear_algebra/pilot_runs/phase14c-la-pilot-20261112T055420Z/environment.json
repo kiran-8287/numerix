@@ -1,0 +1,152 @@
+{
+  "run_id": "phase14c-la-pilot-20261112T055420Z",
+  "pilot_only": true,
+  "utc_start": "2026-11-12T05:54:20.322067+00:00",
+  "utc_end": "2026-11-12T05:54:20.928782+00:00",
+  "git_head": "1478fc931956948bfb3900c35a7fc4506bbe54e7",
+  "git_dirty": true,
+  "operating_environment": {
+    "platform": "Linux-5.15.0-321.202.5.3.el8uek.x86_64-x86_64-with-glibc2.28",
+    "uname": [
+      "Linux",
+      "a01-201-002l",
+      "5.15.0-321.202.5.3.el8uek.x86_64",
+      "#2 SMP Fri Jun 26 22:01:51 PDT 2026",
+      "x86_64",
+      "x86_64"
+    ],
+    "os_release": {
+      "NAME": "Oracle Linux Server",
+      "VERSION": "8.10",
+      "ID": "ol",
+      "ID_LIKE": "fedora",
+      "VARIANT": "Server",
+      "VARIANT_ID": "server",
+      "VERSION_ID": "8.10",
+      "PLATFORM_ID": "platform:el8",
+      "PRETTY_NAME": "Oracle Linux Server 8.10",
+      "ANSI_COLOR": "0;31",
+      "CPE_NAME": "cpe:/o:oracle:linux:8:10:server",
+      "HOME_URL": "https://linux.oracle.com/",
+      "BUG_REPORT_URL": "https://github.com/oracle/oracle-linux",
+      "ORACLE_BUGZILLA_PRODUCT": "Oracle Linux 8",
+      "ORACLE_BUGZILLA_PRODUCT_VERSION": "8.10",
+      "ORACLE_SUPPORT_PRODUCT": "Oracle Linux",
+      "ORACLE_SUPPORT_PRODUCT_VERSION": "8.10"
+    },
+    "libc": [
+      "glibc",
+      "2.28"
+    ],
+    "cpu_model": "13th Gen Intel(R) Core(TM) i7-13700",
+    "logical_cpu_count": 24
+  },
+  "compiler": "gcc (GCC) 8.5.0 20210514 (Red Hat 8.5.0-28.0.1)",
+  "cmake_version": "cmake version 3.26.5",
+  "build_commands": [
+    {
+      "command": "cmake -S /home/142401034/numerix -B /home/142401034/numerix/benchmarks/phase14c/linear_algebra/build/numerix-gcc-release -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-Werror",
+      "output": "-- Configuring done (0.0s)\n-- Generating done (0.6s)\n-- Build files have been written to: /home/142401034/numerix/benchmarks/phase14c/linear_algebra/build/numerix-gcc-release"
+    },
+    {
+      "command": "cmake --build /home/142401034/numerix/benchmarks/phase14c/linear_algebra/build/numerix-gcc-release --target numerix --parallel 4",
+      "output": "[100%] Built target numerix"
+    },
+    {
+      "command": "gcc -std=c11 -O3 -DNDEBUG -Wall -Wextra -Wpedantic -Werror -I /home/142401034/numerix/include -I /home/142401034/.local/numerix-deps/prefix/phase14/lapack-reference/include -I /home/142401034/.local/numerix-deps/prefix/phase14/openblas/include /home/142401034/numerix/benchmarks/phase14c/linear_algebra/linear_algebra_pilot.c /home/142401034/numerix/benchmarks/phase14c/linear_algebra/build/numerix-gcc-release/libnumerix.a -L /home/142401034/.local/numerix-deps/prefix/phase14/lapack-reference/lib64 -llapacke -llapack -L /home/142401034/.local/numerix-deps/prefix/phase14/openblas/lib -Wl,-rpath,/home/142401034/.local/numerix-deps/prefix/phase14/openblas/lib -lopenblas -lgfortran -lpthread -lm -ldl -o /home/142401034/numerix/benchmarks/phase14c/linear_algebra/build/linear_algebra_pilot",
+      "output": ""
+    }
+  ],
+  "measurement_invocation": "/home/142401034/numerix/benchmarks/phase14c/linear_algebra/build/linear_algebra_pilot phase14c-la-pilot-20261112T055420Z /home/142401034/numerix/benchmarks/phase14c/linear_algebra/pilot_runs/phase14c-la-pilot-20261112T055420Z/raw_timing.csv /home/142401034/numerix/benchmarks/phase14c/linear_algebra/pilot_runs/phase14c-la-pilot-20261112T055420Z/raw_accuracy.csv /home/142401034/numerix/benchmarks/phase14c/linear_algebra/pilot_runs/phase14c-la-pilot-20261112T055420Z/raw_setup_timing.csv",
+  "dependencies": {
+    "openblas": {
+      "version": "0.3.34",
+      "config": "OpenBLAS 0.3.34 NO_AFFINITY HASWELL MAX_THREADS=4",
+      "threads": 4,
+      "prefix": "/home/142401034/.local/numerix-deps/prefix/phase14/openblas"
+    },
+    "lapack": {
+      "version": "3.12.0",
+      "metadata_source": "/home/142401034/.local/numerix-deps/prefix/phase14/lapack-reference/lib64/pkgconfig/lapack.pc",
+      "prefix": "/home/142401034/.local/numerix-deps/prefix/phase14/lapack-reference"
+    },
+    "lapacke": {
+      "version": "3.12.0",
+      "metadata_source": "/home/142401034/.local/numerix-deps/prefix/phase14/lapack-reference/lib64/pkgconfig/lapacke.pc"
+    },
+    "numerix": "0.2.0-rc1"
+  },
+  "lapack_version_note": "Coordinator's initial note said LAPACK 3.12.1; pinned installed pkg-config and CMake metadata both report 3.12.0. Pilot records the installed metadata version.",
+  "thread_environment": {
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1"
+  },
+  "timer": {
+    "wall": "clock_gettime(CLOCK_MONOTONIC_RAW)",
+    "cpu": "clock_gettime(CLOCK_THREAD_CPUTIME_ID)",
+    "target_batch_seconds": 0.002,
+    "batches_per_route": 31,
+    "warmup_calls_per_route_including_calibration": 6,
+    "library_order": "deterministic seeded Fisher-Yates by problem/batch; order written to each row",
+    "random_seed": 2026111201
+  },
+  "workload_manifest_sha256": "f10a923fd8bfd80f253de3a1a9dafe119b65db12a1ee03d60e97d31d88f693e9",
+  "adapter_sha256": "bf3197cb8b1552d2f9156fd1cc8099d85554776c8e9d95f664454c5db1a6d6c4",
+  "runner_sha256": "8d386a4238886c73ac491a4cf9d92f41ff259816360919e2490fc2cb1fb8a39a",
+  "command_log": [
+    {
+      "command": "cmake -S /home/142401034/numerix -B /home/142401034/numerix/benchmarks/phase14c/linear_algebra/build/numerix-gcc-release -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-Werror",
+      "output": "-- Configuring done (0.0s)\n-- Generating done (0.6s)\n-- Build files have been written to: /home/142401034/numerix/benchmarks/phase14c/linear_algebra/build/numerix-gcc-release"
+    },
+    {
+      "command": "cmake --build /home/142401034/numerix/benchmarks/phase14c/linear_algebra/build/numerix-gcc-release --target numerix --parallel 4",
+      "output": "[100%] Built target numerix"
+    },
+    {
+      "command": "gcc -std=c11 -O3 -DNDEBUG -Wall -Wextra -Wpedantic -Werror -I /home/142401034/numerix/include -I /home/142401034/.local/numerix-deps/prefix/phase14/lapack-reference/include -I /home/142401034/.local/numerix-deps/prefix/phase14/openblas/include /home/142401034/numerix/benchmarks/phase14c/linear_algebra/linear_algebra_pilot.c /home/142401034/numerix/benchmarks/phase14c/linear_algebra/build/numerix-gcc-release/libnumerix.a -L /home/142401034/.local/numerix-deps/prefix/phase14/lapack-reference/lib64 -llapacke -llapack -L /home/142401034/.local/numerix-deps/prefix/phase14/openblas/lib -Wl,-rpath,/home/142401034/.local/numerix-deps/prefix/phase14/openblas/lib -lopenblas -lgfortran -lpthread -lm -ldl -o /home/142401034/numerix/benchmarks/phase14c/linear_algebra/build/linear_algebra_pilot",
+      "output": ""
+    },
+    {
+      "command": "/home/142401034/numerix/benchmarks/phase14c/linear_algebra/build/linear_algebra_pilot phase14c-la-pilot-20261112T055420Z /home/142401034/numerix/benchmarks/phase14c/linear_algebra/pilot_runs/phase14c-la-pilot-20261112T055420Z/raw_timing.csv /home/142401034/numerix/benchmarks/phase14c/linear_algebra/pilot_runs/phase14c-la-pilot-20261112T055420Z/raw_accuracy.csv /home/142401034/numerix/benchmarks/phase14c/linear_algebra/pilot_runs/phase14c-la-pilot-20261112T055420Z/raw_setup_timing.csv",
+      "output": "pilot checksum sink=275001"
+    }
+  ],
+  "verification": {
+    "pilot_only": true,
+    "passed": true,
+    "errors": [],
+    "manifest_problems": 4,
+    "timing_rows": 248,
+    "timing_routes": 8,
+    "timing_batches_per_route": [
+      31
+    ],
+    "accuracy_rows": 8,
+    "accuracy_pass_rows": 8,
+    "setup_rows": 2,
+    "setup_pass_rows": 2,
+    "memory_rows": 8,
+    "memory_measurement_status": "unavailable",
+    "run_id": "phase14c-la-pilot-20261112T055420Z",
+    "workload_manifest_sha256": "f10a923fd8bfd80f253de3a1a9dafe119b65db12a1ee03d60e97d31d88f693e9",
+    "input_problem_count": 4
+  },
+  "limitations": [
+    "Four deterministic pilot cases are not the required 100 distinct linear-algebra workloads.",
+    "Only matrix addition, matrix multiplication, LU factorization and LU solve have pilot adapters.",
+    "Memory instrumentation was not run; all raw memory statuses are unavailable, not zero.",
+    "LU factorization compares NUMERIX scaled partial pivoting with LAPACK partial pivoting (best available).",
+    "DGETRF end-to-end rows include explicit row-major to column-major conversion and allocations.",
+    "LU solve is steady-state with each library's own saved factors; one-time factorization/setup times are saved separately.",
+    "All measurements are for one machine and are pilot methodology evidence, not general performance conclusions."
+  ],
+  "output_sha256": {
+    "raw_accuracy.csv": "888ac22cd962bc32e739b0ca58f8fe827ffd7a7cb637482b53203f351f67d836",
+    "raw_setup_timing.csv": "94befaacdc4e38e4e6ce6cad81b1db6707b4950cd4013af5e95d00dc3e03a046",
+    "raw_timing.csv": "18a2284f9b8d8ec68d3c744a80d6a32cdaf50ea6cbc70d53f627b58319d51d66",
+    "raw_memory.csv": "54e73bea61235c2d78fa50be9616b89051a17697c428eb4a8abc909b9338f203",
+    "workload_manifest.csv": "f10a923fd8bfd80f253de3a1a9dafe119b65db12a1ee03d60e97d31d88f693e9",
+    "verification.json": "fc8b10993aa76f7852543ca3072f3dcb06df77822f13a290662a975b87187ced",
+    "per_problem_runtime_summary.csv": "13e8aab3788227a0281021f63b1c9a9ceeb90412be3d159b26293534b9b77acb"
+  }
+}

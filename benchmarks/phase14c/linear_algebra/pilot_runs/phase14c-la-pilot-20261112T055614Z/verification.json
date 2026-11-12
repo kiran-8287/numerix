@@ -1,0 +1,24 @@
+{
+  "pilot_only": true,
+  "passed": false,
+  "errors": [
+    "LA-PILOT-ADD-256-INT-v1: route order is not counterbalanced ({'OpenBLAS>NUMERIX': 13, 'NUMERIX>OpenBLAS': 18})",
+    "LA-PILOT-GEMM-64-INT-v1: route order is not counterbalanced ({'OpenBLAS>NUMERIX': 22, 'NUMERIX>OpenBLAS': 9})",
+    "LA-PILOT-LUFACTOR-64-BLOCKPIVOT-v1: route order is not counterbalanced ({'NUMERIX>LAPACK+OpenBLAS': 22, 'LAPACK+OpenBLAS>NUMERIX': 9})"
+  ],
+  "manifest_problems": 4,
+  "timing_rows": 248,
+  "timing_routes": 8,
+  "timing_batches_per_route": [
+    31
+  ],
+  "accuracy_rows": 8,
+  "accuracy_pass_rows": 8,
+  "setup_rows": 2,
+  "setup_pass_rows": 2,
+  "memory_rows": 8,
+  "memory_measurement_status": "unavailable",
+  "run_id": "phase14c-la-pilot-20261112T055614Z",
+  "workload_manifest_sha256": "f10a923fd8bfd80f253de3a1a9dafe119b65db12a1ee03d60e97d31d88f693e9",
+  "input_problem_count": 4
+}

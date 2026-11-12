@@ -1,0 +1,2 @@
+	libgsl.so.28 => /home/142401034/.local/numerix-deps/gsl-2.8-o3-clean/lib/libgsl.so.28 (0x00007f2058f43000)
+	libgslcblas.so.0 => /home/142401034/.local/numerix-deps/gsl-2.8-o3-clean/lib/libgslcblas.so.0 (0x00007f2058cd0000)

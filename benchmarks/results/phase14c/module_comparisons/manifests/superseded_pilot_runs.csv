@@ -1,0 +1,7 @@
+run_id,superseded_by,reason,status
+phase14c-pilot-scalar-20261112T054600Z,phase14c-pilot-scalar-20261112T055820Z,"Initial adapter smoke output predates final work-counter schema and complete metadata/memory artifacts.",superseded_debug_pilot
+phase14c-pilot-scalar-20261112T055500Z,phase14c-pilot-scalar-20261112T055820Z,"Integration NUMERIX routes were repeated for steady and end-to-end GSL comparisons without distinct competitor-route labels.",superseded_debug_pilot
+phase14c-pilot-scalar-20261112T055800Z,phase14c-pilot-scalar-20261112T055820Z,"Measurement routes were corrected, but the run identifier timestamp did not match the recorded start time.",superseded_debug_pilot
+phase14c-pilot-scalar-20261112T055356Z,phase14c-pilot-scalar-20261112T055820Z,"Rerun after adding verifier-script checksum capture and automatic post-run schema verification; data remain an earlier valid adapter pilot.",superseded_by_final_pilot
+phase14c-pilot-scalar-20261112T055606Z,phase14c-pilot-scalar-20261112T055820Z,"Rerun with analytic-reference and pass-flag recomputation plus alternating-order verification included in the checksum-verified validation script.",superseded_by_final_pilot
+phase14c-pilot-scalar-20261112T055719Z,phase14c-pilot-scalar-20261112T055820Z,"Rerun after storing and checking the workload-manifest checksum before measurement; final metadata also includes this record.",superseded_by_final_pilot

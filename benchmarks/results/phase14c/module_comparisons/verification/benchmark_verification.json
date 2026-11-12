@@ -1,0 +1,135 @@
+{
+  "auxiliary_lifecycle_rows": 6,
+  "candidate_workload_problems": 700,
+  "graph_verification": {
+    "all_values_are_from_recorded_sources_or_explicit_not_measured_labels": true,
+    "exactly_three_figures_per_module": true,
+    "expected_image_file_count": 42,
+    "historical_root_not_relabelled": true,
+    "missing_or_invalid": [],
+    "png_count": 21,
+    "required_graph_count": 21,
+    "schema_version": "phase14c-graph-verification-v1",
+    "svg_count": 21,
+    "verified_image_files": [
+      "differentiation/differentiation_accuracy.png",
+      "differentiation/differentiation_memory.png",
+      "differentiation/differentiation_runtime.png",
+      "integration/integration_accuracy.png",
+      "integration/integration_memory.png",
+      "integration/integration_runtime.png",
+      "interpolation/interpolation_accuracy.png",
+      "interpolation/interpolation_memory.png",
+      "interpolation/interpolation_runtime.png",
+      "linear_algebra/linear_algebra_accuracy.png",
+      "linear_algebra/linear_algebra_memory.png",
+      "linear_algebra/linear_algebra_runtime.png",
+      "ode/ode_accuracy.png",
+      "ode/ode_memory.png",
+      "ode/ode_runtime.png",
+      "optimization/optimization_accuracy.png",
+      "optimization/optimization_memory.png",
+      "optimization/optimization_runtime.png",
+      "root/root_accuracy.png",
+      "root/root_memory.png",
+      "root/root_runtime.png",
+      "differentiation/differentiation_accuracy.svg",
+      "differentiation/differentiation_memory.svg",
+      "differentiation/differentiation_runtime.svg",
+      "integration/integration_accuracy.svg",
+      "integration/integration_memory.svg",
+      "integration/integration_runtime.svg",
+      "interpolation/interpolation_accuracy.svg",
+      "interpolation/interpolation_memory.svg",
+      "interpolation/interpolation_runtime.svg",
+      "linear_algebra/linear_algebra_accuracy.svg",
+      "linear_algebra/linear_algebra_memory.svg",
+      "linear_algebra/linear_algebra_runtime.svg",
+      "ode/ode_accuracy.svg",
+      "ode/ode_memory.svg",
+      "ode/ode_runtime.svg",
+      "optimization/optimization_accuracy.svg",
+      "optimization/optimization_memory.svg",
+      "optimization/optimization_runtime.svg",
+      "root/root_accuracy.svg",
+      "root/root_memory.svg",
+      "root/root_runtime.svg"
+    ]
+  },
+  "limitations": [
+    "Root timing and accuracy are historical Phase 14B v3 data, never Phase 14C measurements.",
+    "Linear algebra timing/accuracy is a 4-workload pilot covering only matrix add, matrix multiply, LU factor, and LU solve.",
+    "Differentiation/interpolation/integration are three-problem adapter pilots; not 100-problem studies.",
+    "Optimization and ODE have correctness-only pilots and no runtime measurements.",
+    "Method-specific memory is not measured for any module; process RSS and smoke-control allocations are not substituted.",
+    "Accuracy thresholds are unevaluated for the ODE pilot."
+  ],
+  "method_inventory_rows": 50,
+  "normalized_accuracy_records": 1696,
+  "normalized_timing_records": 52824,
+  "phase14c_full_study_measurement_rows": 0,
+  "raw_source_files": [
+    {
+      "label": "differentiation.raw_accuracy",
+      "sha256": "73047244cf07f439f3a9e208684732c5b264f96b91f2428ef359c2e52c72107b",
+      "source_path": "benchmarks/results/phase14c/module_comparisons/raw/differentiation/phase14c-pilot-scalar-20261112T055820Z/raw_accuracy.csv"
+    },
+    {
+      "label": "differentiation.raw_timing",
+      "sha256": "f28d9d85150eb4c1e4642a76c9c596198e6b3baa39dd772e67266aaef1adf6aa",
+      "source_path": "benchmarks/results/phase14c/module_comparisons/raw/differentiation/phase14c-pilot-scalar-20261112T055820Z/raw_timing.csv"
+    },
+    {
+      "label": "integration.raw_accuracy",
+      "sha256": "c5c84650418edafa0ae2c85f016f213372b9cac2bbe1c75941cefbab6da7760d",
+      "source_path": "benchmarks/results/phase14c/module_comparisons/raw/integration/phase14c-pilot-scalar-20261112T055820Z/raw_accuracy.csv"
+    },
+    {
+      "label": "integration.raw_timing",
+      "sha256": "c7c40adf054119776e9201442e111d8dc87ff89cdab31f031f5616b20ad320f9",
+      "source_path": "benchmarks/results/phase14c/module_comparisons/raw/integration/phase14c-pilot-scalar-20261112T055820Z/raw_timing.csv"
+    },
+    {
+      "label": "interpolation.raw_accuracy",
+      "sha256": "613cf2cca2bc64c18e925c1969767aa79a7b470df6bb3b772e2a16599267d868",
+      "source_path": "benchmarks/results/phase14c/module_comparisons/raw/interpolation/phase14c-pilot-scalar-20261112T055820Z/raw_accuracy.csv"
+    },
+    {
+      "label": "interpolation.raw_timing",
+      "sha256": "2052f6cd26313c20233b11672bd3cf99d30e368d9600c0f3dc1478286e8267be",
+      "source_path": "benchmarks/results/phase14c/module_comparisons/raw/interpolation/phase14c-pilot-scalar-20261112T055820Z/raw_timing.csv"
+    },
+    {
+      "label": "linear_algebra.raw_accuracy",
+      "sha256": "666ba6fa1795cf4ca4c3336656ec792ba806fef2a41df69ebc543ba454d25e9c",
+      "source_path": "benchmarks/phase14c/linear_algebra/pilot_runs/phase14c-la-pilot-20261112T055827Z/raw_accuracy.csv"
+    },
+    {
+      "label": "linear_algebra.raw_timing",
+      "sha256": "e6fc9ed29e32b73234f7111f4e67ad74faeae75a782a14f92c243012f13da485",
+      "source_path": "benchmarks/phase14c/linear_algebra/pilot_runs/phase14c-la-pilot-20261112T055827Z/raw_timing.csv"
+    },
+    {
+      "label": "ode.raw_accuracy",
+      "sha256": "bd90f13b4e51dbeeb004b2e1b0c39a5ee89f7acb90c5f900c0377ad293799e09",
+      "source_path": "benchmarks/phase14c/pilots/ode/raw_accuracy_pilot.csv"
+    },
+    {
+      "label": "optimization.raw_accuracy",
+      "sha256": "add42a4d04b5817b1ef98a9d54d7f4ec7c6e3e5a366f8e568574fe93c4802534",
+      "source_path": "benchmarks/phase14c/pilots/optimization/raw_accuracy_pilot.csv"
+    },
+    {
+      "label": "root.accuracy",
+      "sha256": "7219e70fdd4b4d06c572cdb388ba8910acc7c34ffbfbdd6e15605a1601ee097e",
+      "source_path": "benchmarks/results/phase14b/raw/root-method-study-final-v3-20261112/accuracy.csv"
+    },
+    {
+      "label": "root.raw_timing",
+      "sha256": "fe8375e16b77379c1a246d0f7b0ea71527869f8b7b55fc3bc1119d9e556b338f",
+      "source_path": "benchmarks/results/phase14b/raw/root-method-study-final-v3-20261112/raw_timing.csv"
+    }
+  ],
+  "run_scope": "pilot and historical evidence only; full 700-problem method-level study is not complete",
+  "schema_version": "phase14c-artifact-verification-v1"
+}

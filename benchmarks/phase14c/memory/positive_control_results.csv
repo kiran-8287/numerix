@@ -1,0 +1,4 @@
+probe_id,library,library_version,operation,trace_valid,baseline_live_requested_bytes,peak_additional_live_requested_bytes,total_requested_bytes,allocation_count,reallocation_count,free_count,untracked_pointer_count,result,scope
+PH14C-MEM-CONTROL,tracker,local,known and aligned allocations plus successful/failed realloc,true,64,970,1090,6,1,6,0,pass,interposer positive control only
+PH14C-MEM-GSL,GSL,2.8,gsl_vector_alloc(100) and free,true,0,856,856,3,0,3,0,pass,library-visibility positive control only
+PH14C-MEM-NUMERIX,NUMERIX,0.2.0-rc1,numerix_vector_add with 100-element inputs,true,1632,816,816,2,0,2,0,pass,library-visibility positive control only

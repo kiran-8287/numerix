@@ -1,0 +1,1 @@
+/usr/bin/gcc -Werror -O3 -DNDEBUG CMakeFiles/numerix_managed_execution_demo.dir/examples/managed_execution_demo.c.o -o numerix_managed_execution_demo  libnumerix.a -lm 

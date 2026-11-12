@@ -1,0 +1,78 @@
+{
+  "schema_version": "phase14c-library-manifest-v1",
+  "recorded_utc_date": "2026-11-12",
+  "phase14c_measurement_status": "no full phase14c benchmark run completed yet",
+  "competitors": {
+    "root": {
+      "name": "GNU Scientific Library",
+      "version": "2.8",
+      "source_url": "https://ftp.gnu.org/gnu/gsl/gsl-2.8.tar.gz",
+      "source_sha256": "6a99eeed15632c6354895b1dd542ed5a855c0f15d9ad1326c6fe2b2c9e423190",
+      "prefix": "/home/142401034/.local/numerix-deps/gsl-2.8-o3-clean",
+      "verification": "gsl-config --version through this prefix reports 2.8",
+      "role": "primary"
+    },
+    "linear_algebra": {
+      "name": "OpenBLAS CBLAS and bundled LAPACK/LAPACKE",
+      "version": "OpenBLAS 0.3.34; bundled LAPACK 3.12.0",
+      "source_commit": "e0166008be8e466242aa76b2ff75ce3f0fbf574a",
+      "lapack_source_commit": "6ec7f2bc4ecf4c4a93496aa2fa519575bc0e39ca",
+      "prefix": "/home/142401034/.local/numerix-deps/prefix/phase14/openblas",
+      "verification": "private OpenBLAS pkg-config reports 0.3.34; bundled LAPACK source CMakeLists.txt reports 3.12.0; agent verified CBLAS and LAPACK symbols and layout on a known solve",
+      "role": "primary"
+    },
+    "differentiation": {
+      "name": "GNU Scientific Library",
+      "version": "2.8",
+      "prefix": "/home/142401034/.local/numerix-deps/gsl-2.8-o3-clean",
+      "role": "primary"
+    },
+    "interpolation": {
+      "name": "GNU Scientific Library",
+      "version": "2.8",
+      "prefix": "/home/142401034/.local/numerix-deps/gsl-2.8-o3-clean",
+      "role": "primary"
+    },
+    "integration": {
+      "name": "GNU Scientific Library",
+      "version": "2.8",
+      "prefix": "/home/142401034/.local/numerix-deps/gsl-2.8-o3-clean",
+      "role": "primary"
+    },
+    "optimization": {
+      "name": "NLopt",
+      "version": "2.10.1",
+      "source_url": "https://github.com/stevengj/nlopt/archive/refs/tags/v2.10.1.tar.gz",
+      "source_sha256": "30d13ce16da119db3e987784f7864e35a562ec62c186352fae55cd003e6c58ff",
+      "prefix": "/home/142401034/.local/numerix-deps/prefix/phase14c/nlopt-2.10.1",
+      "build": "Release, GCC/G++ 8.5, C++ algorithms enabled; Fortran and language bindings disabled",
+      "role": "primary"
+    },
+    "ode": {
+      "name": "SUNDIALS",
+      "version": "7.9.0",
+      "source_commit": "312fc0f3684f27209ca9dc9249d194436eb41a7a",
+      "prefix": "/home/142401034/.local/numerix-deps/prefix/phase14/sundials",
+      "components": ["CVODE", "ARKODE", "serial N_Vector"],
+      "verification": "installed sundials_config.h reports 7.9.0",
+      "role": "primary"
+    }
+  },
+  "historical_only": {
+    "phase14_main": {
+      "run_id": "phase14-main-20261112",
+      "not_new_phase14c_data": true,
+      "versions_recorded_in_raw_csv": {
+        "GSL": "2.8",
+        "OpenBLAS_LAPACK": "3.12.1 + OpenBLAS 0.3.34 (historical metadata; LAPACK metadata discrepancy under review)",
+        "NLopt": "2.11.0",
+        "SUNDIALS": "7.9.0"
+      }
+    },
+    "phase14b_root": {
+      "run_id": "phase14b-root-20261112-v3",
+      "not_new_phase14c_data": true,
+      "versions": {"GSL": "2.8", "CMINPACK": "1.3.15"}
+    }
+  }
+}

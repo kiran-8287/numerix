@@ -1,0 +1,38 @@
+{
+  "schema_version": "phase14c-environment-v1",
+  "run_state": "pre-run inventory and dependency verification; no full Phase 14C measurements",
+  "recorded_date_local": "2026-11-12",
+  "system": {
+    "os": "Oracle Linux Server 8.10",
+    "kernel": "Linux 5.15.0-321.202.5.3.el8uek.x86_64",
+    "architecture": "x86_64",
+    "cpu_model": "13th Gen Intel(R) Core(TM) i7-13700",
+    "logical_cpus_visible": 24,
+    "affinity": "CPUs 0-23 visible at inventory time; benchmark process should be pinned and the exact CPU recorded in run metadata",
+    "thread_policy_for_measurements": "one numerical-library thread; set OPENBLAS_NUM_THREADS=1 and OMP_NUM_THREADS=1; no simultaneous full benchmark runs"
+  },
+  "toolchain": {
+    "c_compiler": "GCC 8.5.0 20210514 (Red Hat 8.5.0-28.0.1)",
+    "language": "C11 for benchmark adapters",
+    "release_flags": "-O3 -DNDEBUG -Wall -Wextra -Wpedantic; no -ffast-math",
+    "timer_policy": "CLOCK_MONOTONIC wall time and CLOCK_PROCESS_CPUTIME_ID CPU time"
+  },
+  "repository": {
+    "head": "1478fc931956948bfb3900c35a7fc4506bbe54e7",
+    "branch": "master",
+    "working_tree_was_dirty": true,
+    "unrelated_existing_changes_at_start": [
+      ".github/workflows/validation.yml",
+      "README.md",
+      "scripts/build-windows.ps1",
+      "documentation/presentation/ (untracked presentation work already in progress)"
+    ],
+    "note": "Do not reset or clean the tree; Phase 14C files are created only under benchmarks/phase14c and benchmarks/results/phase14c."
+  },
+  "historical_phase14_environment_is_not_the_current_environment": {
+    "run_id": "phase14-main-20261112",
+    "historical_logical_cpu_count": 4,
+    "historical_cpu_model": "not recorded in run_metadata.json",
+    "historical_run_is_not_phase14c": true
+  }
+}

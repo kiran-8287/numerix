@@ -1,0 +1,1 @@
+/usr/bin/gcc -Werror -O3 -DNDEBUG CMakeFiles/numerix_phase13b_regression_tests.dir/tests/test_phase13b_regressions.c.o -o numerix_phase13b_regression_tests  libnumerix.a -lm 

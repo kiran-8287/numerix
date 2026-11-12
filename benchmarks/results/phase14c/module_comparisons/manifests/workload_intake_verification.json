@@ -1,0 +1,39 @@
+{
+  "copied_input_sidecar_sha256": "9a93895682caf257a8aa61e9c47b796f8e22f2fe5510a8aaefded51877b3b3f1",
+  "copied_manifest_sha256": "1abacac47909aa0a12e7359d8aba86df71261b797c58f19bfe7a064c15041754",
+  "full_study_measurement_rows": 0,
+  "limitations": [
+    "Phase 14 inputs are a candidate frozen workload base, not new Phase 14C measurements.",
+    "Piecewise derivative and integral adapters need supplemental piecewise fixtures.",
+    "ODE Phase 14C accuracy needs full-trajectory references at every requested output point.",
+    "Every non-root method still requires exact API dispatch verification and a pilot before the final run."
+  ],
+  "method_problem_applicability_rows": 5000,
+  "methods_in_inventory": 50,
+  "module_counts": {
+    "differentiation": 100,
+    "integration": 100,
+    "interpolation": 100,
+    "linear_algebra": 100,
+    "ode": 100,
+    "optimization": 100,
+    "root": 100
+  },
+  "module_method_counts": {
+    "differentiation": 7,
+    "integration": 4,
+    "interpolation": 4,
+    "linear_algebra": 21,
+    "ode": 3,
+    "optimization": 2,
+    "root": 9
+  },
+  "phase14c_pilot_measurements_exist": true,
+  "problem_count": 700,
+  "schema_version": "phase14c-workload-intake-v1",
+  "source_input_sidecar_sha256": "9a93895682caf257a8aa61e9c47b796f8e22f2fe5510a8aaefded51877b3b3f1",
+  "source_is_historical": true,
+  "source_manifest_sha256": "1abacac47909aa0a12e7359d8aba86df71261b797c58f19bfe7a064c15041754",
+  "source_run_id": "phase14-main-20261112",
+  "status": "candidate workload set verified; full Phase 14C study not run"
+}

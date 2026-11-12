@@ -1,0 +1,93 @@
+{
+  "run_id": "phase14c-opt-correctness-pilot-20261112",
+  "run_kind": "single-case correctness-only pilot",
+  "started_utc": "2026-11-12T05:56:04.757220+00:00",
+  "finished_utc": "2026-11-12T05:56:04.760396+00:00",
+  "git_head": "1478fc931956948bfb3900c35a7fc4506bbe54e7",
+  "working_tree_dirty": true,
+  "system": "Linux-5.15.0-321.202.5.3.el8uek.x86_64-x86_64-with-glibc2.28",
+  "machine": "x86_64",
+  "processor": "x86_64",
+  "cpu_count_logical": 24,
+  "compiler": "gcc (GCC) 8.5.0 20210514 (Red Hat 8.5.0-28.0.1)",
+  "compiler_flags": "CMake Release; -Wall -Wextra -Wpedantic -Werror",
+  "dependencies": {
+    "NUMERIX": "0.2.0-rc1",
+    "NLopt": "2.10.1"
+  },
+  "nlopt_prefix": "/home/142401034/.local/numerix-deps/prefix/phase14c/nlopt-2.10.1",
+  "thread_policy": "single-process, deterministic methods; no worker threads",
+  "random_seed": null,
+  "timing_measured": false,
+  "memory_measured": false,
+  "objective_evaluation_budget": 200,
+  "accuracy_targets": {
+    "absolute": 1e-05,
+    "relative": 1e-05
+  },
+  "problem_count": 2,
+  "library_method_records": 4,
+  "native_statuses_preserved": true,
+  "method_comparison_class": "best_available for both routes",
+  "limitations": [
+    "One analytic test problem per optimization method; this is not a workload study.",
+    "NUMERIX golden-section has no initial-point parameter; the NLopt DIRECT-L x argument is recorded but is not a shared controllable start.",
+    "NUMERIX gradient descent is unbounded; the gradient pilot uses no box constraints in either implementation.",
+    "NLopt maximum-evaluation termination is reported separately from accuracy_pass.",
+    "No timing or method-specific memory observations were collected."
+  ],
+  "invocation": [
+    "cmake -S benchmarks/phase14c/optimization -B build/phase14c-optimization-pilot -DCMAKE_BUILD_TYPE=Release -DNLOPT_ROOT=<NLopt-2.10.1-prefix>",
+    "cmake --build build/phase14c-optimization-pilot --parallel",
+    "python3 benchmarks/phase14c/optimization/run_correctness_pilot.py"
+  ],
+  "sha256": {
+    "workload_manifest": "e3613f3fffc03e8b9a9063cfbeb2771e6afd4f01ae83d27fa56c3841efd3d3c9",
+    "adapter_source": "0ba924882e051b514dbd5eeeae9955755fbcf21938a2705c440a9068d7908b43",
+    "adapter_cmake": "5da07175010266d3a8f9278459c740cc9715a71dd5183ed06e447c045965ef3e",
+    "runner_script": "7d6e4480bebea49a14fea7b5ad047c22a5399ebf45b8e57a2c6b6be69534cd3e",
+    "raw_accuracy": "add42a4d04b5817b1ef98a9d54d7f4ec7c6e3e5a366f8e568574fe93c4802534"
+  },
+  "record_statuses": [
+    {
+      "problem_id": "P14C-OPT-PILOT-GOLDEN-001",
+      "library": "NUMERIX",
+      "native_status": "0",
+      "native_status_name": "success",
+      "normalized_status": "converged",
+      "converged": true,
+      "accuracy_pass": true,
+      "objective_evaluations": 29
+    },
+    {
+      "problem_id": "P14C-OPT-PILOT-GOLDEN-001",
+      "library": "NLopt",
+      "native_status": "5",
+      "native_status_name": "MAXEVAL_REACHED",
+      "normalized_status": "limit_reached",
+      "converged": false,
+      "accuracy_pass": true,
+      "objective_evaluations": 200
+    },
+    {
+      "problem_id": "P14C-OPT-PILOT-GRADIENT-001",
+      "library": "NUMERIX",
+      "native_status": "0",
+      "native_status_name": "success",
+      "normalized_status": "converged",
+      "converged": true,
+      "accuracy_pass": true,
+      "objective_evaluations": 94
+    },
+    {
+      "problem_id": "P14C-OPT-PILOT-GRADIENT-001",
+      "library": "NLopt",
+      "native_status": "1",
+      "native_status_name": "SUCCESS",
+      "normalized_status": "converged",
+      "converged": true,
+      "accuracy_pass": true,
+      "objective_evaluations": 5
+    }
+  ]
+}

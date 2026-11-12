@@ -1,0 +1,3 @@
+run_id,module,problem_id,library,library_version,setup_operation,monotonic_wall_elapsed_seconds,cpu_elapsed_seconds,status,native_status,setup_scope
+phase14c-la-pilot-20261112T055614Z,linear_algebra,LA-PILOT-LUSOLVE-64-BLOCKPIVOT-v1,NUMERIX,0.2.0-rc1,numerix_lu_decompose,0.000117167999633,0.0001171,success,0,one-time saved-factor preparation; excluded from solve-only raw_timing
+phase14c-la-pilot-20261112T055614Z,linear_algebra,LA-PILOT-LUSOLVE-64-BLOCKPIVOT-v1,LAPACK+OpenBLAS,LAPACK 3.12.0 + OpenBLAS 0.3.34,row-major-to-column-major conversion + LAPACKE_dgetrf,3.74339997506e-05,3.7476e-05,success,0,one-time saved-factor preparation; excluded from solve-only raw_timing

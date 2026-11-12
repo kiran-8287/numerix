@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light"><meta name="description" content="Offline technical presentation of NUMERIX, its numerical modules, validation and measured root benchmarks.">
+<title>NUMERIX — Numerical Computing, Made Explicit</title>
+<link rel="stylesheet" href="assets/presentation.css">
+</head>
+<body>
+<div class="progress-track" aria-hidden="true"><span id="progress"></span></div>
+<header class="masthead">
+  <a class="wordmark" href="#opening"><span class="mark">N<span>∑</span></span><span>NUMERIX<small>TECHNICAL PRESENTATION · 0.2.0-rc1</small></span></a>
+  <nav aria-label="Presentation sections"><a href="#architecture">Design</a><a href="#modules">Modules</a><a href="#verification">Verification</a><a href="#benchmarks">Benchmarks</a></nav>
+  <button id="present" class="present-button" type="button">⛶ <span>Present</span></button>
+</header>
+<main id="deck">
+<section class="slide hero" id="opening" data-title="NUMERIX">
+  <div class="hero-orbit" aria-hidden="true"><svg viewBox="0 0 560 370"><path class="gridline" d="M25 55H535M25 125H535M25 195H535M25 265H535M25 335H535M75 25V345M175 25V345M275 25V345M375 25V345M475 25V345"/><path class="axis" d="M25 230H535"/><path class="trace" d="M28 58C90 72 132 120 176 184S248 300 300 279s85-57 126-86 69-37 108-48"/><circle cx="176" cy="184" r="6"/><circle cx="300" cy="279" r="6"/><circle cx="426" cy="193" r="6"/><text x="35" y="220">f(x) = 0</text><text x="394" y="350">iteration →</text></svg><p>ILLUSTRATIVE CONVERGENCE · NOT MEASUREMENT DATA</p></div>
+  <div class="hero-copy"><div class="eyebrow"><i aria-hidden="true">&#8203;</i> C11 NUMERICAL COMPUTING LIBRARY</div><h1>Numerical work.<br><em>Made explicit.</em></h1><p>A compact C library for solving, approximating and investigating mathematical problems—with algorithm selection, managed execution and diagnostics around the numerical core.</p><div class="hero-metrics"><b>7 <small>numerical modules</small></b><b>1 <small>public header</small></b><b>C11 <small>static library</small></b></div><a class="primary-link" href="#motivation">Start the presentation <span>↓</span></a></div>
+  <div class="slide-controls"><span>UNIVERSITY TECHNICAL PRESENTATION</span><a href="#motivation">Next →</a></div>
+</section>
+
+<section class="slide" id="motivation" data-title="The numerical problem">
+  <div class="eyebrow">01 — MOTIVATION</div><h2>Numerical answers are<br><em>earned, not assumed.</em></h2>
+  <div class="two-column"><div><p class="large-copy">A formula can be exact on paper and unreliable on a computer.</p><p>Finite precision, conditioning, stopping rules and invalid inputs all affect a computed answer. A small residual can still hide a poor root position; a fast method can converge to the wrong result or fail on a difficult case.</p><p>NUMERIX aims to make these choices visible in a small C library: algorithms return status and work information, while supporting systems recommend methods, manage execution and analyze results.</p></div>
+    <div class="principles"><article><b>01</b><div><h3>Convergence</h3><p>Did the method make progress under its stopping rule?</p></div></article><article><b>02</b><div><h3>Precision</h3><p>What error was measured, and which quantity does it describe?</p></div></article><article><b>03</b><div><h3>Selection</h3><p>Which implemented method fits the available bracket or derivative?</p></div></article><article><b>04</b><div><h3>Evidence</h3><p>Do tests and paired measurements support the claim?</p></div></article></div></div>
+  <div class="callout"><b>Key distinction</b><span>Residual and position error are not interchangeable. A success status is not a universal accuracy certificate.</span><a href="../../documentation/api/tolerances.md">Tolerance guide ↗</a></div>
+  <div class="slide-controls"><a href="#opening">← Previous</a><a href="#architecture">Next →</a></div>
+</section>
+
+<section class="slide inverse" id="architecture" data-title="Architecture">
+  <div class="eyebrow">02 — ARCHITECTURE</div><h2>One public surface.<br><em>Clear internal boundaries.</em></h2><p class="intro">Applications use one C API. The numerical algorithms form the core; expressions, recommendation, execution and diagnostics are supporting systems.</p>
+  <div class="architecture" role="img" aria-label="Applications and CLI call the public C API. The static NUMERIX library contains seven numerical modules and supporting systems.">
+    <div class="arch-row"><div class="arch-node"><small>USER APPLICATION</small><b>External C / C++ client</b></div><div class="arch-node cli"><small>DEMO INTERFACE</small><b>numerix_cli</b><span>Expressions · roots · demos</span></div></div>
+    <div class="connector">links through <i aria-hidden="true">&#8203;</i></div><div class="arch-node api"><small>PUBLIC API</small><b>include/numerix.h</b><span>Status · options · results · ownership</span></div>
+    <div class="connector">implemented by <i aria-hidden="true">&#8203;</i></div><div class="library"><small>STATIC LIBRARY · NUMERIX::numerix</small><div class="core"><b>SEVEN NUMERICAL MODULES</b><div><span>Roots</span><span>Linear algebra</span><span>Differentiation</span><span>Interpolation</span><span>Integration</span><span>Optimization</span><span>ODEs</span></div></div><div class="support"><b>SUPPORTING SYSTEMS</b><div><span>Expressions</span><span>Piecewise functions</span><span>Recommendation</span><span>Managed execution</span><span>Diagnostics</span><span>Root discovery</span></div></div></div>
+  </div>
+  <div class="arch-paths"><code>src/algorithms/</code><code>src/expression/</code><code>src/intelligence/</code><code>src/execution/</code><code>src/diagnostics/</code><code>src/root_discovery/</code></div>
+  <div class="slide-controls"><a href="#motivation">← Previous</a><a href="#modules">Next →</a></div>
+</section>
+
+<section class="slide" id="modules" data-title="Seven modules">
+ <div class="eyebrow">03 — NUMERICAL CORE</div><h2>Seven modules.<br><em>One consistent C API.</em></h2><p class="intro">Choose a module to jump to its implemented methods, source, test and demo references.</p>
+ <div class="module-index">
+  <a href="#root-finding"><span>01</span><b>Root finding</b><small>Find x where f(x)=0</small>↗</a>
+  <a href="#linear-algebra"><span>02</span><b>Linear algebra</b><small>Vectors, matrices, linear systems</small>↗</a>
+  <a href="#differentiation"><span>03</span><b>Differentiation</b><small>Estimate derivatives from samples</small>↗</a>
+  <a href="#interpolation"><span>04</span><b>Interpolation</b><small>Estimate between known points</small>↗</a>
+  <a href="#integration"><span>05</span><b>Integration</b><small>Approximate finite-interval area</small>↗</a>
+  <a href="#optimization"><span>06</span><b>Optimization</b><small>Search for minima</small>↗</a>
+  <a href="#ode"><span>07</span><b>ODEs</b><small>Advance initial-value systems</small>↗</a>
+ </div><div class="slide-controls"><a href="#architecture">← Previous</a><a href="#root-finding">Next →</a></div>
+</section>
+
+<section class="slide module-slide" id="root-finding" data-title="Root finding">
+ <div class="eyebrow">MODULE 01 / 07</div><div class="module-head"><div><h2>Root finding</h2><p class="intro">Locate a zero while keeping stopping evidence tied to the quantity being solved.</p></div><b class="math">f(x) = 0</b></div>
+ <div class="module-body"><div><h3>Implemented algorithms</h3><div class="chips"><span>Bisection</span><span>Regula falsi</span><span>Secant</span><span>Newton</span><span>Safeguarded Newton</span><span>Brent</span></div><p>Automatic recommendation and portfolios are available through the intelligence layer. Multiple-root discovery samples and subdivides an interval; it is heuristic and cannot guarantee completeness.</p><div class="formula"><small>TOLERANCE SEMANTICS</small><b>Position evidence ≠ residual magnitude</b><span>Check the scale and conditioning of the problem independently.</span></div></div>
+ <aside class="evidence"><b>IMPLEMENTATION & EVIDENCE</b><p><small>Source</small><code>src/algorithms/root_finding/root_finding.c</code><code>src/root_discovery/root_discovery.c</code></p><p><small>Tests</small><code>numerix_root_finding</code><code>numerix_root_discovery</code></p><p><small>Demo</small><code>numerix_root_discovery_demo</code></p><p><small>Benchmark</small><span class="badge measured">Root routes measured</span></p><a href="../../documentation/api/root_finding.md">Root API ↗</a></aside></div>
+ <div class="module-foot"><code>numerix_root_brent(f, data, 0.0, 2.0, NULL, &amp;result, &amp;error)</code><a href="#benchmarks">See measured comparisons ↓</a></div><div class="slide-controls"><a href="#modules">← Modules</a><a href="#linear-algebra">Next →</a></div>
+</section>
+
+<section class="slide module-slide" id="linear-algebra" data-title="Linear algebra">
+ <div class="eyebrow">MODULE 02 / 07</div><div class="module-head"><div><h2>Linear algebra</h2><p class="intro">Dense row-major vectors and matrices, direct system solvers and reusable LU factors.</p></div><b class="math">A x = b</b></div>
+ <div class="module-body"><div><h3>Implemented operations</h3><div class="chips"><span>Vector arithmetic</span><span>Matrix arithmetic</span><span>Matrix × vector</span><span>Gaussian elimination</span><span>Gauss–Jordan</span><span>LU factorization</span><span>LU solve</span></div><p>LU decomposition returns factors that can be reused for solves. The installed C/C++ consumer checks a 2×2 solve yielding x=[1, 2].</p><div class="formula"><small>REPRESENTATIVE API</small><b>numerix_lu_decompose → numerix_lu_solve</b><span>Conditioning still affects forward error when residuals are small.</span></div></div><aside class="evidence"><b>IMPLEMENTATION & EVIDENCE</b><p><small>Source</small><code>src/algorithms/linear_algebra/linear_algebra.c</code></p><p><small>Tests</small><code>numerix_linear_algebra</code><code>numerix_accuracy</code></p><p><small>Demo</small><span>Installed consumer LU example</span></p><p><small>Benchmark</small><span class="badge pending">Method study pending</span></p><a href="../../documentation/api/linear_algebra.md">Linear algebra guide ↗</a></aside></div><div class="slide-controls"><a href="#root-finding">← Root finding</a><a href="#differentiation">Next →</a></div>
+</section>
+
+<section class="slide module-slide" id="differentiation" data-title="Differentiation">
+ <div class="eyebrow">MODULE 03 / 07</div><div class="module-head"><div><h2>Numerical differentiation</h2><p class="intro">Estimate first and second derivatives from evaluations near the point of interest.</p></div><b class="math">f′(x) ≈ Δf / Δx</b></div>
+ <div class="module-body"><div><h3>Implemented algorithms</h3><div class="chips"><span>Forward</span><span>Backward</span><span>Central</span><span>Five-point central</span><span>Richardson</span><span>Second derivative</span></div><p>Step size is explicit in the raw derivative calls. Truncation error and floating-point cancellation can pull in opposite directions.</p><div class="formula"><small>DEMO CHECK</small><b>d(x³)/dx at x=2 ≈ 12</b><span>Computed in the expression demo.</span></div></div><aside class="evidence"><b>IMPLEMENTATION & EVIDENCE</b><p><small>Source</small><code>src/algorithms/differentiation/differentiation.c</code></p><p><small>Tests</small><code>numerix_differentiation</code><code>numerix_accuracy</code></p><p><small>Demo</small><code>numerix_expression_demo</code></p><p><small>Benchmark</small><span class="badge pending">Method study pending</span></p><a href="../../documentation/api/differentiation.md">Differentiation guide ↗</a></aside></div><div class="slide-controls"><a href="#linear-algebra">← Linear algebra</a><a href="#interpolation">Next →</a></div>
+</section>
+
+<section class="slide module-slide" id="interpolation" data-title="Interpolation">
+ <div class="eyebrow">MODULE 04 / 07</div><div class="module-head"><div><h2>Interpolation</h2><p class="intro">Construct estimates from supplied samples; extrapolation is an explicit choice.</p></div><b class="math">p(xᵢ) = yᵢ</b></div>
+ <div class="module-body"><div><h3>Implemented algorithms</h3><div class="chips"><span>Linear</span><span>Lagrange</span><span>Newton divided differences</span></div><p>Newton coefficients can be constructed once and evaluated repeatedly. Nodes must be distinct and finite.</p><div class="formula"><small>REPRESENTATIVE API</small><b>numerix_interp_newton_create / evaluate</b><span>Construction and evaluation are separate operations.</span></div></div><aside class="evidence"><b>IMPLEMENTATION & EVIDENCE</b><p><small>Source</small><code>src/algorithms/interpolation/interpolation.c</code></p><p><small>Tests</small><code>numerix_interpolation</code><code>numerix_accuracy</code></p><p><small>Demo</small><span>No dedicated executable</span></p><p><small>Benchmark</small><span class="badge pending">Method study pending</span></p><a href="../../documentation/api/interpolation.md">Interpolation guide ↗</a></aside></div><div class="slide-controls"><a href="#differentiation">← Differentiation</a><a href="#integration">Next →</a></div>
+</section>
+
+<section class="slide module-slide" id="integration" data-title="Integration">
+ <div class="eyebrow">MODULE 05 / 07</div><div class="module-head"><div><h2>Numerical integration</h2><p class="intro">Approximate finite-interval area using fixed or adaptive Simpson rules.</p></div><b class="math">∫ᵃᵇ f(x) dx</b></div>
+ <div class="module-body"><div><h3>Implemented algorithms</h3><div class="chips"><span>Composite trapezoid</span><span>Composite Simpson</span><span>Adaptive Simpson</span></div><p>Fixed methods use caller-selected panels. Adaptive Simpson uses a global error allocation; its error estimate is not a certified bound.</p><div class="formula"><small>DEMO CHECK</small><b>∫₀ᵖⁱ sin(x) dx ≈ 2</b><span>Printed by the expression demo.</span></div></div><aside class="evidence"><b>IMPLEMENTATION & EVIDENCE</b><p><small>Source</small><code>src/algorithms/integration/integration.c</code></p><p><small>Tests</small><code>numerix_phase1_integration</code><code>numerix_accuracy</code></p><p><small>Demo</small><code>numerix_expression_demo</code></p><p><small>Benchmark</small><span class="badge pending">Method study pending</span></p><a href="../../documentation/api/integration.md">Integration guide ↗</a></aside></div><div class="slide-controls"><a href="#interpolation">← Interpolation</a><a href="#optimization">Next →</a></div>
+</section>
+
+<section class="slide module-slide" id="optimization" data-title="Optimization">
+ <div class="eyebrow">MODULE 06 / 07</div><div class="module-head"><div><h2>Optimization</h2><p class="intro">Minimize a bounded scalar function or follow a supplied gradient in vector space.</p></div><b class="math">min f(x)</b></div>
+ <div class="module-body"><div><h3>Implemented algorithms</h3><div class="chips"><span>Golden section</span><span>Gradient descent</span></div><p>Golden section narrows a one-dimensional interval. Gradient descent accepts an objective, gradient callback and initial vector.</p><div class="formula"><small>REPRESENTATIVE API</small><b>numerix_optimize_golden_section(...)</b><span>Bounded scalar minimization.</span></div></div><aside class="evidence"><b>IMPLEMENTATION & EVIDENCE</b><p><small>Source</small><code>src/algorithms/optimization/optimization.c</code></p><p><small>Tests</small><code>numerix_optimization</code><code>numerix_accuracy</code></p><p><small>Demo</small><span>No dedicated executable</span></p><p><small>Benchmark</small><span class="badge pending">Method study pending</span></p><a href="../../documentation/api/optimization.md">Optimization guide ↗</a></aside></div><div class="slide-controls"><a href="#integration">← Integration</a><a href="#ode">Next →</a></div>
+</section>
+
+<section class="slide module-slide" id="ode" data-title="Ordinary differential equations">
+ <div class="eyebrow">MODULE 07 / 07</div><div class="module-head"><div><h2>Ordinary differential equations</h2><p class="intro">Advance vector initial-value problems across a caller-defined fixed time grid.</p></div><b class="math">y′ = F(t, y)</b></div>
+ <div class="module-body"><div><h3>Implemented algorithms</h3><div class="chips"><span>Euler</span><span>Heun</span><span>Classical RK4</span></div><p>The callback writes a derivative vector. The result includes time points, state values and function-evaluation count.</p><div class="formula"><small>REPRESENTATIVE API</small><b>numerix_ode_rk4(f, t₀, y₀, dim, h, steps, …)</b><span>Step size and step count are explicit inputs.</span></div></div><aside class="evidence"><b>IMPLEMENTATION & EVIDENCE</b><p><small>Source</small><code>src/algorithms/ode/ode.c</code></p><p><small>Tests</small><code>numerix_ode</code><code>numerix_accuracy</code></p><p><small>Demo</small><span>No dedicated executable</span></p><p><small>Benchmark</small><span class="badge pending">Method study pending</span></p><a href="../../documentation/api/ode.md">ODE guide ↗</a></aside></div><div class="slide-controls"><a href="#optimization">← Optimization</a><a href="#workflow">Next →</a></div>
+</section>
+
+<section class="slide" id="workflow" data-title="How to use NUMERIX">
+ <div class="eyebrow">04 — DEVELOPER WORKFLOW</div><h2>From header<br><em>to numerical result.</em></h2>
+ <div class="steps"><article><b>1</b><span>Include<br><code>#include &lt;numerix.h&gt;</code></span></article><article><b>2</b><span>Configure<br><code>find_package(NUMERIX 0.2)</code></span></article><article><b>3</b><span>Call<br><code>numerix_root_brent(...)</code></span></article><article><b>4</b><span>Check<br><code>status + result + error</code></span></article><article><b>5</b><span>Link<br><code>NUMERIX::numerix</code></span></article></div>
+ <div class="code-panels"><div><small>PUBLIC C API</small><pre><code>numerix_result result;
+numerix_error error;
+numerix_status status = numerix_root_brent(
+  equation, NULL, 0.0, 2.0, NULL,
+  &amp;result, &amp;error);
+if (status != NUMERIX_STATUS_SUCCESS)
+  fprintf(stderr, "%s\\n", error.message);</code></pre></div><div><small>CMAKE CONSUMER</small><pre><code>find_package(NUMERIX 0.2
+  CONFIG REQUIRED)
+add_executable(app main.c)
+target_link_libraries(app
+  PRIVATE NUMERIX::numerix)</code></pre></div></div>
+ <div class="callout"><b>CMake + GNU Make</b><span>CMake consumers link <code>NUMERIX::numerix</code>. The Makefile supports <code>make -j all</code>, <code>make test</code>, and <code>make install PREFIX=…</code>.</span><a href="../../documentation/user_guide/installation.md">Install guide ↗</a></div>
+ <div class="slide-controls"><a href="#ode">← ODEs</a><a href="#demonstrations">Next →</a></div>
+</section>
+
+<section class="slide inverse" id="demonstrations" data-title="Live demonstrations">
+ <div class="eyebrow">05 — LIVE DEMONSTRATIONS</div><h2>Run the program.<br><em>Inspect the result.</em></h2>
+ <div class="code-panels build-panels"><div><small>LINUX · GCC RELEASE · TESTS + INSTALLED CONSUMERS</small><pre><code>scripts/build-linux.sh \
+  --config Release --compiler gcc</code></pre></div><div><small>WINDOWS POWERSHELL · SCRIPT PROVIDED · NOT RUN HERE</small><pre><code>.\scripts\build-windows.ps1 \
+  -Compiler MinGW -Configuration Release</code></pre></div></div>
+ <div class="terminal"><div><span>● ● ●</span><b>NUMERIX CLI · LINUX RELEASE</b><small>observed local output</small></div><pre><i aria-hidden="true">$</i> ./build/linux-gcc-release/numerix_cli --eval 'sin(pi/2)+x^2' 2
+<span>f(2) = 5</span>
+
+<i aria-hidden="true">$</i> ./build/linux-gcc-release/numerix_cli --root 'x^2-2' 0 2
+<span>Selected: brent_dekker · root = 1.41421356237</span>
+<span>Residual = −2.169e−13 · 28 iterations · 32 evaluations</span>
+<span>Managed execution and residual diagnostics reported</span>
+
+<i aria-hidden="true">$</i> ./build/linux-gcc-release/numerix_cli --roots '(x-1)*(x-2)' 0 3
+<span>Discovery: success · 2 roots · 2 unresolved intervals</span>
+<small>Elapsed times vary by machine. Root discovery is heuristic.</small></pre></div>
+ <div class="demo-list"><span><b>Expressions</b> evaluation, integration and differentiation</span><span><b>Piecewise</b> segments, boundaries and calculus</span><span><b>Intelligence</b> recommendation, auto solve and fallback</span><span><b>Managed execution</b> state, progress, pause/resume</span><span><b>Diagnostics + discovery</b> residual checks, roots and unresolved intervals</span></div>
+ <div class="command-note"><small>Additional recorded example</small><code>./build/linux-gcc-release/numerix_expression_demo</code><span>sin integral ≈ 2 · cubic derivative at x=2 ≈ 12</span></div>
+ <div class="command-note"><small>Windows PowerShell</small><code>.\build\windows-release\numerix_cli.exe --eval 'sin(pi/2)+x^2' 2</code></div>
+ <div class="slide-controls"><a href="#workflow">← Workflow</a><a href="#verification">Next →</a></div>
+</section>
+
+<section class="slide" id="verification" data-title="Testing and verification">
+ <div class="eyebrow">06 — VERIFIED ON LINUX · 12 NOV 2026</div><h2>What passed.<br><em>What remains open.</em></h2>
+ <div class="test-table"><div class="test-row heading"><b>Compiler / configuration</b><b>Tests</b><b>Installed C + C++</b><b>Result</b></div><div class="test-row"><b>GCC 8.5 · Release</b><span>35 / 35</span><span>Passed</span><strong>PASS</strong></div><div class="test-row"><b>GCC 8.5 · Debug</b><span>35 / 35</span><span>Passed</span><strong>PASS</strong></div><div class="test-row"><b>Clang 21.1 · Release</b><span>35 / 35</span><span>Passed</span><strong>PASS</strong></div><div class="test-row"><b>Clang 21.1 · Debug</b><span>35 / 35</span><span>Passed</span><strong>PASS</strong></div><div class="test-row"><b>Clang ASan + UBSan</b><span>35 / 35</span><span>Not run in sanitizer config</span><strong>PASS</strong></div><div class="test-row pending-row"><b>Windows MinGW / MSVC</b><span>Not run here</span><span>Remote rerun pending</span><strong>UNVERIFIED</strong></div></div>
+ <div class="test-counters"><article><b>35</b><span>default CTest cases passed, 0 failed: algorithms, regression, accuracy, portability, CLI, examples</span></article><article><b>36</b><span>comparison-enabled tests, including raw benchmark output verification</span></article><article><b>2/2</b><span>installed C/C++ consumer tests in each GCC/Clang configuration</span></article></div>
+ <div class="callout"><b>Additional checks</b><span>GCC Release demos and CLI passed; targeted Valgrind unit test and Clang analysis of changed sources passed. Windows jobs and remote Actions have not been rerun.</span><a href="../../documentation/development/cross_platform_build_report.md">Engineering report ↗</a></div>
+ <div class="slide-controls"><a href="#demonstrations">← Previous</a><a href="#benchmarks">Next →</a></div>
+</section>
+
+<section class="slide benchmark-slide" id="benchmarks" data-title="Comparative benchmarks">
+ <div class="eyebrow">07 — COMPARATIVE STUDY · PHASE 14B</div><h2>Measured methods.<br><em>Honest boundaries.</em></h2>
+ <div class="benchmark-stats"><article><b>49</b><span>public operations audited</span></article><article><b>9</b><span>root routes investigated</span></article><article><b>5</b><span>direct paired ratios</span></article><article><b>0</b><span>other modules measured</span></article></div>
+ <div class="legend"><span><i class="num-color" aria-hidden="true">&#8203;</i> NUMERIX</span><span><i class="gsl-color" aria-hidden="true">&#8203;</i> GSL</span><span><i class="cmin-color" aria-hidden="true">&#8203;</i> CMINPACK</span><small>Same color per library throughout. Charts are generated from saved Phase 14B analysis files.</small></div>
+ <div class="scope-note"><b>Study status: PARTIAL</b><span>Root methods only. Six other module benchmarks, method-specific memory and tolerance-sweep time-to-accuracy remain pending.</span></div>
+ <div id="benchmark-content" class="benchmark-content" aria-live="polite"><p>Loading local benchmark payload…</p></div>
+ <div class="data-limits"><article><b>Memory</b><span>Comparable method-specific memory was not measured. RSS includes process and harness overhead.</span></article><article><b>Accuracy versus time</b><span>Per-problem runtime/error points exist at one fixed tolerance only. No tolerance sweep was run; these do not form a time-to-accuracy curve.</span></article></div>
+ <div class="source-links"><a href="../../documentation/reports/NUMERIX_expanded_multi_library_comparative_evaluation.md">Phase 14 report ↗</a><a href="../../documentation/reports/NUMERIX_phase14b_method_level_comparative_evaluation.md">Full Phase 14B report ↗</a><a href="../../documentation/development/phase_14b_method_coverage_matrix.md">Method coverage ↗</a><a href="../../benchmarks/results/phase14b/analysis/root/method_summary.csv">Method summary CSV ↗</a><a href="../../benchmarks/results/phase14b/analysis/root/paired_comparisons.csv">Paired analysis CSV ↗</a><a href="../../benchmarks/results/phase14b/verification/phase14b_artifact_verification.json">Verification record ↗</a><a href="../../benchmarks/results/phase14b/raw/root-method-study-final-v3-20261112/accuracy.csv">Raw accuracy CSV ↗</a><a href="../../benchmarks/results/phase14b/raw/root-method-study-final-v3-20261112/raw_timing.csv">Raw timing CSV ↗</a></div>
+ <div class="slide-controls"><a href="#verification">← Verification</a><a href="#conclusion">Next →</a></div>
+</section>
+
+<section class="slide closing" id="conclusion" data-title="Conclusion">
+ <div class="eyebrow">08 — CONCLUSION</div><div class="closing-mark">N<span>∑</span></div><h2>A numerical library<br>is more than its <em>fastest method.</em></h2>
+ <div class="closing-columns"><p>NUMERIX combines seven numerical modules with a public C interface, method recommendation, managed execution, diagnostics and heuristic discovery. Its current test suite exercises algorithms, integration paths, edge behavior, accuracy and installed consumers.</p><p>Root measurements show competitive paired timings on several tested routes, with accuracy and completion differences that matter. They do not establish a universal winner. Six module studies, method-specific memory and tolerance-sweep measurements remain unfinished.</p></div>
+ <div class="closing-line">Build carefully. Measure fairly. Report what the evidence supports.</div><div class="source-links"><a href="../../README.md">Developer README ↗</a><a href="../../CHANGELOG.md">Changelog ↗</a><a href="../../documentation/development/final_project_report.md">Project report ↗</a><a href="../../LICENSE">MIT License ↗</a></div>
+ <div class="slide-controls"><a href="#benchmarks">← Benchmarks</a><a href="#opening">Back to beginning ↑</a></div>
+</section>
+</main>
+<dialog id="chart-dialog"><button id="close-dialog" type="button" aria-label="Close graph">×</button><div id="dialog-content"></div></dialog>
+<footer class="site-footer"><span>NUMERIX · TECHNICAL PRESENTATION</span><span>Offline · Keyboard: ↑ / ↓ or ← / →</span><span id="section-position">01 / 14</span></footer>
+<script src="data/phase14b_root_comparisons.js"></script>
+<script src="assets/presentation.js"></script>
+</body>
+</html>

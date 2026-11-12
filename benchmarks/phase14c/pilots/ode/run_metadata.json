@@ -1,0 +1,66 @@
+{
+  "run_id": "phase14c-ode-correctness-pilot-20261112T060326Z",
+  "run_kind": "single-case correctness-only pilot; not a full benchmark",
+  "started_utc": "2026-11-12T06:03:26.356625+00:00",
+  "finished_utc": "2026-11-12T06:03:26.359310+00:00",
+  "git_head": "1478fc931956948bfb3900c35a7fc4506bbe54e7",
+  "working_tree_dirty": true,
+  "system": "Linux-5.15.0-321.202.5.3.el8uek.x86_64-x86_64-with-glibc2.28",
+  "machine": "x86_64",
+  "cpu_count_logical": 24,
+  "compiler": "gcc (GCC) 8.5.0 20210514 (Red Hat 8.5.0-28.0.1)",
+  "dependencies": {
+    "NUMERIX": "0.2.0-rc1",
+    "SUNDIALS": "7.9.0"
+  },
+  "sundials_prefix": "/home/142401034/.local/numerix-deps/prefix/phase14/sundials",
+  "problem": {
+    "equation": "y'_j=lambda_j*y_j",
+    "analytic_solution": "y_j(t)=exp(lambda_j*t)",
+    "lambda": [
+      -0.25,
+      1.0
+    ],
+    "initial_state": [
+      1.0,
+      1.0
+    ],
+    "initial_time": 0.0,
+    "step_size": 0.1,
+    "step_count": 20,
+    "output_points": 21
+  },
+  "methods": {
+    "Euler": {
+      "numerix": "numerix_ode_euler",
+      "sundials": "ARKODE_FORWARD_EULER_1_1",
+      "tableau": "runtime coefficient assertion passed"
+    },
+    "Heun": {
+      "numerix": "numerix_ode_heun",
+      "sundials": "ARKODE_HEUN_EULER_2_1_2",
+      "tableau": "runtime coefficient assertion passed"
+    },
+    "classical RK4": {
+      "numerix": "numerix_ode_rk4",
+      "sundials": "ARKODE_KUTTA_RK4a_4_4",
+      "tableau": "runtime coefficient assertion passed"
+    }
+  },
+  "process_exit_status": 0,
+  "native_status_limitation": "The original C pilot checks NUMERIX success and rejects negative SUNDIALS statuses but does not emit the individual native codes; no numeric native status was inferred.",
+  "accuracy_threshold_limitation": "The pilot reports analytic and cross-library errors but defines no tolerance or accuracy_pass decision. CSV accuracy_pass is not_evaluated.",
+  "timing_measured": false,
+  "memory_measured": false,
+  "stdout": "ODE table-equivalence pilot; not a benchmark measurement\nProblem: y'_j = lambda_j y_j; y_j(t)=exp(lambda_j t), 2 states, 20 fixed steps\nEuler: tableau=matched; points=21; NUMERIX_rhs=20; SUNDIALS_rhs=21; max_abs_traj_error NUMERIX=6.615561496e-01 SUNDIALS=6.615561496e-01; cross-library_delta=2.664535259e-15\nHeun: tableau=matched; points=21; NUMERIX_rhs=40; SUNDIALS_rhs=41; max_abs_traj_error NUMERIX=2.282125701e-02 SUNDIALS=2.282125701e-02; cross-library_delta=3.552713679e-15\nclassical RK4: tableau=matched; points=21; NUMERIX_rhs=80; SUNDIALS_rhs=81; max_abs_traj_error NUMERIX=1.133155511e-05 SUNDIALS=1.133155511e-05; cross-library_delta=7.105427358e-15\n",
+  "stderr": "",
+  "invocation": [
+    "./build/phase14c-ode-pilot/ode_sundials_pilot"
+  ],
+  "sha256": {
+    "adapter_source": "852e6a0d30f673b1bcf8eac30f22f70bcd494aceebe307b8e664db888cbdf817",
+    "adapter_cmake": "9c31fd000ffe676fe475e0e1ca86b0037065751066fbcf10e61febb8ef8a4590",
+    "pilot_executable": "e8a89480cb72d33b378951dcf727f43f72cd0dc77cc87703d8e1ad61b7032103",
+    "raw_accuracy_pilot": "bd90f13b4e51dbeeb004b2e1b0c39a5ee89f7acb90c5f900c0377ad293799e09"
+  }
+}
